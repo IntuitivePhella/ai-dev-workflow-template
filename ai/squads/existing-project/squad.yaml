@@ -1,0 +1,43 @@
+id: existing-project
+name: Existing Project Understanding Squad
+purpose: Map a repository and create durable project memory before implementation.
+default_level: 2
+
+agents:
+  required:
+    - orchestrator
+    - architect
+  optional:
+    - reviewer
+    - security
+
+entry_artifacts:
+  - repository
+  - user_request
+  - existing_docs
+
+exit_artifacts:
+  - ai/08-memory/PROJECT_MAP.md
+  - ai/08-memory/PROJECT_MEMORY.md
+  - ai/05-execution/IMPACT_ANALYSIS.md
+
+quality_gates:
+  - understanding
+  - memory
+
+handoffs:
+  - from: orchestrator
+    to: architect
+    purpose: map structure, modules, entry points, commands, risks
+  - from: architect
+    to: reviewer
+    purpose: identify maintainability and complexity risks when needed
+  - from: architect
+    to: security
+    purpose: inspect sensitive surfaces when triggers exist
+
+stop_conditions:
+  - project commands unknown
+  - architecture unclear after initial scan
+  - sensitive areas found without approval
+  - repository too large and needs staged mapping
