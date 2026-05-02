@@ -6,6 +6,23 @@ AI-PhellOS remains the source of truth for intent routing, workflow mode selecti
 
 Ruflo may be used when available to accelerate bounded execution in Claude Code through swarms, workers, memory, test generation, review, documentation, and controlled autonomous phases.
 
+## Installation Requirement
+
+Ruflo is not bundled with AI-PhellOS.
+
+AI-PhellOS does not vendor, install, pin, update, or manage Ruflo. To use Ruflo execution features, the user must install and configure Ruflo according to the official Ruflo documentation and the requirements of their local Claude Code environment.
+
+If Ruflo is not installed, ignore this integration and continue using AI-PhellOS normally with Codex, Claude Code, or another compatible agent.
+
+This integration provides only:
+
+- safety policy;
+- workflow mapping;
+- capability profile;
+- contract templates;
+- adapter prompts;
+- report templates.
+
 ## Core Positioning
 
 ```text
@@ -27,7 +44,7 @@ User request
   -> Required Artifacts
   -> Quality Gates
   -> Story or Autonomous Phase Contract
-  -> Ruflo Execution Adapter, if available and appropriate
+  -> Ruflo Execution Adapter, if installed, available, and appropriate
   -> Verification
   -> Review
   -> Release notes
@@ -60,6 +77,24 @@ Ruflo must never be used as a replacement for:
 - Definition of Ready;
 - Quality Gates;
 - final review.
+
+## If Ruflo Is Installed
+
+Use Ruflo only after AI-PhellOS produces a ready story, task, or autonomous phase contract.
+
+Recommended flow:
+
+```text
+AI-PhellOS prepares the work.
+Ruflo executes the approved bounded phase.
+AI-PhellOS verifies, reviews, releases, and updates memory.
+```
+
+## If Ruflo Is Not Installed
+
+Continue using AI-PhellOS exactly as before.
+
+The same stories, contracts, quality gates, prompts, and review rules remain valid with Codex, Claude Code without Ruflo, or any generic coding agent that follows the markdown workflow.
 
 ## Golden Rule
 
