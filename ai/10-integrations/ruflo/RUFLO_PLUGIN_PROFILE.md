@@ -4,6 +4,14 @@ This profile describes recommended Ruflo capabilities for AI-PhellOS projects.
 
 Exact installation commands may change as Ruflo evolves. Treat this file as a capability profile rather than a hard dependency manifest.
 
+## Installation Requirement
+
+Ruflo is optional and is not installed by AI-PhellOS.
+
+AI-PhellOS does not vendor, install, pin, update, or manage Ruflo plugins. Users who want Ruflo execution features must install and configure Ruflo according to the official Ruflo documentation.
+
+If Ruflo is not installed, this profile can still be used as a planning reference, but no Ruflo-specific execution capability will be available.
+
 ## Baseline Profile
 
 Use this for most AI-PhellOS projects that want Claude Code acceleration with Ruflo.
