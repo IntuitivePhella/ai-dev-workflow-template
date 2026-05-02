@@ -12,6 +12,7 @@ You must follow the same rules in `AGENTS.md`, with Claude Code-specific behavio
 - Prefer reading project memory before broad repository scans.
 - Start with adaptive intent intake when the user describes what they want to create, change, fix, understand, refactor, or automate.
 - Run brainstorming before brief/PRD/architecture when the user only has an idea or rough concept.
+- Infer that the execution environment is Claude Code; the user does not need to say it.
 - Use `.claude/agents/*` subagents only when the Orchestrator selects them.
 - Use slash commands/frameworks only when relevant to the current phase.
 - Never mix discovery, architecture, implementation, and review in one uncontrolled pass.
@@ -46,15 +47,15 @@ Do this before any production coding:
 7. Produce a Brainstorming Handoff.
 8. Only then create intake, project brief, discovery, PRD, architecture, test plan, and first story split.
 
-For a request like:
+For a product request like:
 
 ```text
-Use Claude Code to create a web app with Next.js, React, and Convex.
+I want to create a web app with Next.js, React, and Convex.
 ```
 
 Do this before coding:
 
-1. Select Tool target: Claude Code.
+1. Infer Execution environment: Claude Code.
 2. Select Project state: New project.
 3. Select Project maturity: Rough concept unless product/user/MVP are already clear.
 4. Select Project type: Web app / SaaS candidate.
