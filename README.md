@@ -16,6 +16,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Codex-AGENTS.md-black" alt="Codex compatible">
   <img src="https://img.shields.io/badge/Claude_Code-CLAUDE.md-orange" alt="Claude Code compatible">
+  <img src="https://img.shields.io/badge/Ruflo-Optional_Adapter-violet" alt="Ruflo optional adapter">
   <img src="https://img.shields.io/badge/Workflow-Spec--Driven-blueviolet" alt="Spec driven">
   <img src="https://img.shields.io/badge/Quality-Test--First-success" alt="Test first">
 </p>
@@ -32,6 +33,7 @@
   <a href="#-adaptive-user-experience">User Experience</a> •
   <a href="#-workflow-statistics">Stats</a> •
   <a href="#-core-concepts">Core Concepts</a> •
+  <a href="#-optional-ruflo-integration">Ruflo</a> •
   <a href="#-documentation-map">Docs</a> •
   <a href="#-commands">Commands</a>
 </p>
@@ -64,13 +66,13 @@ Instead of asking an AI agent to “build the app,” AI-PhellOS guides it to ex
 
 | **Agents** | **Workflow Modes** | **Reusable Skills** | **Story Templates** |
 |:----------:|:------------------:|:-------------------:|:-------------------:|
-| **8** | **7** | **15** | **6** |
+| **8** | **7** | **15** | **8** |
 | Specialist squad | Adaptive routes | Focused procedures | Execution formats |
 
 | **Entry Files** | **Tool Targets** | **CLI Layer** | **Safety Model** |
 |:---------------:|:----------------:|:-------------:|:----------------:|
-| **2** | **3** | **Node.js** | **Guardrails** |
-| `AGENTS.md` + `CLAUDE.md` | Codex, Claude Code, Generic | Cross-platform | Gates + stop conditions |
+| **2** | **3 + optional Ruflo** | **Node.js** | **Guardrails** |
+| `AGENTS.md` + `CLAUDE.md` | Codex, Claude Code, Generic, optional Ruflo adapter | Cross-platform | Gates + stop conditions |
 
 </div>
 
@@ -86,6 +88,7 @@ If AI-PhellOS is installed and the project is opened in Claude Code or Codex, th
 Claude Code session → follow CLAUDE.md, .claude/settings.json, and .claude/agents/*
 Codex session       → follow AGENTS.md, .codex/config.toml, ai/agents/*, context packs, and skills
 Generic agent       → follow AGENTS.md and markdown-first workflow files
+Ruflo, if installed → act only as an optional Claude Code execution adapter for approved bounded phases
 ```
 
 The user's prompt should describe **what they want to create, understand, change, fix, refactor, or automate**.
@@ -123,6 +126,10 @@ Use Codex to build...
 
 ```text
 Build the whole app now.
+```
+
+```text
+Ask Ruflo to build the app overnight.
 ```
 
 </td>
@@ -326,7 +333,64 @@ Preserves project conventions, commands, risks, and decisions across sessions.
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🧰 Optional Execution Adapters
+Supports optional adapters such as Ruflo for bounded Claude Code execution.
+
+**Key folder:** `ai/10-integrations/ruflo/`
+
+</td>
+<td width="50%" valign="top">
+
+### 🧱 Bounded Autonomy
+Autonomous work requires explicit contracts, budgets, stop conditions, and reports.
+
+**Key template:** `ai/templates/RUFLO_AUTONOMOUS_PHASE_CONTRACT.template.md`
+
+</td>
+</tr>
 </table>
+
+---
+
+<div align="center">
+
+## 🧩 **Optional Ruflo Integration**
+
+</div>
+
+Ruflo support is included as an **optional execution-adapter integration** for teams that use Claude Code and want bounded multi-agent execution, swarms, test generation, browser checks, diff review, documentation support, security review, or controlled autonomous phases.
+
+AI-PhellOS does **not** vendor, install, pin, update, or manage Ruflo.
+
+To use Ruflo execution features, install and configure Ruflo according to the official Ruflo documentation. If Ruflo is not installed, AI-PhellOS continues to work normally with Codex, Claude Code, or any generic agent that follows the markdown workflow.
+
+Recommended usage:
+
+```text
+AI-PhellOS prepares the work.
+Ruflo executes the approved bounded phase, if installed and appropriate.
+AI-PhellOS verifies, reviews, releases, and updates memory.
+```
+
+Do not use Ruflo as a replacement for AI-PhellOS routing, specs, Definition of Ready, quality gates, sensitive-area approval, review, or release.
+
+```text
+Never ask Ruflo to build the app.
+Ask Ruflo to execute one approved story or one approved autonomous phase.
+```
+
+Key files:
+
+- [`RUFLO_OVERVIEW.md`](ai/10-integrations/ruflo/RUFLO_OVERVIEW.md)
+- [`RUFLO_POLICY.md`](ai/10-integrations/ruflo/RUFLO_POLICY.md)
+- [`RUFLO_WORKFLOW_MAPPING.md`](ai/10-integrations/ruflo/RUFLO_WORKFLOW_MAPPING.md)
+- [`RUFLO_PLUGIN_PROFILE.md`](ai/10-integrations/ruflo/RUFLO_PLUGIN_PROFILE.md)
+- [`RUFLO_AUTONOMOUS_PHASE.md`](ai/10-integrations/ruflo/RUFLO_AUTONOMOUS_PHASE.md)
+- [`RUFLO_PROMPTS.md`](ai/10-integrations/ruflo/RUFLO_PROMPTS.md)
+- [`RUFLO_REPORT.template.md`](ai/10-integrations/ruflo/RUFLO_REPORT.template.md)
 
 ---
 
@@ -446,6 +510,11 @@ Preserves project conventions, commands, risks, and decisions across sessions.
 </tr>
 </table>
 
+### Optional Integrations
+
+- [`ai/10-integrations/ruflo/`](ai/10-integrations/ruflo/)  
+  Optional Ruflo execution-adapter policy, workflow mapping, prompts, templates, and reports.
+
 ---
 
 <div align="center">
@@ -485,6 +554,8 @@ aiwf story feature "Add team invitation flow"
 - [`BUGFIX.template.md`](ai/templates/BUGFIX.template.md)
 - [`REFACTOR.template.md`](ai/templates/REFACTOR.template.md)
 - [`MIGRATION.template.md`](ai/templates/MIGRATION.template.md)
+- [`RUFLO_AUTONOMOUS_PHASE_CONTRACT.template.md`](ai/templates/RUFLO_AUTONOMOUS_PHASE_CONTRACT.template.md)
+- [`RUFLO_SWARM_EXECUTION.template.md`](ai/templates/RUFLO_SWARM_EXECUTION.template.md)
 
 </details>
 
@@ -506,6 +577,7 @@ This template was designed after comparing and extracting strong operating patte
 | **GStack** | Multi-role review perspectives |
 | **GSD** | Phase decomposition and context-window control |
 | **RalphLoop-style loops** | Bounded automation with stop conditions |
+| **Ruflo-style adapters** | Optional bounded execution adapter for Claude Code swarms and autonomous phases |
 
 This repo does **not** vendor or reimplement those projects. It turns their strongest workflow ideas into a portable, markdown-first operating system for AI-assisted development.
 
@@ -544,6 +616,13 @@ Ask it to execute **one story** with:
 </tr>
 </table>
 
+When using Ruflo, this rule becomes even stricter:
+
+```text
+Never ask Ruflo to build the app.
+Ask Ruflo to execute one approved story or one approved autonomous phase.
+```
+
 ---
 
 <div align="center">
@@ -562,7 +641,7 @@ This project is licensed under the **MIT License**.
 
 ### 🚀 Built for developers who want AI to work like a disciplined engineering team
 
-<sub>AI-PhellOS: spec-driven, test-aware, agent-routed, review-gated.</sub>
+<sub>AI-PhellOS: spec-driven, test-aware, agent-routed, review-gated, and optionally execution-adapter-ready.</sub>
 
 <br><br>
 
