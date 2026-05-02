@@ -23,6 +23,9 @@ Always check these files before coding:
 - `ai/00-rules/AI_RULES.md`
 - `ai/00-rules/WORKFLOW_MODES.md`
 - `ai/00-rules/QUALITY_GATES.md`
+- `ai/00-rules/DEFINITION_OF_READY.md`
+- `ai/00-rules/CHANGE_SIZE_POLICY.md`
+- `ai/00-rules/GIT_WORKFLOW.md`
 - `ai/agents/ORCHESTRATOR.md`
 - `ai/agents/ROUTING_MATRIX.md`
 - `ai/agents/SQUAD_LEVELS.md`
@@ -42,6 +45,7 @@ Agents needed
 Agents skipped and why
 Context pack for each specialist
 Expected output
+Definition of Ready status
 Stop conditions
 ```
 
@@ -69,6 +73,7 @@ For implementation:
 
 ```text
 Use the current story only.
+Check ai/00-rules/DEFINITION_OF_READY.md before editing.
 Use TDD.
 Do not modify files outside scope unless necessary and justified.
 Run tests, build, typecheck, and lint when available.
@@ -83,16 +88,33 @@ For troubleshooting:
 For review:
 
 ```text
-Review the diff against the story acceptance criteria and quality gates.
+Review the diff against the story acceptance criteria, Definition of Ready, Quality Gates, Change Size Policy, and Git Workflow.
 Check tests, regressions, security, maintainability, release readiness, and memory updates.
+Run bash scripts/review-ready.sh <story-file> when scripts are available.
 ```
+
+## Script usage
+
+When scripts are available, use them as guardrails:
+
+```bash
+bash scripts/create-story.sh feature "Feature title"
+bash scripts/create-story.sh bugfix "Bug title"
+bash scripts/create-story.sh refactor "Refactor title"
+bash scripts/create-story.sh migration "Migration title"
+bash scripts/validate-story.sh ai/04-stories/<story-file>.md
+bash scripts/check-gates.sh
+bash scripts/review-ready.sh ai/04-stories/<story-file>.md
+```
+
+Treat script failures as workflow blockers unless there is a documented reason to proceed.
 
 ## Claude-specific guardrails
 
 - Ask no more than one blocking question at a time.
 - If uncertain, write assumptions explicitly.
-- If a decision affects product scope, data privacy, billing, auth, permissions, or production infrastructure, stop and request human approval.
-- Do not use autonomous loops unless `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.md` exists.
+- If a decision affects product scope, data privacy, billing, auth, permissions, destructive migrations, paid APIs, or production infrastructure, stop and request human approval.
+- Do not use autonomous loops unless `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.md` exists and follows `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.template.md`.
 - Do not run broad refactors unless the current workflow mode is explicitly Refactor.
 - Do not introduce new dependencies without documenting the reason and trade-off.
 - Do not let every specialist read the entire repository.
@@ -126,6 +148,9 @@ Acceptance criteria:
 - [ ] ...
 
 Tests run:
+- ...
+
+Quality gates/scripts:
 - ...
 
 Risks:
