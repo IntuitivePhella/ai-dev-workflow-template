@@ -41,45 +41,13 @@ jobs:
         run: node scripts/aiwf.js sensitive HEAD~1 HEAD
 
       - name: Validate active stories when present
-        shell: bash
         run: |
-          shopt -s nullglob
-          stories=(ai/04-stories/*.md)
-          if [ ${#stories[@]} -eq 0 ]; then
-            echo "No active stories found. Skipping story validation."
-            exit 0
-          fi
-
-          for story in "${stories[@]}"; do
-            echo "Validating $story"
-            node scripts/aiwf.js validate "$story"
-          done
+          node -e "const fs=require('fs');const path=require('path');const {execFileSync}=require('child_process');const dir='ai/04-stories';if(!fs.existsSync(dir)){console.log('No story directory found. Skipping story validation.');process.exit(0);}const stories=fs.readdirSync(dir).filter(f=>f.endsWith('.md')).map(f=>path.join(dir,f));if(stories.length===0){console.log('No active stories found. Skipping story validation.');process.exit(0);}for(const story of stories){console.log('Validating '+story);execFileSync('node',['scripts/aiwf.js','validate',story],{stdio:'inherit'});}"
 
       - name: Smoke test install existing + story + validate
-        shell: bash
         run: |
-          rm -rf tmp-aiwf-test
-          node scripts/aiwf.js install existing tmp-aiwf-test
-          test -f tmp-aiwf-test/AGENTS.md
-          test -f tmp-aiwf-test/CLAUDE.md
-          test -d tmp-aiwf-test/ai
-          test -d tmp-aiwf-test/scripts
-          test -d tmp-aiwf-test/prompts
-          test -d tmp-aiwf-test/docs
-          test -d tmp-aiwf-test/.claude
-          test -d tmp-aiwf-test/.codex
-          test -f tmp-aiwf-test/.github/pull_request_template.md
-          pushd tmp-aiwf-test >/dev/null
-          node scripts/aiwf.js story feature "Workflow smoke test"
-          story_file="$(ls ai/04-stories/*workflow-smoke-test.md | head -n 1)"
-          node scripts/aiwf.js validate "$story_file"
-          popd >/dev/null
+          node -e "const fs=require('fs');const path=require('path');const {execFileSync}=require('child_process');const tmp='tmp-aiwf-test';fs.rmSync(tmp,{recursive:true,force:true});execFileSync('node',['scripts/aiwf.js','install','existing',tmp],{stdio:'inherit'});const required=[['AGENTS.md','file'],['CLAUDE.md','file'],['ai','dir'],['scripts','dir'],['prompts','dir'],['docs','dir'],['.claude','dir'],['.codex','dir'],['.github/pull_request_template.md','file']];for(const [rel,type] of required){const p=path.join(tmp,rel);if(!fs.existsSync(p)) throw new Error('Missing required asset: '+rel);const stat=fs.statSync(p);if(type==='file'&&!stat.isFile()) throw new Error('Expected file: '+rel);if(type==='dir'&&!stat.isDirectory()) throw new Error('Expected dir: '+rel);}execFileSync('node',['scripts/aiwf.js','story','feature','Workflow smoke test'],{cwd:tmp,stdio:'inherit'});const stories=fs.readdirSync(path.join(tmp,'ai/04-stories')).filter(f=>f.endsWith('.md')&&f.includes('workflow-smoke-test'));if(stories.length===0) throw new Error('Smoke story was not generated');const storyPath=path.join('ai/04-stories',stories[0]);execFileSync('node',['scripts/aiwf.js','validate',storyPath],{cwd:tmp,stdio:'inherit'});"
 
       - name: Smoke test install new
-        shell: bash
         run: |
-          rm -rf tmp-aiwf-new-project
-          node scripts/aiwf.js install new tmp-aiwf-new-project
-          test -f tmp-aiwf-new-project/ai/01-discovery/PROJECT_BRIEF.md
-          test -f tmp-aiwf-new-project/ai/02-product/PRD.md
-          test -f tmp-aiwf-new-project/ai/03-architecture/ARCHITECTURE.md
+          node -e "const fs=require('fs');const path=require('path');const {execFileSync}=require('child_process');const tmp='tmp-aiwf-new-project';fs.rmSync(tmp,{recursive:true,force:true});execFileSync('node',['scripts/aiwf.js','install','new',tmp],{stdio:'inherit'});const required=['ai/01-discovery/PROJECT_BRIEF.md','ai/02-product/PRD.md','ai/03-architecture/ARCHITECTURE.md'];for(const rel of required){const p=path.join(tmp,rel);if(!fs.existsSync(p)) throw new Error('Missing required scaffold: '+rel);if(!fs.statSync(p).isFile()) throw new Error('Expected file scaffold: '+rel);}"
