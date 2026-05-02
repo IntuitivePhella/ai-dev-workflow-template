@@ -10,16 +10,12 @@ on:
 
 jobs:
   workflow-guardrails:
-    name: Workflow guardrails (${{ matrix.os }})
+    name: Workflow guardrails
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
-          - windows-latest
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Checkout
@@ -45,65 +41,13 @@ jobs:
         run: node scripts/aiwf.js sensitive HEAD~1 HEAD
 
       - name: Validate active stories when present
-        shell: pwsh
         run: |
-          $stories = Get-ChildItem -Path "ai/04-stories" -Filter "*.md" -ErrorAction SilentlyContinue |
-            Where-Object { $_.Name -ne "README.md" -and $_.Name -notlike "*.template.md" -and -not $_.Name.StartsWith(".") }
+          node -e "const fs=require('fs');const path=require('path');const {execFileSync}=require('child_process');const dir='ai/04-stories';if(!fs.existsSync(dir)){console.log('No story directory found. Skipping story validation.');process.exit(0);}const stories=fs.readdirSync(dir).filter(f=>f.endsWith('.md')).map(f=>path.join(dir,f));if(stories.length===0){console.log('No active stories found. Skipping story validation.');process.exit(0);}for(const story of stories){console.log('Validating '+story);execFileSync('node',['scripts/aiwf.js','validate',story],{stdio:'inherit'});}"
 
-          if (-not $stories) {
-            Write-Host "No executable stories found. Skipping story validation."
-            exit 0
-          }
-
-          foreach ($story in $stories) {
-            Write-Host "Validating $($story.FullName)"
-            node scripts/aiwf.js validate $story.FullName
-          }
-
-      - name: Smoke test install existing
-        shell: pwsh
+      - name: Smoke test install existing + story + validate
         run: |
-          function Assert-PathExists($Path) {
-            if (-not (Test-Path $Path)) {
-              throw "Expected path does not exist: $Path"
-            }
-          }
-
-          $target = "tmp-aiwf-existing-smoke"
-          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
-          New-Item -ItemType Directory -Path $target | Out-Null
-          node scripts/aiwf.js install existing $target
-          Assert-PathExists "$target/AGENTS.md"
-          Assert-PathExists "$target/CLAUDE.md"
-          Assert-PathExists "$target/ai"
-          Assert-PathExists "$target/scripts"
-          Assert-PathExists "$target/prompts"
-          Assert-PathExists "$target/docs"
-          Assert-PathExists "$target/.claude"
-          Assert-PathExists "$target/.codex"
-          Assert-PathExists "$target/.github/pull_request_template.md"
-          Push-Location $target
-          node scripts/aiwf.js story feature "Test installable workflow"
-          $story = Get-ChildItem -Path "ai/04-stories" -Filter "*test-installable-workflow.md" | Select-Object -First 1
-          if (-not $story) { throw "Story was not created" }
-          node scripts/aiwf.js validate $story.FullName
-          Pop-Location
-          Remove-Item -Recurse -Force $target
+          node -e "const fs=require('fs');const path=require('path');const {execFileSync}=require('child_process');const tmp='tmp-aiwf-test';fs.rmSync(tmp,{recursive:true,force:true});execFileSync('node',['scripts/aiwf.js','install','existing',tmp],{stdio:'inherit'});const required=[['AGENTS.md','file'],['CLAUDE.md','file'],['ai','dir'],['scripts','dir'],['prompts','dir'],['docs','dir'],['.claude','dir'],['.codex','dir'],['.github/pull_request_template.md','file']];for(const [rel,type] of required){const p=path.join(tmp,rel);if(!fs.existsSync(p)) throw new Error('Missing required asset: '+rel);const stat=fs.statSync(p);if(type==='file'&&!stat.isFile()) throw new Error('Expected file: '+rel);if(type==='dir'&&!stat.isDirectory()) throw new Error('Expected dir: '+rel);}execFileSync('node',['scripts/aiwf.js','story','feature','Workflow smoke test'],{cwd:tmp,stdio:'inherit'});const stories=fs.readdirSync(path.join(tmp,'ai/04-stories')).filter(f=>f.endsWith('.md')&&f.includes('workflow-smoke-test'));if(stories.length===0) throw new Error('Smoke story was not generated');const storyPath=path.join('ai/04-stories',stories[0]);execFileSync('node',['scripts/aiwf.js','validate',storyPath],{cwd:tmp,stdio:'inherit'});"
 
       - name: Smoke test install new
-        shell: pwsh
         run: |
-          function Assert-PathExists($Path) {
-            if (-not (Test-Path $Path)) {
-              throw "Expected path does not exist: $Path"
-            }
-          }
-
-          $target = "tmp-aiwf-new-smoke"
-          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
-          New-Item -ItemType Directory -Path $target | Out-Null
-          node scripts/aiwf.js install new $target
-          Assert-PathExists "$target/ai/01-discovery/PROJECT_BRIEF.md"
-          Assert-PathExists "$target/ai/02-product/PRD.md"
-          Assert-PathExists "$target/ai/03-architecture/ARCHITECTURE.md"
-          Remove-Item -Recurse -Force $target
+          node -e "const fs=require('fs');const path=require('path');const {execFileSync}=require('child_process');const tmp='tmp-aiwf-new-project';fs.rmSync(tmp,{recursive:true,force:true});execFileSync('node',['scripts/aiwf.js','install','new',tmp],{stdio:'inherit'});const required=['ai/01-discovery/PROJECT_BRIEF.md','ai/02-product/PRD.md','ai/03-architecture/ARCHITECTURE.md'];for(const rel of required){const p=path.join(tmp,rel);if(!fs.existsSync(p)) throw new Error('Missing required scaffold: '+rel);if(!fs.statSync(p).isFile()) throw new Error('Expected file scaffold: '+rel);}"
