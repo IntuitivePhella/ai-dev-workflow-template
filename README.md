@@ -5,7 +5,13 @@ A repo-template for disciplined AI-assisted software development with **Codex** 
 The workflow is:
 
 ```text
-BMAD-first, Superpowers-enforced, SuperClaude-assisted, GStack-reviewed, GSD/RalphLoop-bounded.
+BMAD-first, Superpowers-enforced, SuperClaude-assisted, GStack-reviewed, GSD/RalphLoop-bounded, Orchestrator-routed.
+```
+
+Or, more directly:
+
+```text
+Spec-driven. Test-enforced. Specialist-routed. Review-gated. Automation-bounded.
 ```
 
 Translated into tool-agnostic practice:
@@ -14,9 +20,10 @@ Translated into tool-agnostic practice:
 1. Understand the project or idea
 2. Create or update specs
 3. Decompose into small stories
-4. Execute with tests first
-5. Review with product, engineering, QA, and release lenses
-6. Release with rollback and memory updates
+4. Route work to the smallest useful specialist squad
+5. Execute with tests first
+6. Review with product, engineering, QA, security, and release lenses
+7. Release with rollback and memory updates
 ```
 
 This template is intentionally tool-neutral. It works with:
@@ -57,9 +64,11 @@ This repo does **not** vendor or reimplement those projects. It turns their stro
 - Small story-based execution
 - TDD-first or test-aware implementation
 - Explicit quality gates
+- Specialist squads activated only when useful
 - Review from product, engineering, QA, security, and release perspectives
 - Bounded autonomous execution only when the phase is safe and well specified
 - Durable project memory between AI sessions
+- Lower token waste through context packs and routing rules
 
 ## Core files
 
@@ -69,11 +78,51 @@ CLAUDE.md                                  # Claude Code-specific instructions
 ai/00-rules/AI_RULES.md                    # Non-negotiable rules and stop conditions
 ai/00-rules/WORKFLOW_MODES.md              # Which workflow to use for each type of work
 ai/00-rules/QUALITY_GATES.md               # Required gates before advancing phases
+ai/agents/ORCHESTRATOR.md                  # Orchestrator routing and decision rules
+ai/agents/ROUTING_MATRIX.md                # Which specialists to call and when
+ai/agents/SQUAD_LEVELS.md                  # Token-aware squad sizes
+ai/agents/HANDOFF.template.md              # Agent-to-agent handoff contract
+ai/agents/CONTEXT_PACK.template.md         # Minimal context bundle for specialist work
+ai/agents/AGENT_OUTPUTS.md                 # Standard specialist output formats
 ai/05-execution/EXECUTION_PROTOCOL.md      # Story execution protocol
 ai/06-reviews/REVIEW_CHECKLIST.md          # Product/engineering/QA/security/release review
 ai/08-memory/PROJECT_MEMORY.md             # Durable conventions, commands, risks, and decisions
 ai/08-memory/PROJECT_MAP.md                # Existing project map
 ```
+
+## Agent squad model
+
+The workflow now uses an Orchestrator-routed squad model.
+
+Available specialists:
+
+```text
+Orchestrator  # routes work, controls scope, budget, gates, and handoffs
+Product       # problem, user, scope, non-goals, acceptance criteria
+Architect     # architecture, data model, APIs, dependencies, trade-offs
+Implementer   # one story, tests first, smallest useful change
+QA            # acceptance criteria, test plan, edge cases, regressions
+Security      # auth, permissions, data exposure, secrets, abuse paths
+Reviewer      # senior engineering review, maintainability, simplicity
+Release       # readiness, rollback, known issues, deployment risk
+```
+
+Default rule:
+
+```text
+Use the fewest agents necessary to safely complete the task.
+```
+
+## Squad levels
+
+```text
+Level 0 — Solo       Orchestrator only
+Level 1 — Pair       Orchestrator + 1 specialist
+Level 2 — Mini Squad Orchestrator + 2-3 specialists
+Level 3 — Full Squad Orchestrator + Product + Architect + Implementer + QA + Reviewer + Security/Release as needed
+```
+
+Default to Level 1 or Level 2. Full Squad is reserved for new projects, critical features, multi-module changes, auth, billing, permissions, user data, infrastructure, or major releases.
 
 ## Workflow modes
 
@@ -97,9 +146,10 @@ bash scripts/new-project.sh
 Then open the repo with Codex or Claude Code and ask:
 
 ```text
-Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, and ai/00-rules/QUALITY_GATES.md.
+Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, and ai/agents/ORCHESTRATOR.md.
 Start the new-project workflow using ai/templates/PROJECT_BRIEF.template.md.
 Do not write application code yet.
+Use the routing matrix to select the smallest safe squad.
 ```
 
 ## Quick start for an existing project
@@ -115,9 +165,10 @@ bash scripts/existing-project.sh
 Ask your agent:
 
 ```text
-Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, and ai/00-rules/QUALITY_GATES.md.
+Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, and ai/agents/ORCHESTRATOR.md.
 Analyze this repository and create ai/08-memory/PROJECT_MAP.md before proposing changes.
 Do not modify production code yet.
+Use the routing matrix to select the smallest safe squad.
 ```
 
 ## Core rule
@@ -135,3 +186,4 @@ Ask it to execute **one story** with:
 - stop conditions
 - rollback plan
 - review checklist
+- specialist routing only when useful
