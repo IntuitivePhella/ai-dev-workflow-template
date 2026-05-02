@@ -1,0 +1,54 @@
+id: bugfix
+name: Bugfix Squad
+purpose: Reproduce a bug, create a failing test or documented reproduction, implement the minimal fix, and validate regression safety.
+default_level: 2
+
+agents:
+  required:
+    - orchestrator
+    - implementer
+    - qa
+  optional:
+    - reviewer
+    - security
+    - architect
+
+entry_artifacts:
+  - bug_report
+  - reproduction_steps
+  - failing_test_when_available
+  - PROJECT_MEMORY
+  - PROJECT_MAP
+
+exit_artifacts:
+  - reproduction_notes
+  - regression_test
+  - implementation_summary
+  - qa_review
+
+quality_gates:
+  - understanding
+  - execution
+  - verification
+  - review
+
+handoffs:
+  - from: orchestrator
+    to: qa
+    purpose: define reproduction and regression risk
+  - from: qa
+    to: implementer
+    purpose: create failing test or documented reproduction
+  - from: implementer
+    to: qa
+    purpose: validate fix and regression safety
+  - from: qa
+    to: reviewer
+    purpose: review non-trivial fixes
+
+stop_conditions:
+  - bug cannot be reproduced or described
+  - expected behavior is unclear
+  - fix requires product or architecture decision
+  - sensitive area touched without approval
+  - tests cannot pass after two serious attempts
