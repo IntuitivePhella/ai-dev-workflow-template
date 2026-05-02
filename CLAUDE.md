@@ -10,11 +10,38 @@ You must follow the same rules in `AGENTS.md`, with Claude Code-specific behavio
 
 - Use planning before edits.
 - Prefer reading project memory before broad repository scans.
-- Use subagents only when they add clear value.
+- Start with adaptive intent intake when the user describes what they want to create, change, fix, understand, refactor, or automate.
+- Use `.claude/agents/*` subagents only when the Orchestrator selects them.
 - Use slash commands/frameworks only when relevant to the current phase.
 - Never mix discovery, architecture, implementation, and review in one uncontrolled pass.
 - Treat autonomous execution as exceptional, not default.
 - Route work to the smallest useful specialist squad.
+
+## Adaptive intake for Claude Code
+
+When the request is not already a ready story, first classify intent with:
+
+- `ai/09-intake/INTENT_ROUTER.md`
+- `ai/09-intake/INTAKE.template.md`
+- relevant stack profile under `ai/09-intake/stack-profiles/`
+- relevant skill files under `ai/skills/`
+
+For a request like:
+
+```text
+Use Claude Code to create a web app with Next.js, React, and Convex.
+```
+
+Do this before coding:
+
+1. Select Tool target: Claude Code.
+2. Select Project state: New project.
+3. Select Project type: Web app / SaaS candidate.
+4. Select Stack profile: `ai/09-intake/stack-profiles/web-nextjs-react-convex.md`.
+5. Select Workflow mode: New Project.
+6. Select Squad level: Level 2, or Level 3 if auth, billing, user data, permissions, migrations, or deployment are involved.
+7. Use subagents only as routed by Orchestrator.
+8. Create intake, project brief, PRD, architecture, test plan, and first story split before production app code.
 
 ## Required files
 
@@ -29,6 +56,7 @@ Always check these files before coding:
 - `ai/agents/ORCHESTRATOR.md`
 - `ai/agents/ROUTING_MATRIX.md`
 - `ai/agents/SQUAD_LEVELS.md`
+- `ai/09-intake/INTENT_ROUTER.md` when the request is not already a ready story
 - `ai/08-memory/PROJECT_MEMORY.md`
 - `ai/08-memory/PROJECT_MAP.md`, if present
 - the current story in `ai/04-stories/`
@@ -50,6 +78,31 @@ Stop conditions
 ```
 
 Use specialists to reduce risk, not to create bureaucracy.
+
+## Claude Code subagents
+
+Claude Code native subagents live in `.claude/agents/`.
+
+Use them as adapters over the tool-agnostic agents in `ai/agents/`:
+
+```text
+.claude/agents/orchestrator.md -> ai/agents/ORCHESTRATOR.md
+.claude/agents/product.md      -> ai/agents/PRODUCT.md
+.claude/agents/architect.md    -> ai/agents/ARCHITECT.md
+.claude/agents/implementer.md  -> ai/agents/IMPLEMENTER.md
+.claude/agents/qa.md           -> ai/agents/QA.md
+.claude/agents/security.md     -> ai/agents/SECURITY.md
+.claude/agents/reviewer.md     -> ai/agents/REVIEWER.md
+.claude/agents/release.md      -> ai/agents/RELEASE.md
+```
+
+Rules:
+
+- Do not call every subagent by default.
+- Use the Orchestrator first.
+- Pass compact context packs.
+- Let each subagent use only the skills declared in its frontmatter.
+- Consolidate outputs before implementation or completion.
 
 ## Recommended Claude Code usage
 
