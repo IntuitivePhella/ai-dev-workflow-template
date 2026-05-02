@@ -1,37 +1,107 @@
 # Execution Protocol
 
-Use this for every story.
+Use this for every story. This protocol combines spec-driven planning, TDD discipline, technical execution, review gates, and bounded memory updates.
+
+## Step 0 — Select workflow mode
+
+Read `ai/00-rules/WORKFLOW_MODES.md` and choose the smallest mode that fits the task.
+
+Do not use a larger workflow than needed.
 
 ## Step 1 — Read
 
 Read:
 
-- `AI_RULES.md`
-- `PROJECT_MEMORY.md`
-- current story
-- impact analysis
-- test plan
+- `ai/00-rules/AI_RULES.md`
+- `ai/00-rules/QUALITY_GATES.md`
+- `ai/08-memory/PROJECT_MEMORY.md`
+- `ai/08-memory/PROJECT_MAP.md`, if present
+- current story or brief
+- impact analysis, if present
+- test plan, if present
 
-## Step 2 — Plan
+## Step 2 — Confirm boundaries
+
+Before editing code, identify:
+
+- files likely in scope
+- files or areas explicitly forbidden
+- sensitive areas requiring human approval
+- commands required for verification
+- assumptions
+- stop conditions
+
+## Step 3 — Plan
 
 Write a short implementation plan.
 
-## Step 3 — Test first
+The plan must be small enough to complete in one story. If it is not, split the story.
+
+## Step 4 — Test first
 
 Create or update tests before production code when feasible.
 
-## Step 4 — Implement
+For bugfixes, first reproduce the bug with a failing test or a documented reproduction path.
+
+## Step 5 — Implement
 
 Make the smallest useful change.
 
-## Step 5 — Verify
+Rules:
 
-Run relevant tests and build.
+- Do not perform opportunistic refactors.
+- Do not change architecture without updating `ai/03-architecture/DECISION_LOG.md`.
+- Do not remove, weaken, or bypass tests.
+- Do not touch forbidden areas unless human approval is recorded.
 
-## Step 6 — Review
+## Step 6 — Verify
 
-Review against acceptance criteria.
+Run the commands listed in the story or test plan.
 
-## Step 7 — Document
+At minimum, run the most relevant available checks:
 
-Update memory, decision log, or docs if needed.
+- tests
+- build
+- typecheck
+- lint
+
+If a command is unavailable, say so explicitly.
+
+## Step 7 — Review
+
+Review against:
+
+- acceptance criteria
+- `ai/00-rules/QUALITY_GATES.md`
+- `ai/06-reviews/REVIEW_CHECKLIST.md`
+
+Check product fit, maintainability, regression risk, security, and release readiness.
+
+## Step 8 — Document
+
+Update memory, decision log, release notes, or follow-up files if needed.
+
+Do not hide tech debt inside a completed story. Record it separately.
+
+## Required final report
+
+```text
+Summary:
+- ...
+
+Files changed:
+- ...
+
+Acceptance criteria:
+- [x] ...
+- [ ] ...
+
+Tests run:
+- ...
+
+Risks:
+- ...
+
+Follow-ups:
+- ...
+```
