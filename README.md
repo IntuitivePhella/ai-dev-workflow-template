@@ -27,12 +27,37 @@ Translated into tool-agnostic practice:
 8. Release with rollback and memory updates
 ```
 
-This template is intentionally tool-neutral. It works with:
+This template is intentionally tool-neutral and cross-platform. It works with:
 
 - Codex through `AGENTS.md` and `.codex/config.toml`
 - Claude Code through `CLAUDE.md` and `.claude/settings.json`
 - Any other coding agent that can read markdown instructions
-- Bash guardrail scripts that work outside any specific AI tool
+- A Node.js CLI that runs on Linux, macOS, and Windows
+- Bash guardrail scripts for Linux, macOS, Git Bash, and WSL compatibility
+
+## Cross-platform CLI
+
+The recommended command layer is Node.js:
+
+```bash
+node scripts/aiwf.js help
+node scripts/aiwf.js doctor
+node scripts/aiwf.js init new
+node scripts/aiwf.js story feature "Add team invitation flow"
+node scripts/aiwf.js validate ai/04-stories/<story-file>.md
+node scripts/aiwf.js review ai/04-stories/<story-file>.md
+```
+
+After local linking, you can use the short command:
+
+```bash
+npm link
+aiwf help
+aiwf doctor
+aiwf story feature "Add team invitation flow"
+```
+
+See `docs/CROSS_PLATFORM_INSTALL.md` for Linux, macOS, Windows PowerShell, Windows CMD, Git Bash, and WSL usage.
 
 ## Workflow references
 
@@ -69,6 +94,7 @@ AGENTS.md                                            # Codex and generic agent i
 CLAUDE.md                                            # Claude Code-specific instructions
 .codex/config.toml                                   # Codex safety profile
 .claude/settings.json                                # Claude Code command allow/deny list
+package.json                                         # Node CLI package metadata
 
 ai/00-rules/AI_RULES.md                              # Non-negotiable rules and stop conditions
 ai/00-rules/WORKFLOW_MODES.md                        # Which workflow to use for each type of work
@@ -96,11 +122,19 @@ ai/06-reviews/REVIEW_CHECKLIST.md                    # Product/engineering/QA/se
 ai/08-memory/PROJECT_MEMORY.md                       # Durable conventions, commands, risks, and decisions
 ai/08-memory/PROJECT_MAP.md                          # Existing project map
 
-scripts/create-story.sh                              # Create typed story files
-scripts/validate-story.sh                            # Validate Definition of Ready signals
-scripts/check-gates.sh                               # Check workflow gate artifacts
-scripts/check-sensitive-areas.sh                     # Flag sensitive changed paths
-scripts/review-ready.sh                              # Run readiness/gate checks before review
+scripts/aiwf.js                                      # Cross-platform Node CLI: Linux, macOS, Windows
+scripts/aiwf.sh                                      # Bash compatibility wrapper
+scripts/create-story.sh                              # Bash compatibility: create typed story files
+scripts/validate-story.sh                            # Bash compatibility: validate readiness signals
+scripts/check-gates.sh                               # Bash compatibility: check workflow gate artifacts
+scripts/check-sensitive-areas.sh                     # Bash compatibility: flag sensitive changed paths
+scripts/review-ready.sh                              # Bash compatibility: run readiness/gate checks before review
+
+.github/pull_request_template.md                     # PR quality gate template
+.github/workflows/ai-workflow-checks.yml             # GitHub Actions workflow guardrails
+
+docs/OPERATING_MANUAL.md                             # End-to-end usage manual
+docs/CROSS_PLATFORM_INSTALL.md                       # Linux/macOS/Windows CLI guide
 
 prompts/generic/existing-project-understanding.md    # Copy/paste prompt for repo mapping
 prompts/generic/new-feature.md                       # Copy/paste prompt for feature work
@@ -131,17 +165,6 @@ Default rule:
 Use the fewest agents necessary to safely complete the task.
 ```
 
-## Squad levels
-
-```text
-Level 0 — Solo       Orchestrator only
-Level 1 — Pair       Orchestrator + 1 specialist
-Level 2 — Mini Squad Orchestrator + 2-3 specialists
-Level 3 — Full Squad Orchestrator + Product + Architect + Implementer + QA + Reviewer + Security/Release as needed
-```
-
-Default to Level 1 or Level 2. Full Squad is reserved for new projects, critical features, multi-module changes, auth, billing, permissions, user data, infrastructure, migrations, or major releases.
-
 ## Workflow modes
 
 Use the smallest mode that fits the job:
@@ -153,49 +176,49 @@ Use the smallest mode that fits the job:
 5. **Refactor** — behavior-preserving structural improvement with safety tests.
 6. **Autonomous Phase** — bounded automation only with an explicit contract.
 
-## Guardrail scripts
+## Guardrail commands
 
 Create a typed story:
 
 ```bash
-bash scripts/create-story.sh feature "Add team invitation flow"
-bash scripts/create-story.sh bugfix "Fix webhook retry duplication"
-bash scripts/create-story.sh refactor "Extract billing adapter"
-bash scripts/create-story.sh migration "Add organization membership index"
+node scripts/aiwf.js story feature "Add team invitation flow"
+node scripts/aiwf.js story bugfix "Fix webhook retry duplication"
+node scripts/aiwf.js story refactor "Extract billing adapter"
+node scripts/aiwf.js story migration "Add organization membership index"
 ```
 
 Validate story readiness:
 
 ```bash
-bash scripts/validate-story.sh ai/04-stories/<story-file>.md
+node scripts/aiwf.js validate ai/04-stories/<story-file>.md
 ```
 
 Check workflow gates:
 
 ```bash
-bash scripts/check-gates.sh
+node scripts/aiwf.js gates
 ```
 
 Check review readiness:
 
 ```bash
-bash scripts/review-ready.sh ai/04-stories/<story-file>.md
+node scripts/aiwf.js review ai/04-stories/<story-file>.md
 ```
 
 Flag sensitive changed paths:
 
 ```bash
-bash scripts/check-sensitive-areas.sh HEAD~1 HEAD
+node scripts/aiwf.js sensitive HEAD~1 HEAD
 ```
 
-These scripts are intentionally conservative. A warning does not always mean “stop,” but a failure should be treated as a blocker unless the reason to proceed is documented.
+These checks are intentionally conservative. A warning does not always mean “stop,” but a failure should be treated as a blocker unless the reason to proceed is documented.
 
 ## Quick start for a new project
 
 ```bash
 git clone <this-template> my-project
 cd my-project
-bash scripts/new-project.sh
+node scripts/aiwf.js init new
 ```
 
 Then open the repo with Codex or Claude Code and ask:
@@ -209,12 +232,12 @@ Use the routing matrix to select the smallest safe squad.
 
 ## Quick start for an existing project
 
-Copy the `ai/`, `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.codex/`, `scripts/`, and `prompts/` folders into your existing repo.
+Copy the `ai/`, `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.codex/`, `scripts/`, `docs/`, `package.json`, and `prompts/` into your existing repo.
 
 Then run:
 
 ```bash
-bash scripts/existing-project.sh
+node scripts/aiwf.js init existing
 ```
 
 Ask your agent:
