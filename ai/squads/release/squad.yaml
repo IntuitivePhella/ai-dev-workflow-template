@@ -1,0 +1,55 @@
+id: release
+name: Release Squad
+purpose: Validate release readiness, rollback, known issues, deployment risk, and operational safety.
+default_level: 2
+
+agents:
+  required:
+    - orchestrator
+    - qa
+    - release
+  optional:
+    - reviewer
+    - security
+    - architect
+
+entry_artifacts:
+  - implementation_summary
+  - qa_review
+  - engineering_review
+  - security_review
+  - RELEASE_CHECKLIST
+  - known_risks
+
+exit_artifacts:
+  - release_review
+  - release_notes
+  - rollback_plan
+  - known_issues
+  - go_no_go_decision
+
+quality_gates:
+  - verification
+  - review
+  - memory
+
+handoffs:
+  - from: orchestrator
+    to: qa
+    purpose: confirm acceptance criteria and regression status
+  - from: qa
+    to: release
+    purpose: assess release readiness and rollback
+  - from: release
+    to: security
+    purpose: inspect sensitive release risk when needed
+  - from: release
+    to: orchestrator
+    purpose: go/no-go recommendation
+
+stop_conditions:
+  - tests or build not verified
+  - rollback missing for risky change
+  - migration or deploy risk unclear
+  - security review required but missing
+  - known issue affects critical path
