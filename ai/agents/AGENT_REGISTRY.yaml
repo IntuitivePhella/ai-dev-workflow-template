@@ -1,0 +1,248 @@
+version: 1.0.0
+purpose: Declarative registry for specialist agents used by the Orchestrator.
+principle: Use the fewest agents necessary to safely complete the task.
+
+agents:
+  orchestrator:
+    name: Orchestrator Agent
+    type: controller
+    description: Routes work, controls scope, budget, gates, handoffs, and consolidation.
+    default_budget_words: 800
+    triggers:
+      - every task
+      - workflow mode selection
+      - squad selection
+      - escalation
+      - handoff
+      - quality gate
+    inputs:
+      - AI_RULES
+      - WORKFLOW_MODES
+      - QUALITY_GATES
+      - PROJECT_MEMORY
+      - PROJECT_MAP
+      - task
+    outputs:
+      - orchestration_plan
+      - orchestration_decision
+      - specialist_context_packs
+    stop_conditions:
+      - product decision required
+      - sensitive approval required
+      - story too large
+      - conflicting specialist recommendations
+
+  product:
+    name: Product Agent
+    type: specialist
+    description: Clarifies problem, user, scope, non-goals, and acceptance criteria.
+    default_budget_words: 900
+    triggers:
+      - new project
+      - new feature
+      - UX change
+      - unclear scope
+      - missing acceptance criteria
+      - product trade-off
+    inputs:
+      - PROJECT_BRIEF
+      - PRD
+      - user_request
+      - story
+      - non_goals
+    outputs:
+      - product_review
+      - acceptance_criteria
+      - product_risks
+    handoff_targets:
+      - architect
+      - qa
+      - orchestrator
+
+  architect:
+    name: Architect Agent
+    type: specialist
+    description: Evaluates architecture, data model, APIs, dependencies, and trade-offs.
+    default_budget_words: 1200
+    triggers:
+      - architecture change
+      - data model change
+      - public API change
+      - dependency change
+      - multi-module feature
+      - refactor
+      - integration
+    inputs:
+      - PRD
+      - PROJECT_MAP
+      - PROJECT_MEMORY
+      - ARCHITECTURE
+      - IMPACT_ANALYSIS
+      - relevant_files
+    outputs:
+      - architecture_review
+      - affected_modules
+      - tradeoffs
+      - decision_log_recommendation
+    handoff_targets:
+      - implementer
+      - security
+      - reviewer
+      - orchestrator
+
+  implementer:
+    name: Implementer Agent
+    type: specialist
+    description: Executes one approved story with tests and the smallest useful code change.
+    default_budget_words: 700
+    triggers:
+      - approved story
+      - bugfix execution
+      - refactor execution
+      - autonomous phase execution
+    inputs:
+      - story
+      - EXECUTION_PROTOCOL
+      - TEST_PLAN
+      - PROJECT_MEMORY
+      - PROJECT_MAP
+      - allowed_files
+      - forbidden_files
+    outputs:
+      - implementation_summary
+      - changed_files
+      - tests_added_or_updated
+      - commands_run
+    handoff_targets:
+      - qa
+      - reviewer
+      - security
+      - orchestrator
+
+  qa:
+    name: QA Agent
+    type: specialist
+    description: Validates acceptance criteria, test plan, edge cases, regression risk, and release confidence.
+    default_budget_words: 900
+    triggers:
+      - acceptance criteria review
+      - test plan required
+      - bug reproduction
+      - regression risk
+      - implementation completed
+      - release candidate
+    inputs:
+      - story
+      - acceptance_criteria
+      - TEST_PLAN
+      - implementation_summary
+      - changed_files
+      - commands_run
+    outputs:
+      - qa_review
+      - missing_tests
+      - regression_risks
+      - pass_fail_recommendation
+    handoff_targets:
+      - implementer
+      - reviewer
+      - release
+      - orchestrator
+
+  security:
+    name: Security Agent
+    type: specialist
+    description: Reviews auth, permissions, secrets, personal data, abuse paths, and operational security risk.
+    default_budget_words: 1000
+    triggers:
+      - authentication
+      - authorization
+      - permissions
+      - billing
+      - secrets
+      - user data
+      - personal data
+      - uploads
+      - downloads
+      - public API
+      - webhooks
+      - integrations
+      - infrastructure
+      - migrations
+      - multi-tenant boundary
+    inputs:
+      - story
+      - IMPACT_ANALYSIS
+      - ARCHITECTURE
+      - changed_files
+      - implementation_summary
+      - environment_notes
+    outputs:
+      - security_review
+      - sensitive_areas
+      - required_changes
+      - human_approval_required
+    handoff_targets:
+      - architect
+      - implementer
+      - reviewer
+      - release
+      - orchestrator
+
+  reviewer:
+    name: Reviewer Agent
+    type: specialist
+    description: Performs senior engineering review for maintainability, simplicity, test quality, and architecture consistency.
+    default_budget_words: 900
+    triggers:
+      - code changed
+      - refactor completed
+      - complexity risk
+      - architecture consistency needed
+      - autonomous output review
+      - pre-merge review
+    inputs:
+      - story
+      - implementation_summary
+      - changed_files
+      - PROJECT_MEMORY
+      - PROJECT_MAP
+      - DECISION_LOG
+      - qa_review
+    outputs:
+      - engineering_review
+      - maintainability_notes
+      - required_changes
+      - approval_recommendation
+    handoff_targets:
+      - implementer
+      - qa
+      - release
+      - orchestrator
+
+  release:
+    name: Release Agent
+    type: specialist
+    description: Assesses release readiness, rollback, known issues, deployment risk, and operational safety.
+    default_budget_words: 800
+    triggers:
+      - user-visible behavior change
+      - deploy planned
+      - migration involved
+      - rollback needed
+      - release notes needed
+      - operational risk
+    inputs:
+      - story
+      - implementation_summary
+      - qa_review
+      - engineering_review
+      - security_review
+      - RELEASE_CHECKLIST
+    outputs:
+      - release_review
+      - rollback_plan
+      - known_issues
+      - go_no_go_recommendation
+    handoff_targets:
+      - orchestrator
