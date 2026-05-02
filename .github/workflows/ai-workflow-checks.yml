@@ -19,17 +19,22 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Show workflow CLI help
-        run: bash scripts/aiwf.sh help
+        run: node scripts/aiwf.js help
 
       - name: Run workflow doctor
-        run: bash scripts/aiwf.sh doctor
+        run: node scripts/aiwf.js doctor
 
       - name: Check gates
-        run: bash scripts/aiwf.sh gates
+        run: node scripts/aiwf.js gates
 
       - name: Check sensitive paths
-        run: bash scripts/aiwf.sh sensitive HEAD~1 HEAD
+        run: node scripts/aiwf.js sensitive HEAD~1 HEAD
 
       - name: Validate active stories when present
         shell: bash
@@ -43,5 +48,5 @@ jobs:
 
           for story in "${stories[@]}"; do
             echo "Validating $story"
-            bash scripts/aiwf.sh validate "$story"
+            node scripts/aiwf.js validate "$story"
           done
