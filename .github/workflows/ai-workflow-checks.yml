@@ -11,13 +11,17 @@ on:
 jobs:
   workflow-guardrails:
     name: Workflow guardrails
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -50,3 +54,32 @@ jobs:
             echo "Validating $story"
             node scripts/aiwf.js validate "$story"
           done
+
+      - name: Smoke test install existing + story + validate
+        shell: bash
+        run: |
+          rm -rf tmp-aiwf-test
+          node scripts/aiwf.js install existing tmp-aiwf-test
+          test -f tmp-aiwf-test/AGENTS.md
+          test -f tmp-aiwf-test/CLAUDE.md
+          test -d tmp-aiwf-test/ai
+          test -d tmp-aiwf-test/scripts
+          test -d tmp-aiwf-test/prompts
+          test -d tmp-aiwf-test/docs
+          test -d tmp-aiwf-test/.claude
+          test -d tmp-aiwf-test/.codex
+          test -f tmp-aiwf-test/.github/pull_request_template.md
+          pushd tmp-aiwf-test >/dev/null
+          node scripts/aiwf.js story feature "Workflow smoke test"
+          story_file="$(ls ai/04-stories/*workflow-smoke-test.md | head -n 1)"
+          node scripts/aiwf.js validate "$story_file"
+          popd >/dev/null
+
+      - name: Smoke test install new
+        shell: bash
+        run: |
+          rm -rf tmp-aiwf-new-project
+          node scripts/aiwf.js install new tmp-aiwf-new-project
+          test -f tmp-aiwf-new-project/ai/01-discovery/PROJECT_BRIEF.md
+          test -f tmp-aiwf-new-project/ai/02-product/PRD.md
+          test -f tmp-aiwf-new-project/ai/03-architecture/ARCHITECTURE.md
