@@ -1,0 +1,17 @@
+# Codex project configuration
+# Keep project-specific runtime preferences here.
+# User-level configuration may live in ~/.codex/config.toml.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+# Suggested model profile can be adjusted locally.
+# model = "gpt-5.5-codex"
+
+[profiles.safe]
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[profiles.readonly]
+approval_policy = "on-request"
+sandbox_mode = "read-only"
