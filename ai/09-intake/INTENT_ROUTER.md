@@ -4,6 +4,20 @@ Use this router when the user describes what they want to create, change, fix, u
 
 The goal is to translate natural language intent into the smallest safe workflow configuration.
 
+## Core UX rule
+
+The user should not need to say which agent tool is being used.
+
+The execution environment is inferred from where the framework is running:
+
+```text
+Claude Code session → follow CLAUDE.md, .claude/settings.json, and .claude/agents/*
+Codex session       → follow AGENTS.md, .codex/config.toml, ai/agents/*, context packs, and skills
+Generic agent       → follow AGENTS.md and markdown-first workflow files
+```
+
+The user should describe the product, project, feature, bug, refactor, or idea. The framework chooses the correct route for the current tool automatically.
+
 ## Router output
 
 Every intake should produce:
@@ -13,9 +27,9 @@ Every intake should produce:
 
 ## User intent
 
-## Tool target
+## Execution environment
 
-Codex / Claude Code / Generic
+Claude Code / Codex / Generic / Unknown
 
 ## Project state
 
@@ -232,34 +246,35 @@ Use:
 - Required artifact: `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.md`
 - Never use for sensitive areas without human approval
 
-## Tool target selection
+## Execution environment selection
 
-### Claude Code
+### Claude Code environment
 
-Use when the user says Claude Code, SuperClaude, subagents, slash commands, or wants local repo execution.
+Use when the framework is running inside Claude Code.
 
-Required additions:
+Required behavior:
 
 - Read `CLAUDE.md`
-- Use `.claude/agents/*` when specialist isolation helps
+- Use `.claude/agents/*` only when specialist isolation helps and the Orchestrator selects them
 - Use `.claude/settings.json` guardrails
-- Prefer subagents only when the Orchestrator selects them
+- Keep `ai/agents/*` as the tool-agnostic source of truth
 
-### Codex
+### Codex environment
 
-Use when the user says Codex, OpenAI Codex, AGENTS.md, or wants a generic coding agent workflow.
+Use when the framework is running inside Codex.
 
-Required additions:
+Required behavior:
 
 - Read `AGENTS.md`
-- Use `ai/agents/*` and context packs instead of Claude-specific subagents
+- Use `ai/agents/*`, skills, and context packs
 - Use `.codex/config.toml` safety profile
+- Do not expect Claude-specific subagents
 
-### Generic
+### Generic environment
 
-Use when the tool is not specified.
+Use when the tool is not identifiable.
 
-Required additions:
+Required behavior:
 
 - Default to `AGENTS.md`
 - Keep all instructions markdown-first
@@ -282,17 +297,17 @@ Routing:
 
 - Project maturity: Idea only
 - Pre-brief phase: Brainstorming
-- Tool target: inferred from environment
+- Execution environment: inferred from current tool
 - Workflow mode: not implementation-ready
 - Squad level: Level 1 or Level 2
 - Agents: Orchestrator, Product; Architect optional
 - First safe action: create a brainstorming artifact and ask one high-leverage question about the primary problem/user
 
-### User says: "I want to use Claude Code to create a web app with Next.js, React, Convex"
+### User says: "I want to create a web app with Next.js, React, and Convex"
 
 Routing:
 
-- Tool target: Claude Code
+- Execution environment: inferred from current tool
 - Project state: New project
 - Project maturity: Rough concept unless product/user/MVP are already clear
 - Project type: Web app / SaaS candidate
@@ -306,7 +321,7 @@ Routing:
 
 Routing:
 
-- Tool target: inferred from environment
+- Execution environment: inferred from current tool
 - Project state: Existing project
 - Project type: unknown until mapped
 - Workflow mode: Existing Project Understanding first, then New Feature
