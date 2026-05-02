@@ -10,14 +10,22 @@ on:
 
 jobs:
   workflow-guardrails:
-    name: Workflow guardrails
-    runs-on: ubuntu-latest
+    name: Workflow guardrails (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -37,16 +45,51 @@ jobs:
         run: node scripts/aiwf.js sensitive HEAD~1 HEAD
 
       - name: Validate active stories when present
-        shell: bash
+        shell: pwsh
         run: |
-          shopt -s nullglob
-          stories=(ai/04-stories/*.md)
-          if [ ${#stories[@]} -eq 0 ]; then
-            echo "No active stories found. Skipping story validation."
+          $stories = Get-ChildItem -Path "ai/04-stories" -Filter "*.md" -ErrorAction SilentlyContinue
+          if (-not $stories) {
+            Write-Host "No active stories found. Skipping story validation."
             exit 0
-          fi
+          }
 
-          for story in "${stories[@]}"; do
-            echo "Validating $story"
-            node scripts/aiwf.js validate "$story"
-          done
+          foreach ($story in $stories) {
+            Write-Host "Validating $($story.FullName)"
+            node scripts/aiwf.js validate $story.FullName
+          }
+
+      - name: Smoke test install existing
+        shell: pwsh
+        run: |
+          $target = "tmp-aiwf-existing-smoke"
+          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+          New-Item -ItemType Directory -Path $target | Out-Null
+          node scripts/aiwf.js install existing $target
+          Test-Path "$target/AGENTS.md" | Should -Be $true
+          Test-Path "$target/CLAUDE.md" | Should -Be $true
+          Test-Path "$target/ai" | Should -Be $true
+          Test-Path "$target/scripts" | Should -Be $true
+          Test-Path "$target/prompts" | Should -Be $true
+          Test-Path "$target/docs" | Should -Be $true
+          Test-Path "$target/.claude" | Should -Be $true
+          Test-Path "$target/.codex" | Should -Be $true
+          Test-Path "$target/.github/pull_request_template.md" | Should -Be $true
+          Push-Location $target
+          node scripts/aiwf.js story feature "Test installable workflow"
+          $story = Get-ChildItem -Path "ai/04-stories" -Filter "*test-installable-workflow.md" | Select-Object -First 1
+          if (-not $story) { throw "Story was not created" }
+          node scripts/aiwf.js validate $story.FullName
+          Pop-Location
+          Remove-Item -Recurse -Force $target
+
+      - name: Smoke test install new
+        shell: pwsh
+        run: |
+          $target = "tmp-aiwf-new-smoke"
+          if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+          New-Item -ItemType Directory -Path $target | Out-Null
+          node scripts/aiwf.js install new $target
+          Test-Path "$target/ai/01-discovery/PROJECT_BRIEF.md" | Should -Be $true
+          Test-Path "$target/ai/02-product/PRD.md" | Should -Be $true
+          Test-Path "$target/ai/03-architecture/ARCHITECTURE.md" | Should -Be $true
+          Remove-Item -Recurse -Force $target
