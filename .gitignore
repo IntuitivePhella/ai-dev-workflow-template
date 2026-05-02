@@ -1,0 +1,10 @@
+# Local agent settings
+.claude/settings.local.json
+.env
+.env.*
+*.log
+node_modules/
+dist/
+build/
+.venv/
+__pycache__/
