@@ -25,6 +25,31 @@ This template is intentionally tool-neutral. It works with:
 - Claude Code through `CLAUDE.md` and `.claude/settings.json`
 - Any other coding agent that can read markdown instructions
 
+## Workflow references
+
+This template was designed after comparing and extracting the strongest operating patterns from these AI development workflows/frameworks:
+
+- **BMAD-METHOD** — used as the main lifecycle backbone for product discovery, PRD, architecture, epics, stories, and agentic implementation.
+  - Reference: https://github.com/bmad-code-org/BMAD-METHOD
+
+- **Superpowers** — used as the engineering discipline layer: brainstorming before coding, worktrees, planning, TDD, subagent-driven execution, review, and branch finalization.
+  - Reference: https://github.com/obra/superpowers
+
+- **SuperClaude Framework** — used as the Claude Code execution accelerator: repository analysis, implementation, testing, troubleshooting, documentation, context save/load, and specialized technical agents.
+  - Reference: https://github.com/SuperClaude-Org/SuperClaude_Framework
+
+- **GStack** — used as the multi-role review layer: CEO/product, engineering manager, designer, QA, release, and documentation perspectives.
+  - Reference: https://github.com/garrytan/gstack
+
+- **GSD / Get Shit Done** — used as inspiration for phase decomposition, context-window control, and bounded execution phases.
+  - Reference: https://github.com/gsd-build/get-shit-done
+
+- **RalphLoop / Ralph-style execution loops** — used only as an optional bounded automation pattern for running one small, well-specified phase at a time with explicit stop conditions.
+  - Reference: https://claude.com/plugins/ralph-loop
+  - Related implementation: https://github.com/frankbria/ralph-claude-code
+
+This repo does **not** vendor or reimplement those projects. It turns their strongest workflow ideas into a portable, markdown-first operating system for AI-assisted development.
+
 ## Quick start for a new project
 
 ```bash
