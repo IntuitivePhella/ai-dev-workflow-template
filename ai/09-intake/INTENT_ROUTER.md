@@ -21,6 +21,10 @@ Codex / Claude Code / Generic
 
 New project / Existing project / Unknown
 
+## Project maturity
+
+Idea only / Rough concept / Defined product / Ready story / Existing codebase
+
 ## Project type
 
 Web app / SaaS / API / Mobile / Desktop / CLI / Library / Automation / AI agent / Other
@@ -54,6 +58,77 @@ Ask at most one blocking question. If reasonable assumptions are safe, proceed w
 ## Stop conditions
 ```
 
+## Project maturity classification
+
+### Idea only
+
+Signals:
+
+- "I have an idea"
+- "not sure exactly what to build"
+- "help me shape this"
+- "let's brainstorm"
+- "I want to create something for..."
+- "I need an app/SaaS but don't know the details"
+
+Use:
+
+- Pre-brief phase: Brainstorming
+- Read: `ai/09-intake/BRAINSTORMING_PLAYBOOK.md`
+- Read: `ai/09-intake/QUESTION_STRATEGY.md`
+- Create: brainstorming artifact from `ai/templates/BRAINSTORMING.template.md`
+- Minimum squad: Orchestrator + Product
+- Add Architect only if stack/feasibility matters
+- Do not use Implementer
+- First safe action: guide brainstorming and produce a Brainstorming Handoff
+
+### Rough concept
+
+Signals:
+
+- target domain exists but user/problem/MVP are not clear;
+- stack may be known but product scope is vague;
+- user has examples but no acceptance criteria.
+
+Use:
+
+- Brainstorming, then New Project
+- Required artifacts: Brainstorming, Intake, Project Brief, Discovery
+- First safe action: progressive narrowing, then brief
+
+### Defined product
+
+Signals:
+
+- user, problem, MVP and stack are mostly known;
+- PRD/architecture can be drafted without inventing core scope.
+
+Use:
+
+- Workflow mode: New Project
+- Required artifacts: Intake, Project Brief, PRD, Architecture, Test Plan, Story split
+
+### Ready story
+
+Signals:
+
+- acceptance criteria, scope, tests, commands, and stop conditions are clear.
+
+Use:
+
+- Workflow mode matching the story type
+- First safe action: Definition of Ready validation
+
+### Existing codebase
+
+Signals:
+
+- user references a repository or existing project.
+
+Use:
+
+- Workflow mode: Existing Project Understanding first unless a current project map exists
+
 ## Intent classification
 
 ### New project creation
@@ -69,12 +144,13 @@ Signals:
 
 Use:
 
-- Workflow mode: New Project
+- If idea is vague: Brainstorming first, then New Project
+- Workflow mode: New Project after brainstorming/brief clarity exists
 - Minimum squad: Level 2 for simple MVP, Level 3 for production SaaS or sensitive domain
-- Required artifacts: Project brief, PRD, architecture, first epic/stories
-- First safe action: create/fill `ai/09-intake/INTAKE.md` and `ai/01-discovery/PROJECT_BRIEF.md`
+- Required artifacts: Brainstorming when vague, Project brief, PRD, architecture, first epic/stories
+- First safe action: create/fill `ai/09-intake/INTAKE.md` and, when needed, a brainstorming artifact before `PROJECT_BRIEF.md`
 
-Do not write production application code before project brief, PRD, architecture, and first story exist.
+Do not write production application code before brainstorming/brief, PRD, architecture, and first story exist.
 
 ### Existing project understanding
 
@@ -200,18 +276,31 @@ If stack is not given:
 
 ## First safe action examples
 
+### User says: "I have an idea for an app for schools, but I'm not sure what exactly to build"
+
+Routing:
+
+- Project maturity: Idea only
+- Pre-brief phase: Brainstorming
+- Tool target: inferred from environment
+- Workflow mode: not implementation-ready
+- Squad level: Level 1 or Level 2
+- Agents: Orchestrator, Product; Architect optional
+- First safe action: create a brainstorming artifact and ask one high-leverage question about the primary problem/user
+
 ### User says: "I want to use Claude Code to create a web app with Next.js, React, Convex"
 
 Routing:
 
 - Tool target: Claude Code
 - Project state: New project
+- Project maturity: Rough concept unless product/user/MVP are already clear
 - Project type: Web app / SaaS candidate
 - Stack profile: `web-nextjs-react-convex.md`
-- Workflow mode: New Project
+- Workflow mode: Brainstorming first if vague, otherwise New Project
 - Squad level: Level 3 if auth/billing/user data are likely, otherwise Level 2
 - Agents: Orchestrator, Product, Architect, QA; Security if auth/user data exists
-- First safe action: create intake, project brief, PRD outline, architecture outline, first story split
+- First safe action: create intake, run brainstorming if product is vague, then project brief, PRD outline, architecture outline, first story split
 
 ### User says: "Analyze this repo and add payments"
 

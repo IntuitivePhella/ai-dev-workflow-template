@@ -9,29 +9,46 @@ You are working inside a disciplined, spec-driven, Orchestrator-routed AI develo
 Your job is not to improvise. Your job is to:
 
 1. Understand context.
-2. Classify the user's intent before choosing a workflow.
-3. Work from explicit specs.
-4. Decompose work into small stories.
-5. Route work to the smallest useful specialist squad.
-6. Use tests before implementation.
-7. Keep changes small and reviewable.
-8. Record decisions and risks.
-9. Stop when the work needs human judgment.
+2. Classify the user's intent and project maturity before choosing a workflow.
+3. Run brainstorming when the user only has an idea or rough concept.
+4. Work from explicit specs.
+5. Decompose work into small stories.
+6. Route work to the smallest useful specialist squad.
+7. Use tests before implementation.
+8. Keep changes small and reviewable.
+9. Record decisions and risks.
+10. Stop when the work needs human judgment.
 
-## Adaptive intake rule
+## Adaptive intake and brainstorming rule
 
 When the user describes what they want to create, change, fix, understand, refactor, or automate, start with intent routing unless a ready story already exists.
 
 Read:
 
 1. `ai/09-intake/INTENT_ROUTER.md`
-2. `ai/09-intake/INTAKE.template.md`
-3. Any relevant stack profile under `ai/09-intake/stack-profiles/`
-4. Relevant skills under `ai/skills/`
+2. `ai/09-intake/QUESTION_STRATEGY.md`
+3. `ai/09-intake/BRAINSTORMING_PLAYBOOK.md` when project maturity is Idea only or Rough concept
+4. `ai/09-intake/INTAKE.template.md`
+5. Any relevant stack profile under `ai/09-intake/stack-profiles/`
+6. Relevant skills under `ai/skills/`
 
-Produce an Intent Routing Result before implementation. Then create or update the right artifacts.
+Produce an Intent Routing Result before implementation.
+
+If the user has only a vague idea, do not jump directly to PRD, architecture, story, or code. Run the brainstorming flow first and produce a Brainstorming Handoff.
 
 Example:
+
+```text
+User: I have an idea for an app for schools, but I am not sure what exactly to build.
+
+Routing:
+- Project maturity: Idea only
+- Pre-brief phase: Brainstorming
+- Squad: Orchestrator + Product
+- First safe action: create a brainstorming artifact, make safe assumptions explicit, and ask one high-leverage question about the primary problem/user
+```
+
+Example with stack:
 
 ```text
 User: I want to use Claude Code to create a web app with Next.js, React, and Convex.
@@ -39,14 +56,15 @@ User: I want to use Claude Code to create a web app with Next.js, React, and Con
 Routing:
 - Tool target: Claude Code
 - Project state: New project
+- Project maturity: Rough concept unless product/user/MVP are already clear
 - Project type: Web app / SaaS candidate
 - Stack profile: ai/09-intake/stack-profiles/web-nextjs-react-convex.md
-- Workflow mode: New Project
+- Workflow mode: Brainstorming first if vague, otherwise New Project
 - Squad level: Level 2 or Level 3 depending on auth, billing, user data, and deployment risk
-- First safe action: fill intake and project brief, then draft PRD, architecture, test plan, and first story split
+- First safe action: run brainstorming if needed, then fill intake and project brief, draft PRD, architecture, test plan, and first story split
 ```
 
-Do not start by building the app. Start by adapting the workflow to the user's intent.
+Do not start by building the app. Start by adapting the workflow to the user's intent and maturity.
 
 ## Required reading order
 
@@ -62,16 +80,18 @@ Before doing any coding task, read:
 8. `ai/agents/ROUTING_MATRIX.md`
 9. `ai/agents/SQUAD_LEVELS.md`
 10. `ai/09-intake/INTENT_ROUTER.md` when the request is not already a ready story
-11. `ai/08-memory/PROJECT_MEMORY.md`
-12. `ai/08-memory/PROJECT_MAP.md`, if present
-13. The relevant story in `ai/04-stories/`
-14. The relevant test plan in `ai/05-execution/`, if present
-15. `ai/05-execution/EXECUTION_PROTOCOL.md`
+11. `ai/09-intake/BRAINSTORMING_PLAYBOOK.md` when the request is an idea or rough concept
+12. `ai/08-memory/PROJECT_MEMORY.md`
+13. `ai/08-memory/PROJECT_MAP.md`, if present
+14. The relevant story in `ai/04-stories/`
+15. The relevant test plan in `ai/05-execution/`, if present
+16. `ai/05-execution/EXECUTION_PROTOCOL.md`
 
 ## Operating model
 
 Use the smallest workflow mode that fits the request:
 
+- Brainstorming / pre-brief shaping
 - New project
 - Existing project understanding
 - New feature in existing project
@@ -127,17 +147,20 @@ Use Bash scripts only as compatibility fallback for Linux, macOS, Git Bash, or W
 
 ## Standard adaptive workflow for new project requests
 
-1. Classify intent with `ai/09-intake/INTENT_ROUTER.md`.
-2. Select a stack profile when available.
-3. Create or update `ai/09-intake/INTAKE.md`.
-4. Create `ai/01-discovery/PROJECT_BRIEF.md`.
-5. Route Product and Architect as needed.
-6. Create `ai/01-discovery/DISCOVERY.md`.
-7. Create `ai/02-product/PRD.md`.
-8. Create `ai/03-architecture/ARCHITECTURE.md`.
-9. Create a story split under `ai/04-stories/`.
-10. Execute one story at a time.
-11. Review and update memory after each story.
+1. Classify intent and project maturity with `ai/09-intake/INTENT_ROUTER.md`.
+2. If maturity is Idea only or Rough concept, run `ai/09-intake/BRAINSTORMING_PLAYBOOK.md`.
+3. Use `ai/09-intake/QUESTION_STRATEGY.md` to ask at most one blocking/high-leverage question at a time.
+4. Create a brainstorming artifact from `ai/templates/BRAINSTORMING.template.md` when needed.
+5. Select a stack profile when available.
+6. Create or update `ai/09-intake/INTAKE.md`.
+7. Create `ai/01-discovery/PROJECT_BRIEF.md`.
+8. Route Product and Architect as needed.
+9. Create `ai/01-discovery/DISCOVERY.md`.
+10. Create `ai/02-product/PRD.md`.
+11. Create `ai/03-architecture/ARCHITECTURE.md`.
+12. Create a story split under `ai/04-stories/`.
+13. Execute one story at a time.
+14. Review and update memory after each story.
 
 ## Standard workflow for existing projects
 
