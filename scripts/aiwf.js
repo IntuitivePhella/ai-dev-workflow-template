@@ -111,6 +111,10 @@ function usage() {
 Usage:
   aiwf install <new|existing> [target-dir]
   aiwf init <new|existing>
+  aiwf start [request]
+  aiwf map [repo-focus]
+  aiwf brainstorm <idea>
+  aiwf plan <feature-or-change>
   aiwf story <feature|bugfix|refactor|migration|generic> "Title"
   aiwf validate <story-file>
   aiwf gates
@@ -122,10 +126,149 @@ Node fallback:
   node scripts/aiwf.js <command>
 
 Examples:
-  npx ai-dev-workflow-template install existing .
+  npx ai-phellos install existing .
+  aiwf start "I want to create a web app with Next.js, React, and Convex"
+  aiwf map "authentication and billing flow"
+  aiwf brainstorm "an app for schools"
+  aiwf plan "Add team invitation flow"
   aiwf story feature "Add team invitation flow"
   aiwf validate ai/04-stories/20260502-feature-add-team-invitation-flow.md
   aiwf review ai/04-stories/20260502-feature-add-team-invitation-flow.md`);
+}
+
+function printPrompt(title, body) {
+  console.log(`# ${title}\n`);
+  console.log(body.trim());
+}
+
+function quotedOrFallback(value, fallback) {
+  const text = String(value || '').trim();
+  return text || fallback;
+}
+
+function startPrompt(request) {
+  const userRequest = quotedOrFallback(request, '<describe what you want to create, understand, change, fix, refactor, or automate>');
+  printPrompt('AI-PhellOS Start Prompt', `
+Read AGENTS.md, CLAUDE.md when present, ai/09-intake/INTENT_ROUTER.md, ai/09-intake/QUESTION_STRATEGY.md, ai/09-intake/BRAINSTORMING_PLAYBOOK.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/00-rules/DEFINITION_OF_READY.md, ai/00-rules/CHANGE_SIZE_POLICY.md, ai/00-rules/GIT_WORKFLOW.md, ai/agents/ORCHESTRATOR.md, ai/agents/ROUTING_MATRIX.md, and ai/agents/SQUAD_LEVELS.md.
+
+User request:
+${userRequest}
+
+Produce an Intent Routing Result before implementation.
+
+Classify:
+- execution environment;
+- user intent;
+- project state;
+- project maturity;
+- project type;
+- stack profile, if known;
+- workflow mode;
+- squad level;
+- agents selected;
+- agents skipped and why;
+- required artifacts;
+- first safe action;
+- blocking questions;
+- assumptions;
+- stop conditions.
+
+If the request is an idea or rough concept, run brainstorming first and ask at most one high-leverage question.
+If this is an existing project, map the repository before suggesting code changes.
+Do not write production code until the selected workflow is ready.
+`);
+}
+
+function mapPrompt(focus) {
+  const repoFocus = quotedOrFallback(focus, 'overall repository structure, stack, commands, tests, risks, and conventions');
+  printPrompt('AI-PhellOS Repository Mapping Prompt', `
+Read AGENTS.md, CLAUDE.md when present, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/agents/ORCHESTRATOR.md, ai/agents/ROUTING_MATRIX.md, and existing memory under ai/08-memory/.
+
+Workflow mode: Existing Project Understanding.
+
+Mapping focus:
+${repoFocus}
+
+Create or update ai/08-memory/PROJECT_MAP.md and ai/08-memory/PROJECT_MEMORY.md.
+
+Map:
+- repository purpose;
+- tech stack and package managers;
+- entry points;
+- important directories;
+- runtime commands;
+- test/build/typecheck/lint commands;
+- data model or persistence layer, if present;
+- integrations and external services;
+- security-sensitive areas;
+- architectural boundaries;
+- current risks and unknowns;
+- recommended next stories.
+
+Do not write production application code.
+Stop after the repository understanding report and memory update proposal.
+`);
+}
+
+function brainstormPrompt(idea) {
+  const userIdea = quotedOrFallback(idea, '<describe the idea or rough product direction>');
+  printPrompt('AI-PhellOS Brainstorming Prompt', `
+Read AGENTS.md, CLAUDE.md when present, ai/09-intake/INTENT_ROUTER.md, ai/09-intake/QUESTION_STRATEGY.md, ai/09-intake/BRAINSTORMING_PLAYBOOK.md, ai/templates/BRAINSTORMING.template.md, ai/agents/ORCHESTRATOR.md, and ai/agents/PRODUCT.md.
+
+Idea:
+${userIdea}
+
+Workflow mode: Brainstorming / Pre-brief shaping.
+Project maturity: Idea only or Rough concept unless evidence says otherwise.
+Squad: Orchestrator + Product. Add Architect only if feasibility or stack materially changes the first decision.
+
+Create a brainstorming artifact and guide the user toward:
+- primary user;
+- painful problem;
+- desired outcome;
+- alternatives and competitors;
+- MVP boundary;
+- non-goals;
+- risky assumptions;
+- validation path;
+- first project brief inputs.
+
+Ask at most one high-leverage question at a time.
+Do not create production code, PRD, or architecture until the Brainstorming Handoff is clear.
+`);
+}
+
+function planPrompt(change) {
+  const requestedChange = quotedOrFallback(change, '<describe the feature, bugfix, refactor, migration, or change>');
+  printPrompt('AI-PhellOS Planning Prompt', `
+Read AGENTS.md, CLAUDE.md when present, ai/09-intake/INTENT_ROUTER.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/00-rules/DEFINITION_OF_READY.md, ai/00-rules/CHANGE_SIZE_POLICY.md, ai/agents/ORCHESTRATOR.md, ai/agents/ROUTING_MATRIX.md, ai/agents/SQUAD_LEVELS.md, and ai/08-memory/PROJECT_MAP.md if present.
+
+Requested change:
+${requestedChange}
+
+Produce a plan before implementation.
+
+Include:
+- Intent Routing Result;
+- workflow mode;
+- squad level;
+- specialists needed and skipped;
+- required artifacts;
+- impact analysis;
+- acceptance criteria;
+- non-goals;
+- files likely in scope;
+- files or areas explicitly forbidden;
+- sensitive areas and required human approval;
+- test plan;
+- commands to run;
+- rollback plan;
+- stop conditions;
+- recommended story file and title.
+
+If this is an existing project and PROJECT_MAP.md is missing or empty, map the repo first.
+Do not implement until Definition of Ready is satisfied.
+`);
 }
 
 function installWorkflow(mode, targetDir = '.') {
@@ -156,7 +299,6 @@ function installWorkflow(mode, targetDir = '.') {
     else skipped += 1;
   }
 
-  // Do not overwrite an app's package.json. Provide package metadata only when no package exists.
   if (!exists(path.join(targetRoot, 'package.json'))) {
     if (copyFileIfMissing(packageRel('package.json'), path.join(targetRoot, 'package.json'))) copied += 1;
   } else {
@@ -448,6 +590,18 @@ try {
       break;
     case 'init':
       initProject(args[1]);
+      break;
+    case 'start':
+      startPrompt(args.slice(1).join(' '));
+      break;
+    case 'map':
+      mapPrompt(args.slice(1).join(' '));
+      break;
+    case 'brainstorm':
+      brainstormPrompt(args.slice(1).join(' '));
+      break;
+    case 'plan':
+      planPrompt(args.slice(1).join(' '));
       break;
     case 'story':
       createStory(args[1], args.slice(2).join(' '));
