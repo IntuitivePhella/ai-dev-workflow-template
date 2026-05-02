@@ -7,10 +7,24 @@
   "bin": {
     "aiwf": "scripts/aiwf.js"
   },
+  "files": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "LICENSE",
+    "README.md",
+    "ai/",
+    "docs/",
+    "prompts/",
+    "scripts/",
+    ".claude/",
+    ".codex/",
+    ".github/pull_request_template.md"
+  ],
   "scripts": {
     "aiwf": "node scripts/aiwf.js",
     "doctor": "node scripts/aiwf.js doctor",
     "gates": "node scripts/aiwf.js gates",
+    "pack:dry-run": "npm pack --dry-run",
     "test": "node scripts/aiwf.js doctor"
   },
   "keywords": [
@@ -20,10 +34,19 @@
     "claude-code",
     "agents",
     "software-development",
-    "tdd"
+    "tdd",
+    "spec-driven-development"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IntuitivePhella/ai-dev-workflow-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IntuitivePhella/ai-dev-workflow-template/issues"
+  },
+  "homepage": "https://github.com/IntuitivePhella/ai-dev-workflow-template#readme"
 }
