@@ -5,12 +5,17 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const ROOT = process.cwd();
+const TARGET_ROOT = process.cwd();
+const PACKAGE_ROOT = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const command = args[0] || 'help';
 
-function rel(...parts) {
-  return path.join(ROOT, ...parts);
+function targetRel(...parts) {
+  return path.join(TARGET_ROOT, ...parts);
+}
+
+function packageRel(...parts) {
+  return path.join(PACKAGE_ROOT, ...parts);
 }
 
 function exists(filePath) {
@@ -30,10 +35,40 @@ function ensureDir(dirPath) {
   fs.mkdirSync(dirPath, { recursive: true });
 }
 
-function copyIfMissing(source, target) {
-  if (exists(source) && !exists(target)) {
-    write(target, read(source));
+function copyFileIfMissing(source, target) {
+  if (!exists(source)) return false;
+  if (exists(target)) return false;
+  write(target, read(source));
+  return true;
+}
+
+function copyDirIfMissing(sourceDir, targetDir) {
+  if (!exists(sourceDir)) return { copied: 0, skipped: 0 };
+  let copied = 0;
+  let skipped = 0;
+
+  const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
+  for (const entry of entries) {
+    const source = path.join(sourceDir, entry.name);
+    const target = path.join(targetDir, entry.name);
+
+    if (entry.isDirectory()) {
+      const result = copyDirIfMissing(source, target);
+      copied += result.copied;
+      skipped += result.skipped;
+    } else if (entry.isFile()) {
+      if (copyFileIfMissing(source, target)) copied += 1;
+      else skipped += 1;
+    }
   }
+
+  return { copied, skipped };
+}
+
+function sourceFile(...parts) {
+  const inTarget = targetRel(...parts);
+  if (exists(inTarget)) return inTarget;
+  return packageRel(...parts);
 }
 
 function slugify(value) {
@@ -64,8 +99,8 @@ function usage() {
   console.log(`AI Workflow CLI
 
 Usage:
-  aiwf init new
-  aiwf init existing
+  aiwf install <new|existing> [target-dir]
+  aiwf init <new|existing>
   aiwf story <feature|bugfix|refactor|migration|generic> "Title"
   aiwf validate <story-file>
   aiwf gates
@@ -77,26 +112,81 @@ Node fallback:
   node scripts/aiwf.js <command>
 
 Examples:
+  npx ai-dev-workflow install existing .
   aiwf story feature "Add team invitation flow"
   aiwf validate ai/04-stories/20260502-feature-add-team-invitation-flow.md
   aiwf review ai/04-stories/20260502-feature-add-team-invitation-flow.md`);
 }
 
-function initProject(mode) {
+function installWorkflow(mode, targetDir = '.') {
+  const targetRoot = path.resolve(TARGET_ROOT, targetDir);
+  if (!['new', 'existing'].includes(mode)) throw new Error('Usage: aiwf install <new|existing> [target-dir]');
+
+  const copyPairs = [
+    ['ai', 'ai'],
+    ['scripts', 'scripts'],
+    ['prompts', 'prompts'],
+    ['docs', 'docs'],
+    ['.claude', '.claude'],
+    ['.codex', '.codex'],
+    ['.github', '.github'],
+  ];
+
+  let copied = 0;
+  let skipped = 0;
+
+  for (const [source, target] of copyPairs) {
+    const result = copyDirIfMissing(packageRel(source), path.join(targetRoot, target));
+    copied += result.copied;
+    skipped += result.skipped;
+  }
+
+  for (const file of ['AGENTS.md', 'CLAUDE.md']) {
+    if (copyFileIfMissing(packageRel(file), path.join(targetRoot, file))) copied += 1;
+    else skipped += 1;
+  }
+
+  // Do not overwrite an app's package.json. Provide package metadata only when no package exists.
+  if (!exists(path.join(targetRoot, 'package.json'))) {
+    if (copyFileIfMissing(packageRel('package.json'), path.join(targetRoot, 'package.json'))) copied += 1;
+  } else {
+    skipped += 1;
+  }
+
+  console.log(`Installed workflow assets into ${targetRoot}`);
+  console.log(`Copied: ${copied}. Skipped existing: ${skipped}.`);
+
+  const previousCwd = process.cwd();
+  process.chdir(targetRoot);
+  try {
+    initProject(mode, targetRoot);
+  } finally {
+    process.chdir(previousCwd);
+  }
+}
+
+function initProject(mode, root = TARGET_ROOT) {
+  const tr = (...parts) => path.join(root, ...parts);
+  const sf = (...parts) => {
+    const candidate = path.join(root, ...parts);
+    if (exists(candidate)) return candidate;
+    return packageRel(...parts);
+  };
+
   if (mode === 'new') {
-    ['ai/01-discovery', 'ai/02-product', 'ai/03-architecture', 'ai/04-stories', 'ai/05-execution', 'ai/06-reviews', 'ai/07-release', 'ai/08-memory'].forEach((dir) => ensureDir(rel(dir)));
-    copyIfMissing(rel('ai/templates/PROJECT_BRIEF.template.md'), rel('ai/01-discovery/PROJECT_BRIEF.md'));
-    copyIfMissing(rel('ai/templates/PRD.template.md'), rel('ai/02-product/PRD.md'));
-    copyIfMissing(rel('ai/templates/ARCHITECTURE.template.md'), rel('ai/03-architecture/ARCHITECTURE.md'));
+    ['ai/01-discovery', 'ai/02-product', 'ai/03-architecture', 'ai/04-stories', 'ai/05-execution', 'ai/06-reviews', 'ai/07-release', 'ai/08-memory'].forEach((dir) => ensureDir(tr(dir)));
+    copyFileIfMissing(sf('ai/templates/PROJECT_BRIEF.template.md'), tr('ai/01-discovery/PROJECT_BRIEF.md'));
+    copyFileIfMissing(sf('ai/templates/PRD.template.md'), tr('ai/02-product/PRD.md'));
+    copyFileIfMissing(sf('ai/templates/ARCHITECTURE.template.md'), tr('ai/03-architecture/ARCHITECTURE.md'));
     console.log('New project workflow initialized.');
     console.log('Next: ask your agent to fill ai/01-discovery/PROJECT_BRIEF.md without writing code.');
     return;
   }
 
   if (mode === 'existing') {
-    ['ai/05-execution', 'ai/08-memory', 'ai/04-stories', 'ai/06-reviews'].forEach((dir) => ensureDir(rel(dir)));
-    if (!exists(rel('ai/08-memory/PROJECT_MAP.md'))) write(rel('ai/08-memory/PROJECT_MAP.md'), '');
-    if (!exists(rel('ai/08-memory/PROJECT_MEMORY.md'))) write(rel('ai/08-memory/PROJECT_MEMORY.md'), '');
+    ['ai/05-execution', 'ai/08-memory', 'ai/04-stories', 'ai/06-reviews'].forEach((dir) => ensureDir(tr(dir)));
+    if (!exists(tr('ai/08-memory/PROJECT_MAP.md'))) write(tr('ai/08-memory/PROJECT_MAP.md'), '');
+    if (!exists(tr('ai/08-memory/PROJECT_MEMORY.md'))) write(tr('ai/08-memory/PROJECT_MEMORY.md'), '');
     console.log('Existing project workflow initialized.');
     console.log('Next: ask your agent to analyze the repo and fill ai/08-memory/PROJECT_MAP.md before coding.');
     return;
@@ -119,21 +209,17 @@ function createStory(type, title) {
   const template = templates[type];
   if (!template) throw new Error(`Unknown story type: ${type}. Allowed: ${Object.keys(templates).join(', ')}`);
 
-  const templatePath = rel(template);
+  const templatePath = sourceFile(...template.split('/'));
   if (!exists(templatePath)) throw new Error(`Template not found: ${template}`);
 
-  ensureDir(rel('ai/04-stories'));
-  const output = rel('ai/04-stories', `${todayStamp()}-${type}-${slugify(title)}.md`);
-  if (exists(output)) throw new Error(`Story already exists: ${path.relative(ROOT, output)}`);
+  ensureDir(targetRel('ai/04-stories'));
+  const output = targetRel('ai/04-stories', `${todayStamp()}-${type}-${slugify(title)}.md`);
+  if (exists(output)) throw new Error(`Story already exists: ${path.relative(TARGET_ROOT, output)}`);
 
   const content = read(templatePath).replace(/<title>/g, title);
   write(output, content);
-  console.log(`Created story: ${path.relative(ROOT, output)}`);
-  console.log(`Next: fill required fields, then run: aiwf validate ${path.relative(ROOT, output)}`);
-}
-
-function hasHeading(content, heading) {
-  return new RegExp(`^##\\s+${heading}`, 'im').test(content);
+  console.log(`Created story: ${path.relative(TARGET_ROOT, output)}`);
+  console.log(`Next: fill required fields, then run: aiwf validate ${path.relative(TARGET_ROOT, output)}`);
 }
 
 function hasAny(content, patterns) {
@@ -142,7 +228,7 @@ function hasAny(content, patterns) {
 
 function validateStory(storyPath) {
   if (!storyPath) throw new Error('Usage: aiwf validate <path-to-story-or-template>');
-  const absolute = path.resolve(ROOT, storyPath);
+  const absolute = path.resolve(TARGET_ROOT, storyPath);
   if (!exists(absolute)) throw new Error(`File not found: ${storyPath}`);
 
   const content = read(absolute);
@@ -194,7 +280,7 @@ function checkGates() {
   let warnings = 0;
 
   function checkFile(file, required = true) {
-    const filePath = rel(file);
+    const filePath = targetRel(file);
     if (!exists(filePath)) {
       if (required) {
         console.log(`FAIL: missing ${file}`);
@@ -231,7 +317,7 @@ function checkGates() {
 
   checkFile('ai/08-memory/PROJECT_MAP.md', false);
 
-  const storyDir = rel('ai/04-stories');
+  const storyDir = targetRel('ai/04-stories');
   if (exists(storyDir)) {
     const stories = listMarkdownFiles(storyDir);
     if (stories.length === 0) {
@@ -241,13 +327,13 @@ function checkGates() {
   }
 
   ['ai/01-discovery', 'ai/02-product', 'ai/03-architecture', 'ai/04-stories', 'ai/05-execution'].forEach((dir) => {
-    const dirPath = rel(dir);
+    const dirPath = targetRel(dir);
     if (!exists(dirPath)) return;
     const files = fs.readdirSync(dirPath, { recursive: true }).filter((entry) => String(entry).endsWith('.md') && !String(entry).endsWith('.template.md'));
     for (const file of files) {
       const filePath = path.join(dirPath, file);
       if (fs.statSync(filePath).isFile() && /TBD/i.test(read(filePath))) {
-        console.log(`WARN: unresolved TBD placeholders found in ${path.relative(ROOT, filePath)}`);
+        console.log(`WARN: unresolved TBD placeholders found in ${path.relative(TARGET_ROOT, filePath)}`);
         warnings += 1;
       }
     }
@@ -265,7 +351,7 @@ function checkGates() {
 
 function gitDiffFiles(baseRef, headRef) {
   try {
-    const output = execFileSync('git', ['diff', '--name-only', baseRef, headRef], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    const output = execFileSync('git', ['diff', '--name-only', baseRef, headRef], { cwd: TARGET_ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
     return output.split(/\r?\n/).filter(Boolean);
   } catch (_) {
     return [];
@@ -333,13 +419,16 @@ function doctor() {
   checkGates();
   console.log('\nChecking expected directories...');
   ['ai', 'ai/00-rules', 'ai/agents', 'ai/templates', 'ai/04-stories', 'ai/05-execution', 'ai/06-reviews', 'ai/08-memory', 'scripts', 'prompts'].forEach((dir) => {
-    console.log(`${exists(rel(dir)) ? 'PASS' : 'WARN'}: ${dir}`);
+    console.log(`${exists(targetRel(dir)) ? 'PASS' : 'WARN'}: ${dir}`);
   });
   console.log('\nDoctor complete.');
 }
 
 try {
   switch (command) {
+    case 'install':
+      installWorkflow(args[1], args[2] || '.');
+      break;
     case 'init':
       initProject(args[1]);
       break;
