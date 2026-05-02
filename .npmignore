@@ -1,0 +1,20 @@
+# Keep package lean
+.git
+.github/workflows/*.yml
+node_modules
+.DS_Store
+.env
+.env.*
+*.log
+
+# Local/generated workflow outputs should not be published from consuming projects
+ai/01-discovery/PROJECT_BRIEF.md
+ai/01-discovery/DISCOVERY.md
+ai/02-product/PRD.md
+ai/02-product/FEATURE_BRIEF.md
+ai/03-architecture/ARCHITECTURE.md
+ai/03-architecture/DECISION_LOG.md
+ai/04-stories/*.md
+ai/05-execution/IMPACT_ANALYSIS.md
+ai/05-execution/TEST_PLAN.md
+ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.md
