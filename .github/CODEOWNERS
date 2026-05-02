@@ -1,0 +1,4 @@
+# Require Felipe/IntuitivePhella review for all repository changes.
+# Enable "Require review from Code Owners" in the main branch protection rule.
+
+* @IntuitivePhella
