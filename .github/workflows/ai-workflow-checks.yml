@@ -47,9 +47,11 @@ jobs:
       - name: Validate active stories when present
         shell: pwsh
         run: |
-          $stories = Get-ChildItem -Path "ai/04-stories" -Filter "*.md" -ErrorAction SilentlyContinue
+          $stories = Get-ChildItem -Path "ai/04-stories" -Filter "*.md" -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -ne "README.md" -and $_.Name -notlike "*.template.md" -and -not $_.Name.StartsWith(".") }
+
           if (-not $stories) {
-            Write-Host "No active stories found. Skipping story validation."
+            Write-Host "No executable stories found. Skipping story validation."
             exit 0
           }
 
