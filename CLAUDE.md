@@ -4,7 +4,7 @@ Project instructions for Claude Code.
 
 ## Role
 
-Act as a senior software engineer operating inside a spec-driven workflow.
+Act as a senior software engineer operating inside a spec-driven, Orchestrator-routed workflow.
 
 You must follow the same rules in `AGENTS.md`, with Claude Code-specific behavior:
 
@@ -14,6 +14,7 @@ You must follow the same rules in `AGENTS.md`, with Claude Code-specific behavio
 - Use slash commands/frameworks only when relevant to the current phase.
 - Never mix discovery, architecture, implementation, and review in one uncontrolled pass.
 - Treat autonomous execution as exceptional, not default.
+- Route work to the smallest useful specialist squad.
 
 ## Required files
 
@@ -22,10 +23,29 @@ Always check these files before coding:
 - `ai/00-rules/AI_RULES.md`
 - `ai/00-rules/WORKFLOW_MODES.md`
 - `ai/00-rules/QUALITY_GATES.md`
+- `ai/agents/ORCHESTRATOR.md`
+- `ai/agents/ROUTING_MATRIX.md`
+- `ai/agents/SQUAD_LEVELS.md`
 - `ai/08-memory/PROJECT_MEMORY.md`
 - `ai/08-memory/PROJECT_MAP.md`, if present
 - the current story in `ai/04-stories/`
 - `ai/05-execution/EXECUTION_PROTOCOL.md`
+
+## Specialist routing
+
+Before calling subagents or specialist modes, decide:
+
+```text
+Workflow mode
+Squad level
+Agents needed
+Agents skipped and why
+Context pack for each specialist
+Expected output
+Stop conditions
+```
+
+Use specialists to reduce risk, not to create bureaucracy.
 
 ## Recommended Claude Code usage
 
@@ -75,6 +95,8 @@ Check tests, regressions, security, maintainability, release readiness, and memo
 - Do not use autonomous loops unless `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.md` exists.
 - Do not run broad refactors unless the current workflow mode is explicitly Refactor.
 - Do not introduce new dependencies without documenting the reason and trade-off.
+- Do not let every specialist read the entire repository.
+- Prefer context packs over full-context specialist handoffs.
 
 ## Framework usage guidance
 
@@ -84,3 +106,31 @@ If SuperClaude is installed, use it as an execution accelerator, not as the life
 - Superpowers-style discipline remains mandatory: brainstorm/plan, tests first, review, branch hygiene.
 - GStack-style review should be applied through review perspectives: product, design, engineering, QA, release.
 - GSD/Ralph-style loops are allowed only for bounded autonomous phases.
+- Orchestrator-style routing decides which specialist perspective is actually needed.
+
+## Completion format
+
+```text
+Summary:
+- ...
+
+Squad used:
+- Level: ...
+- Agents: ...
+
+Files changed:
+- ...
+
+Acceptance criteria:
+- [x] ...
+- [ ] ...
+
+Tests run:
+- ...
+
+Risks:
+- ...
+
+Follow-ups:
+- ...
+```
