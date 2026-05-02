@@ -11,21 +11,22 @@ BMAD-first, Superpowers-enforced, SuperClaude-assisted, GStack-reviewed, GSD/Ral
 Or, more directly:
 
 ```text
-Spec-driven. Test-enforced. Specialist-routed. Review-gated. Automation-bounded. Adapted to user intent and stack.
+Brainstormed. Spec-driven. Test-enforced. Specialist-routed. Review-gated. Automation-bounded. Adapted to user intent and stack.
 ```
 
 Translated into tool-agnostic practice:
 
 ```text
 1. Understand the project or idea
-2. Classify the user's intent and desired stack
-3. Create or update specs
-4. Decompose into small stories
-5. Validate readiness before implementation
-6. Route work to the smallest useful specialist squad
-7. Execute with tests first
-8. Review with product, engineering, QA, security, and release lenses
-9. Release with rollback and memory updates
+2. Classify the user's intent, maturity, and desired stack
+3. Run guided brainstorming when the idea is vague
+4. Create or update specs
+5. Decompose into small stories
+6. Validate readiness before implementation
+7. Route work to the smallest useful specialist squad
+8. Execute with tests first
+9. Review with product, engineering, QA, security, and release lenses
+10. Release with rollback and memory updates
 ```
 
 This template is intentionally tool-neutral and cross-platform. It works with:
@@ -38,9 +39,57 @@ This template is intentionally tool-neutral and cross-platform. It works with:
 
 ## Adaptive user experience
 
-The framework now starts from user intent instead of assuming one fixed path.
+The framework starts from user intent instead of assuming one fixed path.
+
+If the user only has an idea, the flow is:
+
+```text
+Raw idea
+→ Intent Router
+→ Project maturity classification
+→ Brainstorming Playbook
+→ One high-leverage question at a time
+→ Brainstorming Handoff
+→ Intake
+→ Project Brief
+→ Discovery
+→ PRD
+→ Architecture
+→ Story split
+→ First ready story
+```
+
+If the user already has a stack and rough product direction, the flow is:
+
+```text
+User natural-language request
+→ Intent Router
+→ Stack Profile
+→ Brainstorming if product is vague
+→ Required artifacts
+→ Smallest safe squad
+→ First safe story
+→ TDD implementation
+→ Review and memory update
+```
 
 A user can say:
+
+```text
+I have an idea for an app for schools, but I am not sure what exactly to build.
+```
+
+Expected routing result:
+
+```text
+Project maturity: Idea only
+Pre-brief phase: Brainstorming
+Squad: Orchestrator + Product
+First safe action: create a brainstorming artifact and ask one high-leverage question about the primary problem/user
+No production code yet
+```
+
+A user can also say:
 
 ```text
 Use Claude Code to create a web app with Next.js, React, and Convex.
@@ -50,11 +99,13 @@ The Orchestrator should route that request through:
 
 ```text
 1. ai/09-intake/INTENT_ROUTER.md
-2. ai/09-intake/INTAKE.template.md
-3. ai/09-intake/stack-profiles/web-nextjs-react-convex.md
-4. ai/skills/intent-classification.md
-5. ai/skills/stack-adaptation.md
-6. ai/agents/ROUTING_MATRIX.md
+2. ai/09-intake/QUESTION_STRATEGY.md
+3. ai/09-intake/BRAINSTORMING_PLAYBOOK.md if product/user/MVP are vague
+4. ai/09-intake/INTAKE.template.md
+5. ai/09-intake/stack-profiles/web-nextjs-react-convex.md
+6. ai/skills/intent-classification.md
+7. ai/skills/stack-adaptation.md
+8. ai/agents/ROUTING_MATRIX.md
 ```
 
 Expected routing result:
@@ -62,24 +113,12 @@ Expected routing result:
 ```text
 Tool target: Claude Code
 Project state: New project
+Project maturity: Rough concept unless product/user/MVP are already clear
 Project type: Web app / SaaS candidate
 Stack profile: Next.js + React + Convex
-Workflow mode: New Project
+Workflow mode: Brainstorming first if vague, otherwise New Project
 Squad level: Level 2 by default, Level 3 if auth, billing, permissions, user data, migrations, or deployment are involved
-First safe action: create intake, project brief, PRD, architecture, test plan, and first story split before production app code
-```
-
-The intended experience is:
-
-```text
-User natural-language request
-→ Intent Router
-→ Stack Profile
-→ Required artifacts
-→ Smallest safe squad
-→ First safe story
-→ TDD implementation
-→ Review and memory update
+First safe action: brainstorm if needed, then create intake, project brief, PRD, architecture, test plan, and first story split before production app code
 ```
 
 ## Install into any repository
@@ -135,7 +174,7 @@ See `docs/PUBLISHING.md` for npm publishing instructions.
 
 This template was designed after comparing and extracting the strongest operating patterns from these AI development workflows/frameworks:
 
-- **BMAD-METHOD** — lifecycle backbone for product discovery, PRD, architecture, epics, stories, and agentic implementation.
+- **BMAD-METHOD** — lifecycle backbone for product brainstorming, product discovery, PRD, architecture, epics, stories, and agentic implementation.
 - **Superpowers** — engineering discipline layer: brainstorming before coding, worktrees, planning, TDD, subagent-driven execution, review, and branch finalization.
 - **SuperClaude Framework** — Claude Code execution accelerator: repository analysis, implementation, testing, troubleshooting, documentation, context save/load, and specialized technical agents.
 - **GStack** — multi-role review layer: CEO/product, engineering manager, designer, QA, release, and documentation perspectives.
@@ -147,7 +186,8 @@ This repo does **not** vendor or reimplement those projects. It turns their stro
 ## What this workflow optimizes for
 
 - Existing project understanding before changes
-- New project creation from brief to architecture to stories
+- BMAD-style idea shaping and brainstorming before project brief
+- New project creation from brainstorm to brief to architecture to stories
 - Adaptive intake from natural-language user intent
 - Stack-specific workflow adaptation through stack profiles
 - Small story-based execution
@@ -181,6 +221,8 @@ ai/00-rules/CHANGE_SIZE_POLICY.md                    # When to split or escalate
 ai/00-rules/GIT_WORKFLOW.md                          # Branch, commit, PR, merge, and rollback rules
 
 ai/09-intake/INTENT_ROUTER.md                        # Natural-language intent to workflow routing
+ai/09-intake/QUESTION_STRATEGY.md                    # Progressive questioning rules
+ai/09-intake/BRAINSTORMING_PLAYBOOK.md               # BMAD-style guided idea shaping
 ai/09-intake/INTAKE.template.md                      # Adaptive intake artifact
 ai/09-intake/stack-profiles/*.md                     # Stack-specific workflow profiles
 ai/skills/*.md                                       # Reusable workflow skills
@@ -192,6 +234,7 @@ ai/agents/HANDOFF.template.md                        # Agent-to-agent handoff co
 ai/agents/CONTEXT_PACK.template.md                   # Minimal context bundle for specialist work
 ai/agents/AGENT_OUTPUTS.md                           # Standard specialist output formats
 
+ai/templates/BRAINSTORMING.template.md               # Guided brainstorming artifact template
 ai/templates/STORY.template.md                       # Generic story template
 ai/templates/FEATURE.template.md                     # Feature story template
 ai/templates/BUGFIX.template.md                      # Bugfix story template
@@ -248,6 +291,8 @@ Default rule:
 Use the fewest agents necessary to safely complete the task.
 ```
 
+During brainstorming, default to Orchestrator + Product. Add Architect only when technical feasibility or stack choice matters. Do not call Implementer during brainstorming.
+
 ## Claude Code subagents
 
 Claude Code-specific subagents are adapters, not a separate source of truth.
@@ -269,6 +314,7 @@ Each subagent points back to the tool-agnostic source under `ai/agents/` and dec
 
 Use the smallest mode that fits the job:
 
+0. **Brainstorming / Pre-brief shaping** — vague idea to problem, user, MVP boundary, risks, and handoff.
 1. **New Project** — idea to brief, discovery, PRD, architecture, stories, implementation.
 2. **Existing Project Understanding** — map a repository before coding.
 3. **New Feature in Existing Project** — feature brief, impact analysis, test plan, story, execution, review.
@@ -313,6 +359,15 @@ node scripts/aiwf.js sensitive HEAD~1 HEAD
 
 These checks are intentionally conservative. A warning does not always mean “stop,” but a failure should be treated as a blocker unless the reason to proceed is documented.
 
+## Quick start for a vague idea
+
+```text
+I have an idea for an app, but I am not sure exactly what to build.
+Use the Brainstorming Playbook first.
+Do not write application code.
+Ask one high-leverage question at a time and produce a Brainstorming Handoff before creating the Project Brief.
+```
+
 ## Quick start for a new project
 
 ```bash
@@ -324,8 +379,8 @@ node scripts/aiwf.js init new
 Then open the repo with Codex or Claude Code and ask:
 
 ```text
-Read AGENTS.md, CLAUDE.md, ai/09-intake/INTENT_ROUTER.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/00-rules/DEFINITION_OF_READY.md, ai/00-rules/CHANGE_SIZE_POLICY.md, ai/00-rules/GIT_WORKFLOW.md, and ai/agents/ORCHESTRATOR.md.
-Classify my intent, select the stack profile if available, and start the new-project workflow.
+Read AGENTS.md, CLAUDE.md, ai/09-intake/INTENT_ROUTER.md, ai/09-intake/QUESTION_STRATEGY.md, ai/09-intake/BRAINSTORMING_PLAYBOOK.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/00-rules/DEFINITION_OF_READY.md, ai/00-rules/CHANGE_SIZE_POLICY.md, ai/00-rules/GIT_WORKFLOW.md, and ai/agents/ORCHESTRATOR.md.
+Classify my intent and project maturity, run brainstorming if needed, select the stack profile if available, and start the new-project workflow.
 Do not write application code yet.
 Use the routing matrix to select the smallest safe squad.
 ```
@@ -335,6 +390,7 @@ Use the routing matrix to select the smallest safe squad.
 ```text
 Use Claude Code to create a web app with Next.js, React, and Convex.
 Start with ai/09-intake/INTENT_ROUTER.md and ai/09-intake/stack-profiles/web-nextjs-react-convex.md.
+If product/user/MVP are vague, run ai/09-intake/BRAINSTORMING_PLAYBOOK.md first.
 Use .claude/agents/orchestrator.md first.
 Create or update ai/09-intake/INTAKE.md, ai/01-discovery/PROJECT_BRIEF.md, ai/02-product/PRD.md, ai/03-architecture/ARCHITECTURE.md, ai/05-execution/TEST_PLAN.md, and a first small story under ai/04-stories/.
 Do not implement auth, billing, user data, production deploy, or Convex production data changes without explicit approval.
@@ -373,17 +429,18 @@ prompts/generic/existing-project-understanding.md
 ## Recommended operating loop
 
 ```text
-1. Classify user intent
-2. Select workflow mode
-3. Select stack profile when available
-4. Select squad level
-5. Create or update the right artifact/template
-6. Validate Definition of Ready
-7. Implement one story only
-8. Run verification commands
-9. Run review readiness checks
-10. Update memory and decision log when needed
-11. Open PR or prepare release notes
+1. Classify user intent and project maturity
+2. Run brainstorming when the request is only an idea or rough concept
+3. Select workflow mode
+4. Select stack profile when available
+5. Select squad level
+6. Create or update the right artifact/template
+7. Validate Definition of Ready
+8. Implement one story only
+9. Run verification commands
+10. Run review readiness checks
+11. Update memory and decision log when needed
+12. Open PR or prepare release notes
 ```
 
 ## Core rule
