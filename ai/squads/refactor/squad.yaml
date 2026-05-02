@@ -1,0 +1,57 @@
+id: refactor
+name: Refactor Squad
+purpose: Improve structure without changing behavior, protected by safety tests and review.
+default_level: 2
+
+agents:
+  required:
+    - orchestrator
+    - architect
+    - implementer
+    - qa
+    - reviewer
+  optional:
+    - security
+
+entry_artifacts:
+  - refactor_request
+  - behavior_baseline
+  - safety_tests
+  - PROJECT_MAP
+  - PROJECT_MEMORY
+
+exit_artifacts:
+  - refactor_plan
+  - implementation_summary
+  - qa_review
+  - engineering_review
+  - decision_log_update_when_needed
+
+quality_gates:
+  - understanding
+  - specification
+  - execution
+  - verification
+  - review
+  - memory
+
+handoffs:
+  - from: orchestrator
+    to: architect
+    purpose: define refactor boundaries and behavior baseline
+  - from: architect
+    to: qa
+    purpose: identify safety tests and regression risks
+  - from: qa
+    to: implementer
+    purpose: execute mechanical refactor with tests
+  - from: implementer
+    to: reviewer
+    purpose: verify maintainability and behavior preservation
+
+stop_conditions:
+  - behavior change required
+  - safety tests missing for risky refactor
+  - refactor scope too broad
+  - architecture decision required
+  - sensitive area touched without approval
