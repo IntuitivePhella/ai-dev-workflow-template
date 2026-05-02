@@ -1,11 +1,11 @@
 <div align="center">
 
-# 🚀 AI Development Workflow Template
+# 🚀 AI-PhellOS
 
-### **A disciplined, intent-adaptive workflow for building software with Codex or Claude Code**
+### **An operating system for disciplined, intent-adaptive AI software development with Codex or Claude Code**
 
 <p align="center">
-  <img src="https://img.shields.io/badge/AI_Workflow-BMAD--inspired-blue" alt="BMAD inspired">
+  <img src="https://img.shields.io/badge/AI--PhellOS-BMAD--inspired-blue" alt="BMAD inspired">
   <img src="https://img.shields.io/badge/Agents-8_specialists-purple" alt="8 agents">
   <img src="https://img.shields.io/badge/Modes-7_workflows-green" alt="7 workflow modes">
   <img src="https://img.shields.io/badge/CLI-Node.js-339933" alt="Node.js CLI">
@@ -44,7 +44,7 @@
 
 ## 🎯 **What This Is**
 
-**AI Development Workflow Template** is a portable, markdown-first operating system for AI-assisted software development.
+**AI-PhellOS** is a portable, markdown-first operating system for AI-assisted software development.
 
 It helps Codex, Claude Code, and other coding agents move from raw idea to production-ready implementation through:
 
@@ -52,7 +52,7 @@ It helps Codex, Claude Code, and other coding agents move from raw idea to produ
 Brainstorming → Intent Routing → Specs → Architecture → Stories → TDD → Review → Release
 ```
 
-Instead of asking an AI agent to “build the app,” this framework guides it to execute **one safe, testable, reviewable story at a time**.
+Instead of asking an AI agent to “build the app,” AI-PhellOS guides it to execute **one safe, testable, reviewable story at a time**.
 
 </div>
 
@@ -80,7 +80,7 @@ Instead of asking an AI agent to “build the app,” this framework guides it t
 
 The user should **not** need to say which AI coding tool to use.
 
-If the framework is installed and the project is opened in Claude Code or Codex, the execution environment is already known:
+If AI-PhellOS is installed and the project is opened in Claude Code or Codex, the execution environment is already known:
 
 ```text
 Claude Code session → follow CLAUDE.md, .claude/settings.json, and .claude/agents/*
@@ -135,7 +135,7 @@ Build the whole app now.
 
 ## 🧠 **Adaptive User Experience**
 
-The framework starts from **user intent**, not from a fixed development path.
+AI-PhellOS starts from **user intent**, not from a fixed development path.
 
 </div>
 
@@ -562,10 +562,10 @@ This project is licensed under the **MIT License**.
 
 ### 🚀 Built for developers who want AI to work like a disciplined engineering team
 
-<sub>Spec-driven. Test-aware. Agent-routed. Review-gated.</sub>
+<sub>AI-PhellOS: spec-driven, test-aware, agent-routed, review-gated.</sub>
 
 <br><br>
 
-<a href="#-ai-development-workflow-template">Back to top ↑</a>
+<a href="#-ai-phellos">Back to top ↑</a>
 
 </div>
