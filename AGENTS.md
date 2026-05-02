@@ -78,19 +78,33 @@ Do not combine discovery, planning, implementation, and review in one uncontroll
 - Always summarize files changed, tests run, and risks remaining.
 - Stop when blocked by product decisions.
 
+## Cross-platform command rule
+
+Prefer the Node CLI because it works on Linux, macOS, and Windows:
+
+```bash
+node scripts/aiwf.js help
+node scripts/aiwf.js doctor
+node scripts/aiwf.js story feature "Feature title"
+node scripts/aiwf.js validate ai/04-stories/<story-file>.md
+node scripts/aiwf.js review ai/04-stories/<story-file>.md
+```
+
+Use Bash scripts only as compatibility fallback for Linux, macOS, Git Bash, or WSL.
+
 ## Standard workflow for existing projects
 
 1. Create or update `ai/08-memory/PROJECT_MAP.md`.
 2. Create or update `ai/05-execution/IMPACT_ANALYSIS.md`.
 3. Create or update `ai/05-execution/TEST_PLAN.md` when the change is non-trivial.
 4. Convert the request into a story under `ai/04-stories/`.
-5. Validate story readiness with `bash scripts/validate-story.sh <story-file>` when scripts are available.
+5. Validate story readiness with `node scripts/aiwf.js validate <story-file>` when the CLI is available.
 6. Route specialists as needed.
 7. Write or update tests first.
 8. Implement.
 9. Run tests/build/typecheck/lint where available.
 10. Review against quality gates.
-11. Run `bash scripts/review-ready.sh <story-file>` when scripts are available.
+11. Run `node scripts/aiwf.js review <story-file>` when the CLI is available.
 12. Update memory.
 
 ## Standard workflow for new projects
@@ -106,20 +120,20 @@ Do not combine discovery, planning, implementation, and review in one uncontroll
 
 ## Story creation shortcuts
 
-When scripts are available, create stories with:
+When the CLI is available, create stories with:
 
 ```bash
-bash scripts/create-story.sh feature "Feature title"
-bash scripts/create-story.sh bugfix "Bug title"
-bash scripts/create-story.sh refactor "Refactor title"
-bash scripts/create-story.sh migration "Migration title"
-bash scripts/create-story.sh generic "Generic story title"
+node scripts/aiwf.js story feature "Feature title"
+node scripts/aiwf.js story bugfix "Bug title"
+node scripts/aiwf.js story refactor "Refactor title"
+node scripts/aiwf.js story migration "Migration title"
+node scripts/aiwf.js story generic "Generic story title"
 ```
 
 Then validate readiness:
 
 ```bash
-bash scripts/validate-story.sh ai/04-stories/<story-file>.md
+node scripts/aiwf.js validate ai/04-stories/<story-file>.md
 ```
 
 ## Autonomous execution rule
