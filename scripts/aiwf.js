@@ -112,7 +112,7 @@ Node fallback:
   node scripts/aiwf.js <command>
 
 Examples:
-  npx ai-dev-workflow install existing .
+  npx ai-dev-workflow-template install existing .
   aiwf story feature "Add team invitation flow"
   aiwf validate ai/04-stories/20260502-feature-add-team-invitation-flow.md
   aiwf review ai/04-stories/20260502-feature-add-team-invitation-flow.md`);
