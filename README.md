@@ -1,5 +1,7 @@
 # AI Development Workflow Template
 
+[English](README.md) · [Português](README.pt-BR.md) · [Español](README.es.md) · [中文](README.zh-CN.md)
+
 A repo-template and installable CLI for disciplined AI-assisted software development with **Codex** or **Claude Code**.
 
 The workflow is:
