@@ -1,0 +1,47 @@
+name: AI Workflow Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  workflow-guardrails:
+    name: Workflow guardrails
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Show workflow CLI help
+        run: bash scripts/aiwf.sh help
+
+      - name: Run workflow doctor
+        run: bash scripts/aiwf.sh doctor
+
+      - name: Check gates
+        run: bash scripts/aiwf.sh gates
+
+      - name: Check sensitive paths
+        run: bash scripts/aiwf.sh sensitive HEAD~1 HEAD
+
+      - name: Validate active stories when present
+        shell: bash
+        run: |
+          shopt -s nullglob
+          stories=(ai/04-stories/*.md)
+          if [ ${#stories[@]} -eq 0 ]; then
+            echo "No active stories found. Skipping story validation."
+            exit 0
+          fi
+
+          for story in "${stories[@]}"; do
+            echo "Validating $story"
+            bash scripts/aiwf.sh validate "$story"
+          done
