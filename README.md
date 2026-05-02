@@ -5,35 +5,82 @@ A repo-template and installable CLI for disciplined AI-assisted software develop
 The workflow is:
 
 ```text
-BMAD-first, Superpowers-enforced, SuperClaude-assisted, GStack-reviewed, GSD/RalphLoop-bounded, Orchestrator-routed.
+BMAD-first, Superpowers-enforced, SuperClaude-assisted, GStack-reviewed, GSD/RalphLoop-bounded, Orchestrator-routed, Intent-adaptive.
 ```
 
 Or, more directly:
 
 ```text
-Spec-driven. Test-enforced. Specialist-routed. Review-gated. Automation-bounded.
+Spec-driven. Test-enforced. Specialist-routed. Review-gated. Automation-bounded. Adapted to user intent and stack.
 ```
 
 Translated into tool-agnostic practice:
 
 ```text
 1. Understand the project or idea
-2. Create or update specs
-3. Decompose into small stories
-4. Validate readiness before implementation
-5. Route work to the smallest useful specialist squad
-6. Execute with tests first
-7. Review with product, engineering, QA, security, and release lenses
-8. Release with rollback and memory updates
+2. Classify the user's intent and desired stack
+3. Create or update specs
+4. Decompose into small stories
+5. Validate readiness before implementation
+6. Route work to the smallest useful specialist squad
+7. Execute with tests first
+8. Review with product, engineering, QA, security, and release lenses
+9. Release with rollback and memory updates
 ```
 
 This template is intentionally tool-neutral and cross-platform. It works with:
 
-- Codex through `AGENTS.md` and `.codex/config.toml`
-- Claude Code through `CLAUDE.md` and `.claude/settings.json`
+- Codex through `AGENTS.md`, `.codex/config.toml`, markdown agents, context packs, and skills
+- Claude Code through `CLAUDE.md`, `.claude/settings.json`, and native subagent adapters in `.claude/agents/`
 - Any other coding agent that can read markdown instructions
 - A Node.js CLI that runs on Linux, macOS, and Windows
 - Bash guardrail scripts for Linux, macOS, Git Bash, and WSL compatibility
+
+## Adaptive user experience
+
+The framework now starts from user intent instead of assuming one fixed path.
+
+A user can say:
+
+```text
+Use Claude Code to create a web app with Next.js, React, and Convex.
+```
+
+The Orchestrator should route that request through:
+
+```text
+1. ai/09-intake/INTENT_ROUTER.md
+2. ai/09-intake/INTAKE.template.md
+3. ai/09-intake/stack-profiles/web-nextjs-react-convex.md
+4. ai/skills/intent-classification.md
+5. ai/skills/stack-adaptation.md
+6. ai/agents/ROUTING_MATRIX.md
+```
+
+Expected routing result:
+
+```text
+Tool target: Claude Code
+Project state: New project
+Project type: Web app / SaaS candidate
+Stack profile: Next.js + React + Convex
+Workflow mode: New Project
+Squad level: Level 2 by default, Level 3 if auth, billing, permissions, user data, migrations, or deployment are involved
+First safe action: create intake, project brief, PRD, architecture, test plan, and first story split before production app code
+```
+
+The intended experience is:
+
+```text
+User natural-language request
+→ Intent Router
+→ Stack Profile
+→ Required artifacts
+→ Smallest safe squad
+→ First safe story
+→ TDD implementation
+→ Review and memory update
+```
 
 ## Install into any repository
 
@@ -101,11 +148,15 @@ This repo does **not** vendor or reimplement those projects. It turns their stro
 
 - Existing project understanding before changes
 - New project creation from brief to architecture to stories
+- Adaptive intake from natural-language user intent
+- Stack-specific workflow adaptation through stack profiles
 - Small story-based execution
 - Definition of Ready before implementation
 - TDD-first or test-aware implementation
 - Explicit quality gates
 - Specialist squads activated only when useful
+- Claude Code native subagent adapters
+- Codex-friendly markdown agents and context packs
 - Review from product, engineering, QA, security, and release perspectives
 - Bounded autonomous execution only when the phase is safe and well specified
 - Durable project memory between AI sessions
@@ -119,6 +170,7 @@ AGENTS.md                                            # Codex and generic agent i
 CLAUDE.md                                            # Claude Code-specific instructions
 .codex/config.toml                                   # Codex safety profile
 .claude/settings.json                                # Claude Code command allow/deny list
+.claude/agents/*.md                                  # Claude Code native subagent adapters
 package.json                                         # Node CLI package metadata
 
 ai/00-rules/AI_RULES.md                              # Non-negotiable rules and stop conditions
@@ -127,6 +179,11 @@ ai/00-rules/QUALITY_GATES.md                         # Required gates before adv
 ai/00-rules/DEFINITION_OF_READY.md                   # Readiness requirements before implementation
 ai/00-rules/CHANGE_SIZE_POLICY.md                    # When to split or escalate work
 ai/00-rules/GIT_WORKFLOW.md                          # Branch, commit, PR, merge, and rollback rules
+
+ai/09-intake/INTENT_ROUTER.md                        # Natural-language intent to workflow routing
+ai/09-intake/INTAKE.template.md                      # Adaptive intake artifact
+ai/09-intake/stack-profiles/*.md                     # Stack-specific workflow profiles
+ai/skills/*.md                                       # Reusable workflow skills
 
 ai/agents/ORCHESTRATOR.md                            # Orchestrator routing and decision rules
 ai/agents/ROUTING_MATRIX.md                          # Which specialists to call and when
@@ -191,6 +248,23 @@ Default rule:
 Use the fewest agents necessary to safely complete the task.
 ```
 
+## Claude Code subagents
+
+Claude Code-specific subagents are adapters, not a separate source of truth.
+
+```text
+.claude/agents/orchestrator.md
+.claude/agents/product.md
+.claude/agents/architect.md
+.claude/agents/implementer.md
+.claude/agents/qa.md
+.claude/agents/security.md
+.claude/agents/reviewer.md
+.claude/agents/release.md
+```
+
+Each subagent points back to the tool-agnostic source under `ai/agents/` and declares only the skills it needs.
+
 ## Workflow modes
 
 Use the smallest mode that fits the job:
@@ -250,10 +324,21 @@ node scripts/aiwf.js init new
 Then open the repo with Codex or Claude Code and ask:
 
 ```text
-Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/00-rules/DEFINITION_OF_READY.md, ai/00-rules/CHANGE_SIZE_POLICY.md, ai/00-rules/GIT_WORKFLOW.md, and ai/agents/ORCHESTRATOR.md.
-Start the new-project workflow using ai/templates/PROJECT_BRIEF.template.md.
+Read AGENTS.md, CLAUDE.md, ai/09-intake/INTENT_ROUTER.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/00-rules/DEFINITION_OF_READY.md, ai/00-rules/CHANGE_SIZE_POLICY.md, ai/00-rules/GIT_WORKFLOW.md, and ai/agents/ORCHESTRATOR.md.
+Classify my intent, select the stack profile if available, and start the new-project workflow.
 Do not write application code yet.
 Use the routing matrix to select the smallest safe squad.
+```
+
+## Quick start for Claude Code + Next.js + React + Convex
+
+```text
+Use Claude Code to create a web app with Next.js, React, and Convex.
+Start with ai/09-intake/INTENT_ROUTER.md and ai/09-intake/stack-profiles/web-nextjs-react-convex.md.
+Use .claude/agents/orchestrator.md first.
+Create or update ai/09-intake/INTAKE.md, ai/01-discovery/PROJECT_BRIEF.md, ai/02-product/PRD.md, ai/03-architecture/ARCHITECTURE.md, ai/05-execution/TEST_PLAN.md, and a first small story under ai/04-stories/.
+Do not implement auth, billing, user data, production deploy, or Convex production data changes without explicit approval.
+Do not write production app code until the first story satisfies Definition of Ready.
 ```
 
 ## Quick start for an existing project
@@ -288,15 +373,17 @@ prompts/generic/existing-project-understanding.md
 ## Recommended operating loop
 
 ```text
-1. Select workflow mode
-2. Select squad level
-3. Create or update the right artifact/template
-4. Validate Definition of Ready
-5. Implement one story only
-6. Run verification commands
-7. Run review readiness checks
-8. Update memory and decision log when needed
-9. Open PR or prepare release notes
+1. Classify user intent
+2. Select workflow mode
+3. Select stack profile when available
+4. Select squad level
+5. Create or update the right artifact/template
+6. Validate Definition of Ready
+7. Implement one story only
+8. Run verification commands
+9. Run review readiness checks
+10. Update memory and decision log when needed
+11. Open PR or prepare release notes
 ```
 
 ## Core rule
