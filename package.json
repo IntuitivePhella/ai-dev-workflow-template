@@ -1,7 +1,7 @@
 {
-  "name": "ai-dev-workflow-template",
+  "name": "ai-phellos",
   "version": "0.1.0",
-  "description": "Tool-agnostic AI development workflow for Codex, Claude Code, and Markdown-aware coding agents.",
+  "description": "Operating system for disciplined, intent-adaptive AI software development with Codex, Claude Code, and markdown-aware coding agents.",
   "private": false,
   "type": "commonjs",
   "bin": {
@@ -12,6 +12,11 @@
     "CLAUDE.md",
     "LICENSE",
     "README.md",
+    "README.pt-BR.md",
+    "README.es.md",
+    "README.zh-CN.md",
+    "CHANGELOG.md",
+    "SECURITY.md",
     "ai/",
     "docs/",
     "prompts/",
@@ -25,17 +30,19 @@
     "doctor": "node scripts/aiwf.js doctor",
     "gates": "node scripts/aiwf.js gates",
     "pack:dry-run": "npm pack --dry-run",
-    "test": "node scripts/aiwf.js doctor"
+    "test": "node --test tests/*.test.js"
   },
   "keywords": [
     "ai",
     "workflow",
+    "ai-phellos",
     "codex",
     "claude-code",
     "agents",
     "software-development",
     "tdd",
-    "spec-driven-development"
+    "spec-driven-development",
+    "intent-routing"
   ],
   "license": "MIT",
   "engines": {
@@ -43,10 +50,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IntuitivePhella/ai-dev-workflow-template.git"
+    "url": "git+https://github.com/IntuitivePhella/AI-PhellOS.git"
   },
   "bugs": {
-    "url": "https://github.com/IntuitivePhella/ai-dev-workflow-template/issues"
+    "url": "https://github.com/IntuitivePhella/AI-PhellOS/issues"
   },
-  "homepage": "https://github.com/IntuitivePhella/ai-dev-workflow-template#readme"
+  "homepage": "https://github.com/IntuitivePhella/AI-PhellOS#readme"
 }
