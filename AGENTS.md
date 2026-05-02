@@ -9,15 +9,30 @@ You are working inside a disciplined, spec-driven, Orchestrator-routed AI develo
 Your job is not to improvise. Your job is to:
 
 1. Understand context.
-2. Classify the user's intent and project maturity before choosing a workflow.
-3. Run brainstorming when the user only has an idea or rough concept.
-4. Work from explicit specs.
-5. Decompose work into small stories.
-6. Route work to the smallest useful specialist squad.
-7. Use tests before implementation.
-8. Keep changes small and reviewable.
-9. Record decisions and risks.
-10. Stop when the work needs human judgment.
+2. Infer the execution environment from the current tool.
+3. Classify the user's intent and project maturity before choosing a workflow.
+4. Run brainstorming when the user only has an idea or rough concept.
+5. Work from explicit specs.
+6. Decompose work into small stories.
+7. Route work to the smallest useful specialist squad.
+8. Use tests before implementation.
+9. Keep changes small and reviewable.
+10. Record decisions and risks.
+11. Stop when the work needs human judgment.
+
+## Environment inference rule
+
+The user should not need to say whether they are using Codex, Claude Code, or another coding agent.
+
+Infer the execution environment from the current tool:
+
+```text
+Claude Code session → follow CLAUDE.md, .claude/settings.json, and .claude/agents/*
+Codex session       → follow AGENTS.md, .codex/config.toml, ai/agents/*, context packs, and skills
+Generic agent       → follow AGENTS.md and markdown-first workflow files
+```
+
+The user's request should describe what to create, understand, change, fix, refactor, or automate.
 
 ## Adaptive intake and brainstorming rule
 
@@ -44,6 +59,7 @@ User: I have an idea for an app for schools, but I am not sure what exactly to b
 Routing:
 - Project maturity: Idea only
 - Pre-brief phase: Brainstorming
+- Execution environment: inferred from current tool
 - Squad: Orchestrator + Product
 - First safe action: create a brainstorming artifact, make safe assumptions explicit, and ask one high-leverage question about the primary problem/user
 ```
@@ -51,10 +67,10 @@ Routing:
 Example with stack:
 
 ```text
-User: I want to use Claude Code to create a web app with Next.js, React, and Convex.
+User: I want to create a web app with Next.js, React, and Convex.
 
 Routing:
-- Tool target: Claude Code
+- Execution environment: inferred from current tool
 - Project state: New project
 - Project maturity: Rough concept unless product/user/MVP are already clear
 - Project type: Web app / SaaS candidate
@@ -147,20 +163,21 @@ Use Bash scripts only as compatibility fallback for Linux, macOS, Git Bash, or W
 
 ## Standard adaptive workflow for new project requests
 
-1. Classify intent and project maturity with `ai/09-intake/INTENT_ROUTER.md`.
-2. If maturity is Idea only or Rough concept, run `ai/09-intake/BRAINSTORMING_PLAYBOOK.md`.
-3. Use `ai/09-intake/QUESTION_STRATEGY.md` to ask at most one blocking/high-leverage question at a time.
-4. Create a brainstorming artifact from `ai/templates/BRAINSTORMING.template.md` when needed.
-5. Select a stack profile when available.
-6. Create or update `ai/09-intake/INTAKE.md`.
-7. Create `ai/01-discovery/PROJECT_BRIEF.md`.
-8. Route Product and Architect as needed.
-9. Create `ai/01-discovery/DISCOVERY.md`.
-10. Create `ai/02-product/PRD.md`.
-11. Create `ai/03-architecture/ARCHITECTURE.md`.
-12. Create a story split under `ai/04-stories/`.
-13. Execute one story at a time.
-14. Review and update memory after each story.
+1. Infer execution environment from the current tool.
+2. Classify intent and project maturity with `ai/09-intake/INTENT_ROUTER.md`.
+3. If maturity is Idea only or Rough concept, run `ai/09-intake/BRAINSTORMING_PLAYBOOK.md`.
+4. Use `ai/09-intake/QUESTION_STRATEGY.md` to ask at most one blocking/high-leverage question at a time.
+5. Create a brainstorming artifact from `ai/templates/BRAINSTORMING.template.md` when needed.
+6. Select a stack profile when available.
+7. Create or update `ai/09-intake/INTAKE.md`.
+8. Create `ai/01-discovery/PROJECT_BRIEF.md`.
+9. Route Product and Architect as needed.
+10. Create `ai/01-discovery/DISCOVERY.md`.
+11. Create `ai/02-product/PRD.md`.
+12. Create `ai/03-architecture/ARCHITECTURE.md`.
+13. Create a story split under `ai/04-stories/`.
+14. Execute one story at a time.
+15. Review and update memory after each story.
 
 ## Standard workflow for existing projects
 
