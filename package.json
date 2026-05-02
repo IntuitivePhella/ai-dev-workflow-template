@@ -1,0 +1,29 @@
+{
+  "name": "ai-dev-workflow-template",
+  "version": "0.1.0",
+  "description": "Tool-agnostic AI development workflow for Codex, Claude Code, and Markdown-aware coding agents.",
+  "private": false,
+  "type": "commonjs",
+  "bin": {
+    "aiwf": "scripts/aiwf.js"
+  },
+  "scripts": {
+    "aiwf": "node scripts/aiwf.js",
+    "doctor": "node scripts/aiwf.js doctor",
+    "gates": "node scripts/aiwf.js gates",
+    "test": "node scripts/aiwf.js doctor"
+  },
+  "keywords": [
+    "ai",
+    "workflow",
+    "codex",
+    "claude-code",
+    "agents",
+    "software-development",
+    "tdd"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
