@@ -88,11 +88,21 @@ function todayStamp() {
   return `${yyyy}${mm}${dd}`;
 }
 
-function listMarkdownFiles(dirPath) {
+function isStoryFile(filePath) {
+  const name = path.basename(filePath).toLowerCase();
+  if (!name.endsWith('.md')) return false;
+  if (name === 'readme.md') return false;
+  if (name.endsWith('.template.md')) return false;
+  if (name.startsWith('.')) return false;
+  return true;
+}
+
+function listStoryFiles(dirPath) {
   if (!exists(dirPath)) return [];
   return fs.readdirSync(dirPath)
-    .filter((name) => name.endsWith('.md'))
-    .map((name) => path.join(dirPath, name));
+    .map((name) => path.join(dirPath, name))
+    .filter((filePath) => fs.statSync(filePath).isFile())
+    .filter(isStoryFile);
 }
 
 function usage() {
@@ -112,7 +122,7 @@ Node fallback:
   node scripts/aiwf.js <command>
 
 Examples:
-  npx ai-dev-workflow install existing .
+  npx ai-dev-workflow-template install existing .
   aiwf story feature "Add team invitation flow"
   aiwf validate ai/04-stories/20260502-feature-add-team-invitation-flow.md
   aiwf review ai/04-stories/20260502-feature-add-team-invitation-flow.md`);
@@ -231,6 +241,11 @@ function validateStory(storyPath) {
   const absolute = path.resolve(TARGET_ROOT, storyPath);
   if (!exists(absolute)) throw new Error(`File not found: ${storyPath}`);
 
+  if (!isStoryFile(absolute)) {
+    console.log(`Skipping non-story markdown file: ${storyPath}`);
+    return true;
+  }
+
   const content = read(absolute);
   let failures = 0;
   let warnings = 0;
@@ -319,9 +334,9 @@ function checkGates() {
 
   const storyDir = targetRel('ai/04-stories');
   if (exists(storyDir)) {
-    const stories = listMarkdownFiles(storyDir);
+    const stories = listStoryFiles(storyDir);
     if (stories.length === 0) {
-      console.log('WARN: no stories found in ai/04-stories');
+      console.log('WARN: no executable stories found in ai/04-stories');
       warnings += 1;
     }
   }
@@ -332,7 +347,9 @@ function checkGates() {
     const files = fs.readdirSync(dirPath, { recursive: true }).filter((entry) => String(entry).endsWith('.md') && !String(entry).endsWith('.template.md'));
     for (const file of files) {
       const filePath = path.join(dirPath, file);
-      if (fs.statSync(filePath).isFile() && /TBD/i.test(read(filePath))) {
+      if (!fs.statSync(filePath).isFile()) continue;
+      if (path.basename(filePath).toLowerCase() === 'readme.md') continue;
+      if (/TBD/i.test(read(filePath))) {
         console.log(`WARN: unresolved TBD placeholders found in ${path.relative(TARGET_ROOT, filePath)}`);
         warnings += 1;
       }
