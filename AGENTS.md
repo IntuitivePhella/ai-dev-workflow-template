@@ -24,14 +24,17 @@ Before doing any coding task, read:
 1. `ai/00-rules/AI_RULES.md`
 2. `ai/00-rules/WORKFLOW_MODES.md`
 3. `ai/00-rules/QUALITY_GATES.md`
-4. `ai/agents/ORCHESTRATOR.md`
-5. `ai/agents/ROUTING_MATRIX.md`
-6. `ai/agents/SQUAD_LEVELS.md`
-7. `ai/08-memory/PROJECT_MEMORY.md`
-8. `ai/08-memory/PROJECT_MAP.md`, if present
-9. The relevant story in `ai/04-stories/`
-10. The relevant test plan in `ai/05-execution/`, if present
-11. `ai/05-execution/EXECUTION_PROTOCOL.md`
+4. `ai/00-rules/DEFINITION_OF_READY.md`
+5. `ai/00-rules/CHANGE_SIZE_POLICY.md`
+6. `ai/00-rules/GIT_WORKFLOW.md`
+7. `ai/agents/ORCHESTRATOR.md`
+8. `ai/agents/ROUTING_MATRIX.md`
+9. `ai/agents/SQUAD_LEVELS.md`
+10. `ai/08-memory/PROJECT_MEMORY.md`
+11. `ai/08-memory/PROJECT_MAP.md`, if present
+12. The relevant story in `ai/04-stories/`
+13. The relevant test plan in `ai/05-execution/`, if present
+14. `ai/05-execution/EXECUTION_PROTOCOL.md`
 
 ## Operating model
 
@@ -65,10 +68,12 @@ Do not combine discovery, planning, implementation, and review in one uncontroll
 ## Global operating rules
 
 - Do not implement without a brief, story, bug report, or explicit task.
+- Do not implement before checking `ai/00-rules/DEFINITION_OF_READY.md`.
+- Do not exceed `ai/00-rules/CHANGE_SIZE_POLICY.md` without splitting or escalating.
 - Do not change architecture without updating `ai/03-architecture/DECISION_LOG.md`.
 - Do not remove or weaken tests to make the build pass.
 - Do not perform opportunistic refactors during feature work.
-- Do not touch billing, authentication, permissions, destructive migrations, production deploy, or secrets without explicit human approval.
+- Do not touch billing, authentication, permissions, destructive migrations, production deploy, user data, paid APIs, or secrets without explicit human approval.
 - Prefer the smallest useful change.
 - Always summarize files changed, tests run, and risks remaining.
 - Stop when blocked by product decisions.
@@ -79,12 +84,14 @@ Do not combine discovery, planning, implementation, and review in one uncontroll
 2. Create or update `ai/05-execution/IMPACT_ANALYSIS.md`.
 3. Create or update `ai/05-execution/TEST_PLAN.md` when the change is non-trivial.
 4. Convert the request into a story under `ai/04-stories/`.
-5. Route specialists as needed.
-6. Write or update tests first.
-7. Implement.
-8. Run tests/build/typecheck/lint where available.
-9. Review against quality gates.
-10. Update memory.
+5. Validate story readiness with `bash scripts/validate-story.sh <story-file>` when scripts are available.
+6. Route specialists as needed.
+7. Write or update tests first.
+8. Implement.
+9. Run tests/build/typecheck/lint where available.
+10. Review against quality gates.
+11. Run `bash scripts/review-ready.sh <story-file>` when scripts are available.
+12. Update memory.
 
 ## Standard workflow for new projects
 
@@ -97,6 +104,24 @@ Do not combine discovery, planning, implementation, and review in one uncontroll
 7. Execute one story at a time.
 8. Review and update memory after each story.
 
+## Story creation shortcuts
+
+When scripts are available, create stories with:
+
+```bash
+bash scripts/create-story.sh feature "Feature title"
+bash scripts/create-story.sh bugfix "Bug title"
+bash scripts/create-story.sh refactor "Refactor title"
+bash scripts/create-story.sh migration "Migration title"
+bash scripts/create-story.sh generic "Generic story title"
+```
+
+Then validate readiness:
+
+```bash
+bash scripts/validate-story.sh ai/04-stories/<story-file>.md
+```
+
 ## Autonomous execution rule
 
 Only use autonomous execution when `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.md` exists and contains:
@@ -107,7 +132,11 @@ Only use autonomous execution when `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.md
 - required commands
 - completion promise
 - max iterations
+- max change budget
 - stop conditions
+- rollback plan
+
+Use `ai/05-execution/AUTONOMOUS_PHASE_CONTRACT.template.md` to create the contract.
 
 Never use autonomous execution for sensitive areas without human approval.
 
@@ -131,6 +160,9 @@ Acceptance criteria:
 - [ ] ...
 
 Tests run:
+- ...
+
+Quality gates/scripts:
 - ...
 
 Risks:
