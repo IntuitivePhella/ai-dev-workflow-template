@@ -1,0 +1,54 @@
+id: new-project
+name: New Project Squad
+purpose: Convert a new idea into brief, discovery, PRD, architecture, and implementation stories.
+default_level: 3
+
+agents:
+  required:
+    - orchestrator
+    - product
+    - architect
+    - qa
+  optional:
+    - security
+    - reviewer
+    - release
+
+entry_artifacts:
+  - user_request
+  - PROJECT_BRIEF
+  - constraints
+
+exit_artifacts:
+  - ai/01-discovery/PROJECT_BRIEF.md
+  - ai/01-discovery/DISCOVERY.md
+  - ai/02-product/PRD.md
+  - ai/03-architecture/ARCHITECTURE.md
+  - ai/04-stories/*.md
+  - ai/08-memory/PROJECT_MEMORY.md
+
+quality_gates:
+  - understanding
+  - specification
+  - review
+  - memory
+
+handoffs:
+  - from: orchestrator
+    to: product
+    purpose: define problem, user, scope, non-goals, acceptance criteria
+  - from: product
+    to: architect
+    purpose: design technical architecture and trade-offs
+  - from: architect
+    to: qa
+    purpose: validate testability and acceptance criteria
+  - from: orchestrator
+    to: implementer
+    purpose: only after stories are ready
+
+stop_conditions:
+  - unclear target user
+  - untestable acceptance criteria
+  - architecture decision requires human approval
+  - sensitive area requires security review
