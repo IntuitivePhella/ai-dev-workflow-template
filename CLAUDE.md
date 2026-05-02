@@ -90,24 +90,28 @@ For review:
 ```text
 Review the diff against the story acceptance criteria, Definition of Ready, Quality Gates, Change Size Policy, and Git Workflow.
 Check tests, regressions, security, maintainability, release readiness, and memory updates.
-Run bash scripts/review-ready.sh <story-file> when scripts are available.
+Run node scripts/aiwf.js review <story-file> when the CLI is available.
 ```
 
-## Script usage
+## Cross-platform CLI usage
 
-When scripts are available, use them as guardrails:
+Prefer the Node CLI because it works on Linux, macOS, and Windows:
 
 ```bash
-bash scripts/create-story.sh feature "Feature title"
-bash scripts/create-story.sh bugfix "Bug title"
-bash scripts/create-story.sh refactor "Refactor title"
-bash scripts/create-story.sh migration "Migration title"
-bash scripts/validate-story.sh ai/04-stories/<story-file>.md
-bash scripts/check-gates.sh
-bash scripts/review-ready.sh ai/04-stories/<story-file>.md
+node scripts/aiwf.js help
+node scripts/aiwf.js doctor
+node scripts/aiwf.js story feature "Feature title"
+node scripts/aiwf.js story bugfix "Bug title"
+node scripts/aiwf.js story refactor "Refactor title"
+node scripts/aiwf.js story migration "Migration title"
+node scripts/aiwf.js validate ai/04-stories/<story-file>.md
+node scripts/aiwf.js gates
+node scripts/aiwf.js review ai/04-stories/<story-file>.md
 ```
 
-Treat script failures as workflow blockers unless there is a documented reason to proceed.
+Use Bash scripts only as compatibility fallback for Linux, macOS, Git Bash, or WSL.
+
+Treat CLI failures as workflow blockers unless there is a documented reason to proceed.
 
 ## Claude-specific guardrails
 
