@@ -61,19 +61,25 @@ jobs:
       - name: Smoke test install existing
         shell: pwsh
         run: |
+          function Assert-PathExists($Path) {
+            if (-not (Test-Path $Path)) {
+              throw "Expected path does not exist: $Path"
+            }
+          }
+
           $target = "tmp-aiwf-existing-smoke"
           if (Test-Path $target) { Remove-Item -Recurse -Force $target }
           New-Item -ItemType Directory -Path $target | Out-Null
           node scripts/aiwf.js install existing $target
-          Test-Path "$target/AGENTS.md" | Should -Be $true
-          Test-Path "$target/CLAUDE.md" | Should -Be $true
-          Test-Path "$target/ai" | Should -Be $true
-          Test-Path "$target/scripts" | Should -Be $true
-          Test-Path "$target/prompts" | Should -Be $true
-          Test-Path "$target/docs" | Should -Be $true
-          Test-Path "$target/.claude" | Should -Be $true
-          Test-Path "$target/.codex" | Should -Be $true
-          Test-Path "$target/.github/pull_request_template.md" | Should -Be $true
+          Assert-PathExists "$target/AGENTS.md"
+          Assert-PathExists "$target/CLAUDE.md"
+          Assert-PathExists "$target/ai"
+          Assert-PathExists "$target/scripts"
+          Assert-PathExists "$target/prompts"
+          Assert-PathExists "$target/docs"
+          Assert-PathExists "$target/.claude"
+          Assert-PathExists "$target/.codex"
+          Assert-PathExists "$target/.github/pull_request_template.md"
           Push-Location $target
           node scripts/aiwf.js story feature "Test installable workflow"
           $story = Get-ChildItem -Path "ai/04-stories" -Filter "*test-installable-workflow.md" | Select-Object -First 1
@@ -85,11 +91,17 @@ jobs:
       - name: Smoke test install new
         shell: pwsh
         run: |
+          function Assert-PathExists($Path) {
+            if (-not (Test-Path $Path)) {
+              throw "Expected path does not exist: $Path"
+            }
+          }
+
           $target = "tmp-aiwf-new-smoke"
           if (Test-Path $target) { Remove-Item -Recurse -Force $target }
           New-Item -ItemType Directory -Path $target | Out-Null
           node scripts/aiwf.js install new $target
-          Test-Path "$target/ai/01-discovery/PROJECT_BRIEF.md" | Should -Be $true
-          Test-Path "$target/ai/02-product/PRD.md" | Should -Be $true
-          Test-Path "$target/ai/03-architecture/ARCHITECTURE.md" | Should -Be $true
+          Assert-PathExists "$target/ai/01-discovery/PROJECT_BRIEF.md"
+          Assert-PathExists "$target/ai/02-product/PRD.md"
+          Assert-PathExists "$target/ai/03-architecture/ARCHITECTURE.md"
           Remove-Item -Recurse -Force $target
