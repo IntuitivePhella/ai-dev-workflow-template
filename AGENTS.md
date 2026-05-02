@@ -9,13 +9,44 @@ You are working inside a disciplined, spec-driven, Orchestrator-routed AI develo
 Your job is not to improvise. Your job is to:
 
 1. Understand context.
-2. Work from explicit specs.
-3. Decompose work into small stories.
-4. Route work to the smallest useful specialist squad.
-5. Use tests before implementation.
-6. Keep changes small and reviewable.
-7. Record decisions and risks.
-8. Stop when the work needs human judgment.
+2. Classify the user's intent before choosing a workflow.
+3. Work from explicit specs.
+4. Decompose work into small stories.
+5. Route work to the smallest useful specialist squad.
+6. Use tests before implementation.
+7. Keep changes small and reviewable.
+8. Record decisions and risks.
+9. Stop when the work needs human judgment.
+
+## Adaptive intake rule
+
+When the user describes what they want to create, change, fix, understand, refactor, or automate, start with intent routing unless a ready story already exists.
+
+Read:
+
+1. `ai/09-intake/INTENT_ROUTER.md`
+2. `ai/09-intake/INTAKE.template.md`
+3. Any relevant stack profile under `ai/09-intake/stack-profiles/`
+4. Relevant skills under `ai/skills/`
+
+Produce an Intent Routing Result before implementation. Then create or update the right artifacts.
+
+Example:
+
+```text
+User: I want to use Claude Code to create a web app with Next.js, React, and Convex.
+
+Routing:
+- Tool target: Claude Code
+- Project state: New project
+- Project type: Web app / SaaS candidate
+- Stack profile: ai/09-intake/stack-profiles/web-nextjs-react-convex.md
+- Workflow mode: New Project
+- Squad level: Level 2 or Level 3 depending on auth, billing, user data, and deployment risk
+- First safe action: fill intake and project brief, then draft PRD, architecture, test plan, and first story split
+```
+
+Do not start by building the app. Start by adapting the workflow to the user's intent.
 
 ## Required reading order
 
@@ -30,11 +61,12 @@ Before doing any coding task, read:
 7. `ai/agents/ORCHESTRATOR.md`
 8. `ai/agents/ROUTING_MATRIX.md`
 9. `ai/agents/SQUAD_LEVELS.md`
-10. `ai/08-memory/PROJECT_MEMORY.md`
-11. `ai/08-memory/PROJECT_MAP.md`, if present
-12. The relevant story in `ai/04-stories/`
-13. The relevant test plan in `ai/05-execution/`, if present
-14. `ai/05-execution/EXECUTION_PROTOCOL.md`
+10. `ai/09-intake/INTENT_ROUTER.md` when the request is not already a ready story
+11. `ai/08-memory/PROJECT_MEMORY.md`
+12. `ai/08-memory/PROJECT_MAP.md`, if present
+13. The relevant story in `ai/04-stories/`
+14. The relevant test plan in `ai/05-execution/`, if present
+15. `ai/05-execution/EXECUTION_PROTOCOL.md`
 
 ## Operating model
 
@@ -64,6 +96,7 @@ Do not combine discovery, planning, implementation, and review in one uncontroll
 - Use `ai/agents/CONTEXT_PACK.template.md` to keep specialist work token-efficient.
 - Use `ai/agents/HANDOFF.template.md` only when durable handoff is necessary.
 - Use `ai/agents/AGENT_OUTPUTS.md` for standardized specialist outputs.
+- Use `ai/skills/*` as focused procedures, not as replacements for rules or stories.
 
 ## Global operating rules
 
@@ -92,6 +125,20 @@ node scripts/aiwf.js review ai/04-stories/<story-file>.md
 
 Use Bash scripts only as compatibility fallback for Linux, macOS, Git Bash, or WSL.
 
+## Standard adaptive workflow for new project requests
+
+1. Classify intent with `ai/09-intake/INTENT_ROUTER.md`.
+2. Select a stack profile when available.
+3. Create or update `ai/09-intake/INTAKE.md`.
+4. Create `ai/01-discovery/PROJECT_BRIEF.md`.
+5. Route Product and Architect as needed.
+6. Create `ai/01-discovery/DISCOVERY.md`.
+7. Create `ai/02-product/PRD.md`.
+8. Create `ai/03-architecture/ARCHITECTURE.md`.
+9. Create a story split under `ai/04-stories/`.
+10. Execute one story at a time.
+11. Review and update memory after each story.
+
 ## Standard workflow for existing projects
 
 1. Create or update `ai/08-memory/PROJECT_MAP.md`.
@@ -106,17 +153,6 @@ Use Bash scripts only as compatibility fallback for Linux, macOS, Git Bash, or W
 10. Review against quality gates.
 11. Run `node scripts/aiwf.js review <story-file>` when the CLI is available.
 12. Update memory.
-
-## Standard workflow for new projects
-
-1. Create `ai/01-discovery/PROJECT_BRIEF.md`.
-2. Route Product and Architect as needed.
-3. Create `ai/01-discovery/DISCOVERY.md`.
-4. Create `ai/02-product/PRD.md`.
-5. Create `ai/03-architecture/ARCHITECTURE.md`.
-6. Create stories under `ai/04-stories/`.
-7. Execute one story at a time.
-8. Review and update memory after each story.
 
 ## Story creation shortcuts
 
