@@ -50,6 +50,42 @@ This template was designed after comparing and extracting the strongest operatin
 
 This repo does **not** vendor or reimplement those projects. It turns their strongest workflow ideas into a portable, markdown-first operating system for AI-assisted development.
 
+## What this workflow optimizes for
+
+- Existing project understanding before changes
+- New project creation from brief to architecture to stories
+- Small story-based execution
+- TDD-first or test-aware implementation
+- Explicit quality gates
+- Review from product, engineering, QA, security, and release perspectives
+- Bounded autonomous execution only when the phase is safe and well specified
+- Durable project memory between AI sessions
+
+## Core files
+
+```text
+AGENTS.md                                  # Codex and generic agent instructions
+CLAUDE.md                                  # Claude Code-specific instructions
+ai/00-rules/AI_RULES.md                    # Non-negotiable rules and stop conditions
+ai/00-rules/WORKFLOW_MODES.md              # Which workflow to use for each type of work
+ai/00-rules/QUALITY_GATES.md               # Required gates before advancing phases
+ai/05-execution/EXECUTION_PROTOCOL.md      # Story execution protocol
+ai/06-reviews/REVIEW_CHECKLIST.md          # Product/engineering/QA/security/release review
+ai/08-memory/PROJECT_MEMORY.md             # Durable conventions, commands, risks, and decisions
+ai/08-memory/PROJECT_MAP.md                # Existing project map
+```
+
+## Workflow modes
+
+Use the smallest mode that fits the job:
+
+1. **New Project** — idea to brief, discovery, PRD, architecture, stories, implementation.
+2. **Existing Project Understanding** — map a repository before coding.
+3. **New Feature in Existing Project** — feature brief, impact analysis, test plan, story, execution, review.
+4. **Bugfix** — reproduction, failing test, minimal fix, regression test.
+5. **Refactor** — behavior-preserving structural improvement with safety tests.
+6. **Autonomous Phase** — bounded automation only with an explicit contract.
+
 ## Quick start for a new project
 
 ```bash
@@ -61,7 +97,7 @@ bash scripts/new-project.sh
 Then open the repo with Codex or Claude Code and ask:
 
 ```text
-Read AGENTS.md, CLAUDE.md, and ai/00-rules/AI_RULES.md.
+Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, and ai/00-rules/QUALITY_GATES.md.
 Start the new-project workflow using ai/templates/PROJECT_BRIEF.template.md.
 Do not write application code yet.
 ```
@@ -79,7 +115,7 @@ bash scripts/existing-project.sh
 Ask your agent:
 
 ```text
-Read AGENTS.md, CLAUDE.md, and ai/00-rules/AI_RULES.md.
+Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, and ai/00-rules/QUALITY_GATES.md.
 Analyze this repository and create ai/08-memory/PROJECT_MAP.md before proposing changes.
 Do not modify production code yet.
 ```
@@ -92,7 +128,10 @@ Ask it to execute **one story** with:
 
 - clear acceptance criteria
 - files in scope
+- files/areas explicitly forbidden
 - tests required
+- commands to run
 - non-goals
 - stop conditions
+- rollback plan
 - review checklist
