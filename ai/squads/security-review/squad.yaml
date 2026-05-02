@@ -1,0 +1,55 @@
+id: security-review
+name: Security Review Squad
+purpose: Review sensitive changes involving auth, permissions, secrets, personal data, public APIs, infrastructure, or destructive operations.
+default_level: 2
+
+agents:
+  required:
+    - orchestrator
+    - security
+    - reviewer
+  optional:
+    - architect
+    - qa
+    - release
+    - implementer
+
+entry_artifacts:
+  - story
+  - IMPACT_ANALYSIS
+  - ARCHITECTURE
+  - changed_files
+  - implementation_summary
+  - environment_notes
+
+exit_artifacts:
+  - security_review
+  - required_changes
+  - approval_requirement
+  - release_risk_notes
+
+quality_gates:
+  - specification
+  - verification
+  - review
+
+handoffs:
+  - from: orchestrator
+    to: security
+    purpose: inspect sensitive surfaces and risks
+  - from: security
+    to: architect
+    purpose: review architecture implications when needed
+  - from: security
+    to: qa
+    purpose: define security-relevant tests when needed
+  - from: security
+    to: reviewer
+    purpose: validate required changes and residual risk
+
+stop_conditions:
+  - human approval required and missing
+  - secrets or personal data may be exposed
+  - auth or permission behavior unclear
+  - destructive migration involved
+  - production infrastructure risk unclear
