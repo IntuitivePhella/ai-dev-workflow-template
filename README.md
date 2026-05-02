@@ -1,6 +1,6 @@
 # AI Development Workflow Template
 
-A repo-template for disciplined AI-assisted software development with **Codex** or **Claude Code**.
+A repo-template and installable CLI for disciplined AI-assisted software development with **Codex** or **Claude Code**.
 
 The workflow is:
 
@@ -35,6 +35,29 @@ This template is intentionally tool-neutral and cross-platform. It works with:
 - A Node.js CLI that runs on Linux, macOS, and Windows
 - Bash guardrail scripts for Linux, macOS, Git Bash, and WSL compatibility
 
+## Install into any repository
+
+After publishing to npm, use:
+
+```bash
+npx ai-dev-workflow-template install existing .
+```
+
+For a new project directory:
+
+```bash
+npx ai-dev-workflow-template install new ./my-new-app
+```
+
+Before npm publishing, from a cloned copy of this repo:
+
+```bash
+node scripts/aiwf.js install existing /path/to/your/repo
+node scripts/aiwf.js install new /path/to/new/project
+```
+
+The install command copies the workflow assets into the target repo without overwriting existing files, then initializes either the new-project or existing-project workflow.
+
 ## Cross-platform CLI
 
 The recommended command layer is Node.js:
@@ -58,6 +81,8 @@ aiwf story feature "Add team invitation flow"
 ```
 
 See `docs/CROSS_PLATFORM_INSTALL.md` for Linux, macOS, Windows PowerShell, Windows CMD, Git Bash, and WSL usage.
+
+See `docs/PUBLISHING.md` for npm publishing instructions.
 
 ## Workflow references
 
@@ -135,6 +160,7 @@ scripts/review-ready.sh                              # Bash compatibility: run r
 
 docs/OPERATING_MANUAL.md                             # End-to-end usage manual
 docs/CROSS_PLATFORM_INSTALL.md                       # Linux/macOS/Windows CLI guide
+docs/PUBLISHING.md                                   # npm publishing guide
 
 prompts/generic/existing-project-understanding.md    # Copy/paste prompt for repo mapping
 prompts/generic/new-feature.md                       # Copy/paste prompt for feature work
@@ -232,15 +258,19 @@ Use the routing matrix to select the smallest safe squad.
 
 ## Quick start for an existing project
 
-Copy the `ai/`, `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.codex/`, `scripts/`, `docs/`, `package.json`, and `prompts/` into your existing repo.
-
-Then run:
+Using npm after publishing:
 
 ```bash
-node scripts/aiwf.js init existing
+npx ai-dev-workflow-template install existing .
 ```
 
-Ask your agent:
+Using a cloned copy:
+
+```bash
+node scripts/aiwf.js install existing /path/to/your/repo
+```
+
+Then ask your agent:
 
 ```text
 Read AGENTS.md, CLAUDE.md, ai/00-rules/AI_RULES.md, ai/00-rules/WORKFLOW_MODES.md, ai/00-rules/QUALITY_GATES.md, ai/00-rules/DEFINITION_OF_READY.md, ai/00-rules/CHANGE_SIZE_POLICY.md, ai/00-rules/GIT_WORKFLOW.md, and ai/agents/ORCHESTRATOR.md.
