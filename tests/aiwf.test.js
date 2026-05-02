@@ -35,7 +35,56 @@ test('help prints available commands', () => {
   assert.equal(result.status, 0);
   assert.match(result.stdout, /AI Workflow CLI/);
   assert.match(result.stdout, /aiwf install <new\|existing>/);
+  assert.match(result.stdout, /aiwf start \[request\]/);
+  assert.match(result.stdout, /aiwf map \[repo-focus\]/);
+  assert.match(result.stdout, /aiwf brainstorm <idea>/);
+  assert.match(result.stdout, /aiwf plan <feature-or-change>/);
   assert.match(result.stdout, /aiwf doctor/);
+  assert.match(result.stdout, /npx ai-phellos install existing \./);
+});
+
+test('start prints an intent routing prompt', () => {
+  const cwd = makeTempProject();
+  const result = runCli(['start', 'I want to create a Next.js app'], cwd);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /AI-PhellOS Start Prompt/);
+  assert.match(result.stdout, /Intent Routing Result/);
+  assert.match(result.stdout, /I want to create a Next\.js app/);
+  assert.match(result.stdout, /Do not write production code/);
+});
+
+test('map prints an existing project understanding prompt', () => {
+  const cwd = makeTempProject();
+  const result = runCli(['map', 'auth and billing'], cwd);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /AI-PhellOS Repository Mapping Prompt/);
+  assert.match(result.stdout, /Existing Project Understanding/);
+  assert.match(result.stdout, /auth and billing/);
+  assert.match(result.stdout, /PROJECT_MAP\.md/);
+});
+
+test('brainstorm prints a pre-brief shaping prompt', () => {
+  const cwd = makeTempProject();
+  const result = runCli(['brainstorm', 'an app for schools'], cwd);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /AI-PhellOS Brainstorming Prompt/);
+  assert.match(result.stdout, /Brainstorming \/ Pre-brief shaping/);
+  assert.match(result.stdout, /an app for schools/);
+  assert.match(result.stdout, /Ask at most one high-leverage question/);
+});
+
+test('plan prints a planning prompt for a requested change', () => {
+  const cwd = makeTempProject();
+  const result = runCli(['plan', 'Add team invitation flow'], cwd);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /AI-PhellOS Planning Prompt/);
+  assert.match(result.stdout, /Requested change:/);
+  assert.match(result.stdout, /Add team invitation flow/);
+  assert.match(result.stdout, /Definition of Ready/);
 });
 
 test('install existing copies workflow assets without overwriting app package.json', () => {
