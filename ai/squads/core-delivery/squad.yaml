@@ -1,0 +1,55 @@
+id: core-delivery
+name: Core Delivery Squad
+purpose: Execute one approved story safely with tests, QA, review, and memory updates.
+default_level: 2
+
+agents:
+  required:
+    - orchestrator
+    - implementer
+    - qa
+  optional:
+    - architect
+    - security
+    - reviewer
+    - release
+
+entry_artifacts:
+  - ai/04-stories/current-story.md
+  - ai/05-execution/TEST_PLAN.md
+  - ai/08-memory/PROJECT_MEMORY.md
+  - ai/08-memory/PROJECT_MAP.md
+
+exit_artifacts:
+  - implementation_summary
+  - qa_review
+  - engineering_review
+  - updated_memory_when_needed
+
+quality_gates:
+  - specification
+  - execution
+  - verification
+  - review
+  - memory
+
+handoffs:
+  - from: orchestrator
+    to: implementer
+    purpose: execute story with tests and smallest useful change
+  - from: implementer
+    to: qa
+    purpose: verify acceptance criteria and regression risk
+  - from: qa
+    to: reviewer
+    purpose: senior engineering review when complexity or risk justifies it
+  - from: reviewer
+    to: release
+    purpose: release readiness when user-visible or operational changes exist
+
+stop_conditions:
+  - acceptance criteria unclear
+  - required tests unknown
+  - sensitive approval missing
+  - story expands beyond scope
+  - tests cannot pass after two serious attempts
