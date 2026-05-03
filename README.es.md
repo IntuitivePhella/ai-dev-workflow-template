@@ -77,34 +77,50 @@ Pídele a Ruflo que construya la app durante la noche.
 
 ## Quick Start
 
-### Instalar en un repositorio existente
+AI-PhellOS todavía no ha sido publicado en npm. Hasta que el paquete sea publicado, instala desde GitHub o desde un clone local.
+
+### Instalación actual desde GitHub
+
+Instalar en un repositorio existente:
 
 ```bash
-npx ai-phellos install existing .
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf install existing .
 ```
 
-Antes de publicar en npm, usando un clone de este repositorio:
+Iniciar un proyecto nuevo:
+
+```bash
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf install new ./my-new-app
+```
+
+### Instalación actual desde un clone local
+
+Usando un clone de este repositorio:
 
 ```bash
 node scripts/aiwf.js install existing /path/to/your/repo
-```
-
-### Iniciar un proyecto nuevo
-
-```bash
-npx ai-phellos install new ./my-new-app
-```
-
-Antes de publicar en npm:
-
-```bash
 node scripts/aiwf.js install new /path/to/new/project
+```
+
+### Instalación futura vía npm, después de publicar
+
+```bash
+npx ai-phellos install existing .
+npx ai-phellos install new ./my-new-app
 ```
 
 ### Generar un prompt inicial
 
+Después de instalar o hacer link local:
+
 ```bash
 aiwf start "Quiero crear una web app con Next.js, React y Convex"
+```
+
+Sin link local:
+
+```bash
+node scripts/aiwf.js start "Quiero crear una web app con Next.js, React y Convex"
 ```
 
 Luego pega el prompt generado en Codex, Claude Code u otro agente compatible.
