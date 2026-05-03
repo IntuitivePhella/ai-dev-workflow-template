@@ -1,265 +1,204 @@
-# AI 开发工作流模板
+<div align="center">
 
-[English](README.md) · [Português](README.pt-BR.md) · [Español](README.es.md) · [中文](README.zh-CN.md)
+# 🚀 AI-PhellOS
 
-这是一个可安装的仓库模板和 CLI，用于通过 **Codex** 或 **Claude Code** 进行有纪律的 AI 辅助软件开发。
+### 一个用于 AI 软件开发的操作系统：纪律化、按意图自适应，并兼容 Codex、Claude Code 以及可读取 Markdown 的代码代理。
 
-该工作流是：
+<p align="center">
+  <a href="README.md">English</a> •
+  <a href="README.pt-BR.md">Português</a> •
+  <a href="README.es.md">Español</a> •
+  <a href="README.zh-CN.md">中文</a>
+</p>
 
-```text
-BMAD-first, Superpowers-enforced, SuperClaude-assisted, GStack-reviewed, GSD/RalphLoop-bounded, Orchestrator-routed, Intent-adaptive.
-```
+</div>
 
-更直接地说：
+---
 
-```text
-先头脑风暴。由规格驱动。由测试约束。由专家路由。由评审把关。由安全边界限制自动化。根据用户意图和技术栈自适应。
-```
+## AI-PhellOS 是什么
 
-转换成与工具无关的实践：
+AI-PhellOS 是一个 portable、markdown-first 的 workflow layer，用于 AI 辅助软件开发。
 
-```text
-1. 理解项目或想法
-2. 判断用户意图、项目成熟度和期望技术栈
-3. 当想法还很模糊时，先进行引导式头脑风暴
-4. 创建或更新规格文档
-5. 将工作拆分成小 story
-6. 在实现前验证 readiness
-7. 路由到最小且安全的 specialist squad
-8. 测试优先执行
-9. 从产品、工程、QA、安全和发布角度进行评审
-10. 通过 rollback 和 memory update 完成发布
-```
-
-该模板有意保持工具中立并支持跨平台：
-
-- Codex：通过 `AGENTS.md`、`.codex/config.toml`、Markdown agents、context packs 和 skills
-- Claude Code：通过 `CLAUDE.md`、`.claude/settings.json` 以及 `.claude/agents/` 中的原生 subagent adapters
-- 任何能够读取 Markdown 指令的代码代理
-- 支持 Linux、macOS 和 Windows 的 Node.js CLI
-- Bash guardrail scripts，可用于 Linux、macOS、Git Bash 和 WSL
-
-## 自适应用户体验
-
-框架从用户意图开始，而不是假设固定路径。
-
-如果用户只有一个想法，流程是：
+它帮助 coding agents 从原始意图走向 production-ready implementation：
 
 ```text
-原始想法
-→ Intent Router
-→ 项目成熟度分类
-→ Brainstorming Playbook
-→ 每次一个高价值问题
-→ Brainstorming Handoff
-→ Intake
-→ Project Brief
-→ Discovery
-→ PRD
-→ Architecture
-→ Story split
-→ 第一个 ready story
+Brainstorming → Intent Routing → Specs → Architecture → Stories → TDD → Review → Release
 ```
 
-如果用户已有技术栈和大致产品方向，流程是：
+核心规则很简单：
 
 ```text
-用户自然语言请求
-→ Intent Router
-→ Stack Profile
-→ 如果产品还模糊则先 Brainstorming
-→ 必要 artefacts
-→ 最小安全 squad
-→ 第一个安全 story
-→ TDD 实现
-→ Review 和 memory update
+永远不要要求 AI agent 构建整个应用。
+要求它一次执行一个安全、可测试、可评审的 story。
 ```
 
-模糊想法示例：
+AI-PhellOS 不替代 Codex、Claude Code 或 Ruflo 等可选 execution adapters。它为它们提供一个纪律化的操作系统：routing、artifacts、readiness、quality gates、scope control、stop conditions、review、release 和 durable memory。
+
+---
+
+## 核心 UX 规则
+
+用户应该描述想要创建、理解、修改、修复、重构或自动化什么。
+
+用户不应该需要说明要使用哪个 AI coding tool。
 
 ```text
-我有一个面向学校的 app 想法，但还不确定到底要构建什么。
+Claude Code session → follow CLAUDE.md, .claude/settings.json, and .claude/agents/*
+Codex session       → follow AGENTS.md, .codex/config.toml, ai/agents/*, context packs, and skills
+Generic agent       → follow AGENTS.md and markdown-first workflow files
+Ruflo, if installed → act only as an optional Claude Code execution adapter for approved bounded phases
 ```
 
-预期路由结果：
+好的 prompts：
 
 ```text
-Project maturity: Idea only
-Pre-brief phase: Brainstorming
-Squad: Orchestrator + Product
-First safe action: 创建 brainstorming artifact，并围绕主要问题/用户提出一个高价值问题
-暂不编写生产代码
+我想创建一个使用 Next.js、React 和 Convex 的 web app。
 ```
-
-Claude Code + Next.js + React + Convex 示例：
 
 ```text
-使用 Claude Code 创建一个基于 Next.js、React 和 Convex 的 web app。
+我有一个面向学校的 app 想法，但还不确定要构建什么。
 ```
-
-Orchestrator 应该按以下路径路由：
 
 ```text
-1. ai/09-intake/INTENT_ROUTER.md
-2. ai/09-intake/QUESTION_STRATEGY.md
-3. 如果产品/用户/MVP 仍然模糊，则使用 ai/09-intake/BRAINSTORMING_PLAYBOOK.md
-4. ai/09-intake/INTAKE.template.md
-5. ai/09-intake/stack-profiles/web-nextjs-react-convex.md
-6. ai/skills/intent-classification.md
-7. ai/skills/stack-adaptation.md
-8. ai/agents/ROUTING_MATRIX.md
+分析这个现有仓库，并在建议修改前先完成映射。
 ```
 
-预期结果：
+避免这样的 prompts：
 
 ```text
-Tool target: Claude Code
-Project state: New project
-Project maturity: Rough concept，除非 product/user/MVP 已经清楚
-Project type: Web app / SaaS candidate
-Stack profile: Next.js + React + Convex
-Workflow mode: 如果模糊则先 Brainstorming，否则 New Project
-Squad level: 默认 Level 2；如果涉及 auth、billing、permissions、user data、migrations 或 deployment，则 Level 3
-First safe action: 如有必要先 brainstorming，然后创建 intake、project brief、PRD、architecture、test plan 和第一个 story，再写生产代码
+使用 Claude Code 构建整个 app。
 ```
 
-## 安装到任意仓库
+```text
+让 Ruflo 在夜间构建整个 app。
+```
 
-发布到 npm 后：
+---
+
+## Quick Start
+
+### 安装到现有仓库
 
 ```bash
-npx ai-dev-workflow-template install existing .
+npx ai-phellos install existing .
 ```
 
-用于新项目目录：
-
-```bash
-npx ai-dev-workflow-template install new ./my-new-app
-```
-
-在 npm 发布前，可从该仓库 clone 后使用：
+在 npm 发布前，可从本仓库 clone 后使用：
 
 ```bash
 node scripts/aiwf.js install existing /path/to/your/repo
+```
+
+### 启动一个新项目
+
+```bash
+npx ai-phellos install new ./my-new-app
+```
+
+在 npm 发布前：
+
+```bash
 node scripts/aiwf.js install new /path/to/new/project
 ```
 
-安装命令会将 workflow assets 复制到目标仓库，且不会覆盖已有文件，然后初始化 new-project 或 existing-project workflow。
+### 生成起始 prompt
 
-## 跨平台 CLI
+```bash
+aiwf start "我想创建一个使用 Next.js、React 和 Convex 的 web app"
+```
 
-推荐使用 Node.js 命令层：
+然后将生成的 prompt 粘贴到 Codex、Claude Code 或其他兼容的 coding agent 中。
+
+---
+
+## CLI 命令
+
+```bash
+aiwf help
+aiwf doctor
+aiwf install existing .
+aiwf install new ./my-new-app
+aiwf init existing
+aiwf init new
+```
+
+Prompt generators：
+
+```bash
+aiwf start "我想为学校创建一个 SaaS"
+aiwf map "authentication and billing flow"
+aiwf brainstorm "一个面向学校的 app"
+aiwf plan "Add team invitation flow"
+```
+
+Story 和 gate 命令：
+
+```bash
+aiwf story feature "Add team invitation flow"
+aiwf story bugfix "Fix failed login redirect"
+aiwf story refactor "Split billing service"
+aiwf validate ai/04-stories/<story-file>.md
+aiwf gates
+aiwf sensitive HEAD~1 HEAD
+aiwf review ai/04-stories/<story-file>.md
+```
+
+Node fallback：
 
 ```bash
 node scripts/aiwf.js help
 node scripts/aiwf.js doctor
-node scripts/aiwf.js init new
-node scripts/aiwf.js story feature "Add team invitation flow"
-node scripts/aiwf.js validate ai/04-stories/<story-file>.md
-node scripts/aiwf.js review ai/04-stories/<story-file>.md
+node scripts/aiwf.js start "Analyze this repo and map it"
 ```
 
-本地 link 后可使用短命令：
+---
 
-```bash
-npm link
-aiwf help
-aiwf doctor
-aiwf story feature "Add team invitation flow"
-```
+## Prompt Generator Commands
 
-Linux、macOS、Windows PowerShell、Windows CMD、Git Bash 和 WSL 的使用方式见 `docs/CROSS_PLATFORM_INSTALL.md`。
+### `aiwf start [request]`
 
-npm 发布说明见 `docs/PUBLISHING.md`。
+生成通用的 AI-PhellOS startup prompt。用于让 agent 分类用户意图、推断执行环境、选择 workflow mode、选择最小安全 squad、识别所需 artifacts，并决定第一个安全动作。
 
-## 工作流参考
+### `aiwf map [repo-focus]`
 
-该模板是在比较并提取以下 AI 开发工作流/框架的强模式后设计的：
+生成 Existing Project Understanding prompt。用于修改陌生仓库之前。预期输出是 repository map 和 memory update，而不是 production code。
 
-- **BMAD-METHOD** — 用于产品头脑风暴、产品 discovery、PRD、架构、epics、stories 和 agentic implementation 的生命周期骨架。
-- **Superpowers** — 工程纪律层：编码前 brainstorming、worktrees、planning、TDD、subagent-driven execution、review 和 branch finalization。
-- **SuperClaude Framework** — Claude Code 执行加速器：仓库分析、实现、测试、排障、文档、context save/load 和 specialized technical agents。
-- **GStack** — 多角色 review 层：CEO/product、engineering manager、designer、QA、release 和 documentation perspectives。
-- **GSD / Get Shit Done** — phase decomposition、context-window control 和 bounded execution phases。
-- **RalphLoop / Ralph-style execution loops** — 可选的 bounded automation 模式，每次只执行一个小而明确的 phase，并带有明确 stop conditions。
+### `aiwf brainstorm <idea>`
 
-本仓库**不会 vendoring 或重新实现**这些项目。它将它们最强的 workflow ideas 转化为一个 portable、markdown-first 的 AI 辅助开发操作系统。
+生成 pre-brief brainstorming prompt。用于产品想法模糊或不成熟时。agent 应该每次只问一个高价值问题，并在 PRD、architecture 或 code 之前产出 Brainstorming Handoff。
 
-## 该 workflow 优化什么
+### `aiwf plan <feature-or-change>`
 
-- 在修改前理解 existing project
-- 在 project brief 前进行 BMAD-style idea shaping 和 brainstorming
-- 从 brainstorm 到 brief、architecture、stories 的新项目创建流程
-- 从自然语言意图开始的 adaptive intake
-- 通过 stack profiles 进行技术栈适配
-- small story-based execution
-- 实现前 Definition of Ready
-- TDD-first 或 test-aware implementation
-- 明确 quality gates
-- 只在有用时激活 specialist squads
-- Claude Code native subagent adapters
-- 与 Codex 兼容的 Markdown agents 和 context packs
-- 从 product、engineering、QA、security 和 release 角度 review
-- 仅在阶段安全且明确时进行 bounded autonomous execution
-- AI sessions 之间的 durable project memory
-- 通过 context packs 和 routing rules 减少 token 浪费
-- 通过 scriptable checks 降低对 prompt obedience 的依赖
+生成 feature、bugfix、refactor、migration 或其他 change 的 planning prompt。预期输出包括 routing、impact analysis、acceptance criteria、scope、tests、rollback、stop conditions 和推荐的 story title。
 
-## 核心文件
+---
 
-```text
-AGENTS.md                                            # Codex 和通用 agents 指令
-CLAUDE.md                                            # Claude Code 专用指令
-.codex/config.toml                                   # Codex safety profile
-.claude/settings.json                                # Claude Code command allow/deny list
-.claude/agents/*.md                                  # Claude Code native subagent adapters
-package.json                                         # Node CLI package metadata
+## Workflow Modes
 
-ai/00-rules/AI_RULES.md                              # 不可违反的规则和 stop conditions
-ai/00-rules/WORKFLOW_MODES.md                        # 不同工作类型对应的 workflow
-ai/00-rules/QUALITY_GATES.md                         # 进入下一阶段前的 gates
-ai/00-rules/DEFINITION_OF_READY.md                   # 实现前 readiness 要求
-ai/00-rules/CHANGE_SIZE_POLICY.md                    # 何时拆分或升级工作
-ai/00-rules/GIT_WORKFLOW.md                          # Branch、commit、PR、merge 和 rollback 规则
+| Mode | Purpose | First Safe Action |
+| --- | --- | --- |
+| Brainstorming / Pre-brief shaping | 将模糊想法转化为 problem、user、MVP boundary、risks 和 handoff | 问一个高价值问题 |
+| New Project | 从 brief 进入 discovery、PRD、architecture、stories 和 implementation | 创建 intake 和 project brief |
+| Existing Project Understanding | 在编码前 map repository | 创建 `PROJECT_MAP.md` |
+| New Feature in Existing Project | 安全地规划和执行 feature | 创建 impact analysis |
+| Bugfix | 复现、测试、最小修复并防止 regression | 复现 bug |
+| Refactor | 在不改变行为的情况下改进结构 | 定义要保留的行为 |
+| Autonomous Phase | 仅在有 contract 时执行 bounded automation | 创建 autonomous phase contract |
 
-ai/09-intake/INTENT_ROUTER.md                        # 自然语言意图到 workflow 的路由
-ai/09-intake/QUESTION_STRATEGY.md                    # 渐进式提问策略
-ai/09-intake/BRAINSTORMING_PLAYBOOK.md               # BMAD-style guided idea shaping
-ai/09-intake/INTAKE.template.md                      # Adaptive intake artifact
-ai/09-intake/stack-profiles/*.md                     # 技术栈 profiles
-ai/skills/*.md                                       # 可复用 skills
+---
 
-ai/agents/ORCHESTRATOR.md                            # Orchestrator routing 和 decision rules
-ai/agents/ROUTING_MATRIX.md                          # 何时调用哪些 specialists
-ai/agents/SQUAD_LEVELS.md                            # token-aware squad sizes
-ai/agents/HANDOFF.template.md                        # agent-to-agent handoff contract
-ai/agents/CONTEXT_PACK.template.md                   # specialist work 的最小 context bundle
-ai/agents/AGENT_OUTPUTS.md                           # 标准化 specialist output formats
+## Agent Squad Model
 
-ai/templates/BRAINSTORMING.template.md               # guided brainstorming artifact template
-ai/templates/STORY.template.md                       # generic story template
-ai/templates/FEATURE.template.md                     # feature story template
-ai/templates/BUGFIX.template.md                      # bugfix story template
-ai/templates/REFACTOR.template.md                    # refactor story template
-ai/templates/MIGRATION.template.md                   # migration story template
-```
-
-## Agent squad 模型
-
-该 workflow 使用 Orchestrator-routed squad model。
-
-可用 specialists：
-
-```text
-Orchestrator  # 路由工作，控制 scope、budget、gates 和 handoffs
-Product       # problem、user、scope、non-goals、acceptance criteria
-Architect     # architecture、data model、APIs、dependencies、trade-offs
-Implementer   # one story, tests first, smallest useful change
-QA            # acceptance criteria、test plan、edge cases、regressions
-Security      # auth、permissions、data exposure、secrets、abuse paths
-Reviewer      # senior engineering review、maintainability、simplicity
-Release       # readiness、rollback、known issues、deployment risk
-```
+| Agent | Responsibility | Use When |
+| --- | --- | --- |
+| Orchestrator | 路由工作，控制 scope、budget、gates 和 handoffs | 总是从这里开始 |
+| Product | Problem、user、scope、non-goals、acceptance criteria | Ideas、新产品、模糊 features |
+| Architect | Architecture、data model、APIs、dependencies、trade-offs | 新项目、高风险变更、integrations |
+| Implementer | 一个 story，tests first，最小有用变更 | Story ready 时 |
+| QA | Acceptance criteria、test plan、edge cases、regressions | 实现前或实现后 |
+| Security | Auth、permissions、data exposure、secrets、abuse paths | 敏感区域 |
+| Reviewer | Senior engineering review、maintainability、simplicity | 非平凡 diffs |
+| Release | Readiness、rollback、known issues、deployment risk | Shipping 或 deployment |
 
 默认规则：
 
@@ -267,55 +206,78 @@ Release       # readiness、rollback、known issues、deployment risk
 使用安全完成任务所需的最少 agents。
 ```
 
-在 brainstorming 阶段，默认使用 Orchestrator + Product。只有当技术可行性或 stack choice 很重要时才添加 Architect。Brainstorming 阶段不要调用 Implementer。
+---
 
-## Workflow modes
+## Documentation Map
 
-使用能解决任务的最小模式：
+入口文件：
 
-0. **Brainstorming / Pre-brief shaping** — 从模糊想法到 problem、user、MVP boundary、risks 和 handoff。
-1. **New Project** — 从 idea 到 brief、discovery、PRD、architecture、stories 和 implementation。
-2. **Existing Project Understanding** — 编码前先 map repository。
-3. **New Feature in Existing Project** — feature brief、impact analysis、test plan、story、execution 和 review。
-4. **Bugfix** — reproduction、failing test、minimal fix 和 regression test。
-5. **Refactor** — 带 safety tests 的行为保持型结构改进。
-6. **Autonomous Phase** — 仅在有明确 contract 时进行 bounded automation。
+- `AGENTS.md` — Codex 和 generic agent instructions。
+- `CLAUDE.md` — Claude Code-specific instructions。
+- `.codex/config.toml` — Codex safety profile。
+- `.claude/settings.json` — Claude Code command guardrails。
 
-## 模糊想法 quick start
+核心规则：
+
+- `ai/00-rules/AI_RULES.md`
+- `ai/00-rules/WORKFLOW_MODES.md`
+- `ai/00-rules/QUALITY_GATES.md`
+- `ai/00-rules/DEFINITION_OF_READY.md`
+- `ai/00-rules/CHANGE_SIZE_POLICY.md`
+- `ai/00-rules/GIT_WORKFLOW.md`
+
+Intake 和 planning：
+
+- `ai/09-intake/INTENT_ROUTER.md`
+- `ai/09-intake/QUESTION_STRATEGY.md`
+- `ai/09-intake/BRAINSTORMING_PLAYBOOK.md`
+- `ai/09-intake/INTAKE.template.md`
+- `ai/09-intake/stack-profiles/`
+
+Agents 和 execution：
+
+- `ai/agents/ORCHESTRATOR.md`
+- `ai/agents/ROUTING_MATRIX.md`
+- `ai/agents/SQUAD_LEVELS.md`
+- `ai/05-execution/EXECUTION_PROTOCOL.md`
+- `ai/06-reviews/REVIEW_CHECKLIST.md`
+
+可选 integrations：
+
+- `ai/10-integrations/ruflo/` — optional Ruflo execution-adapter policy、workflow mapping、prompts、templates 和 reports。
+
+---
+
+## Optional Ruflo Integration
+
+Ruflo support 是一个可选 execution-adapter integration，适合使用 Claude Code 并希望进行 bounded multi-agent execution、swarms、test generation、browser checks、diff review、documentation support、security review 或 controlled autonomous phases 的团队。
+
+AI-PhellOS 不 vendoring、不安装、不 pin 版本、不更新也不管理 Ruflo。
+
+推荐用法：
 
 ```text
-我有一个 app 想法，但还不确定到底要构建什么。
-先使用 Brainstorming Playbook。
-不要编写应用代码。
-每次只问一个高价值问题，并在创建 Project Brief 前产出 Brainstorming Handoff。
+AI-PhellOS prepares the work.
+Ruflo executes the approved bounded phase, if installed and appropriate.
+AI-PhellOS verifies, reviews, releases, and updates memory.
 ```
 
-## Claude Code + Next.js + React + Convex quick start
+不要用 Ruflo 替代 AI-PhellOS 的 routing、specs、Definition of Ready、quality gates、sensitive-area approval、review 或 release。
 
-```text
-使用 Claude Code 创建一个基于 Next.js、React 和 Convex 的 web app。
-从 ai/09-intake/INTENT_ROUTER.md 和 ai/09-intake/stack-profiles/web-nextjs-react-convex.md 开始。
-如果 product/user/MVP 仍然模糊，先运行 ai/09-intake/BRAINSTORMING_PLAYBOOK.md。
-先使用 .claude/agents/orchestrator.md。
-创建或更新 ai/09-intake/INTAKE.md、ai/01-discovery/PROJECT_BRIEF.md、ai/02-product/PRD.md、ai/03-architecture/ARCHITECTURE.md、ai/05-execution/TEST_PLAN.md，以及 ai/04-stories/ 下的第一个小 story。
-没有明确批准，不要实现 auth、billing、user data、production deploy 或 Convex production data changes。
-在第一个 story 满足 Definition of Ready 之前，不要编写生产代码。
+---
+
+## Development
+
+```bash
+npm test
+node scripts/aiwf.js doctor
+npm run pack:dry-run
 ```
 
-## 核心规则
+CLI 有意使用 Node.js built-ins，并尽量保持依赖最少。
 
-永远不要要求 AI agent “build the app”。
+---
 
-要求它执行**一个 story**，并包含：
+## License
 
-- 清晰的 acceptance criteria
-- scope 内文件
-- 明确禁止的文件/区域
-- required tests
-- commands to run
-- non-goals
-- stop conditions
-- rollback plan
-- review checklist
-- 仅在有用时进行 specialist routing
-- 实现前满足 Definition of Ready
+MIT
