@@ -77,34 +77,50 @@ Ruflo, if installed → act only as an optional Claude Code execution adapter fo
 
 ## Quick Start
 
-### 安装到现有仓库
+AI-PhellOS 尚未发布到 npm。在发布之前，请从 GitHub 或本地 clone 安装。
+
+### 当前从 GitHub 安装
+
+安装到现有仓库：
 
 ```bash
-npx ai-phellos install existing .
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf install existing .
 ```
 
-在 npm 发布前，可从本仓库 clone 后使用：
+启动一个新项目：
+
+```bash
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf install new ./my-new-app
+```
+
+### 当前从本地 clone 安装
+
+使用本仓库的 clone：
 
 ```bash
 node scripts/aiwf.js install existing /path/to/your/repo
-```
-
-### 启动一个新项目
-
-```bash
-npx ai-phellos install new ./my-new-app
-```
-
-在 npm 发布前：
-
-```bash
 node scripts/aiwf.js install new /path/to/new/project
+```
+
+### 未来发布 npm 后的安装方式
+
+```bash
+npx ai-phellos install existing .
+npx ai-phellos install new ./my-new-app
 ```
 
 ### 生成起始 prompt
 
+安装或本地 link 后：
+
 ```bash
 aiwf start "我想创建一个使用 Next.js、React 和 Convex 的 web app"
+```
+
+没有本地 link 时：
+
+```bash
+node scripts/aiwf.js start "我想创建一个使用 Next.js、React 和 Convex 的 web app"
 ```
 
 然后将生成的 prompt 粘贴到 Codex、Claude Code 或其他兼容的 coding agent 中。
