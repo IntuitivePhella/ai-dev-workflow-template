@@ -1,265 +1,204 @@
-# Template de Workflow de Desenvolvimento com IA
+<div align="center">
 
-[English](README.md) · [Português](README.pt-BR.md) · [Español](README.es.md) · [中文](README.zh-CN.md)
+# 🚀 AI-PhellOS
 
-Um template de repositório e CLI instalável para desenvolvimento de software assistido por IA com **Codex** ou **Claude Code**.
+### Um sistema operacional para desenvolvimento de software com IA, disciplinado, adaptativo por intenção e compatível com Codex, Claude Code e agentes que leem Markdown.
 
-O workflow é:
+<p align="center">
+  <a href="README.md">English</a> •
+  <a href="README.pt-BR.md">Português</a> •
+  <a href="README.es.md">Español</a> •
+  <a href="README.zh-CN.md">中文</a>
+</p>
 
-```text
-BMAD-first, Superpowers-enforced, SuperClaude-assisted, GStack-reviewed, GSD/RalphLoop-bounded, Orchestrator-routed, Intent-adaptive.
-```
+</div>
 
-Ou, de forma mais direta:
+---
 
-```text
-Com brainstorming. Guiado por especificação. Reforçado por testes. Roteado por especialistas. Controlado por revisão. Limitado por automação segura. Adaptado à intenção e stack do usuário.
-```
+## O que é o AI-PhellOS
 
-Na prática, isso significa:
+AI-PhellOS é uma camada de workflow portátil e markdown-first para desenvolvimento de software assistido por IA.
 
-```text
-1. Entender o projeto ou ideia
-2. Classificar intenção, maturidade e stack desejada
-3. Rodar brainstorming guiado quando a ideia ainda for vaga
-4. Criar ou atualizar especificações
-5. Quebrar o trabalho em pequenas stories
-6. Validar prontidão antes da implementação
-7. Roteirizar para o menor squad útil e seguro
-8. Executar com testes primeiro
-9. Revisar por lentes de produto, engenharia, QA, segurança e release
-10. Liberar com rollback e atualização de memória
-```
-
-Este template é intencionalmente neutro em relação à ferramenta e funciona em múltiplas plataformas:
-
-- Codex via `AGENTS.md`, `.codex/config.toml`, agentes em Markdown, context packs e skills
-- Claude Code via `CLAUDE.md`, `.claude/settings.json` e adapters de subagents nativos em `.claude/agents/`
-- Qualquer agente de código que consiga ler instruções Markdown
-- CLI em Node.js para Linux, macOS e Windows
-- Scripts Bash como fallback para Linux, macOS, Git Bash e WSL
-
-## Experiência adaptativa do usuário
-
-O framework começa pela intenção do usuário, e não por um caminho fixo.
-
-Se o usuário tem apenas uma ideia, o fluxo é:
+Ele ajuda agentes de código a sair de uma intenção bruta até uma implementação pronta para produção por meio de:
 
 ```text
-Ideia bruta
-→ Intent Router
-→ Classificação de maturidade do projeto
-→ Brainstorming Playbook
-→ Uma pergunta de alto impacto por vez
-→ Brainstorming Handoff
-→ Intake
-→ Project Brief
-→ Discovery
-→ PRD
-→ Architecture
-→ Story split
-→ Primeira story pronta
+Brainstorming → Roteamento de intenção → Especificações → Arquitetura → Stories → TDD → Review → Release
 ```
 
-Se o usuário já tem uma stack e uma direção inicial de produto, o fluxo é:
+A regra central é simples:
 
 ```text
-Pedido em linguagem natural
-→ Intent Router
-→ Stack Profile
-→ Brainstorming se o produto ainda estiver vago
-→ Artefatos obrigatórios
-→ Menor squad seguro
-→ Primeira story segura
-→ Implementação com TDD
-→ Review e atualização de memória
+Nunca peça para um agente de IA construir o app inteiro.
+Peça para ele executar uma story segura, testável e revisável por vez.
 ```
 
-Exemplo de ideia vaga:
+AI-PhellOS não substitui Codex, Claude Code nem adapters opcionais como Ruflo. Ele dá a eles um sistema operacional disciplinado: roteamento, artefatos, prontidão, quality gates, controle de escopo, stop conditions, review, release e memória durável.
+
+---
+
+## Regra central de UX
+
+O usuário deve descrever o que quer criar, entender, alterar, corrigir, refatorar ou automatizar.
+
+O usuário não deve precisar dizer qual ferramenta de IA deve ser usada.
 
 ```text
-Tenho uma ideia para um app para escolas, mas ainda não sei exatamente o que construir.
+Sessão Claude Code → seguir CLAUDE.md, .claude/settings.json e .claude/agents/*
+Sessão Codex       → seguir AGENTS.md, .codex/config.toml, ai/agents/*, context packs e skills
+Agente genérico    → seguir AGENTS.md e os arquivos Markdown do workflow
+Ruflo, se instalado → atuar apenas como adapter opcional de execução Claude Code para fases aprovadas e limitadas
 ```
 
-Resultado esperado:
+Bons prompts:
 
 ```text
-Project maturity: Idea only
-Pre-brief phase: Brainstorming
-Squad: Orchestrator + Product
-First safe action: criar um artefato de brainstorming e fazer uma pergunta de alto impacto sobre o problema/usuário principal
-Sem código de produção ainda
+Quero criar um web app com Next.js, React e Convex.
 ```
-
-Exemplo com Claude Code + Next.js + React + Convex:
 
 ```text
-Use Claude Code para criar um web app com Next.js, React e Convex.
+Tenho uma ideia para um app para escolas, mas ainda não sei o que construir.
 ```
-
-O Orchestrator deve rotear por:
 
 ```text
-1. ai/09-intake/INTENT_ROUTER.md
-2. ai/09-intake/QUESTION_STRATEGY.md
-3. ai/09-intake/BRAINSTORMING_PLAYBOOK.md se produto/usuário/MVP ainda estiverem vagos
-4. ai/09-intake/INTAKE.template.md
-5. ai/09-intake/stack-profiles/web-nextjs-react-convex.md
-6. ai/skills/intent-classification.md
-7. ai/skills/stack-adaptation.md
-8. ai/agents/ROUTING_MATRIX.md
+Analise este repositório existente e mapeie antes de sugerir mudanças.
 ```
 
-Resultado esperado:
+Evite prompts como:
 
 ```text
-Tool target: Claude Code
-Project state: New project
-Project maturity: Rough concept, salvo se produto/usuário/MVP já estiverem claros
-Project type: Web app / SaaS candidate
-Stack profile: Next.js + React + Convex
-Workflow mode: Brainstorming primeiro se estiver vago; caso contrário, New Project
-Squad level: Level 2 por padrão; Level 3 se envolver auth, billing, permissões, dados de usuário, migrations ou deploy
-First safe action: fazer brainstorming se necessário, depois criar intake, project brief, PRD, architecture, test plan e primeira story antes de código de produção
+Use Claude Code para construir o app inteiro.
 ```
 
-## Instalação em qualquer repositório
+```text
+Peça para o Ruflo construir o app durante a noite.
+```
 
-Depois de publicar no npm:
+---
+
+## Quick Start
+
+### Instalar em um repositório existente
 
 ```bash
-npx ai-dev-workflow-template install existing .
-```
-
-Para um novo projeto:
-
-```bash
-npx ai-dev-workflow-template install new ./my-new-app
+npx ai-phellos install existing .
 ```
 
 Antes da publicação no npm, usando um clone deste repositório:
 
 ```bash
 node scripts/aiwf.js install existing /path/to/your/repo
+```
+
+### Iniciar um novo projeto
+
+```bash
+npx ai-phellos install new ./my-new-app
+```
+
+Antes da publicação no npm:
+
+```bash
 node scripts/aiwf.js install new /path/to/new/project
 ```
 
-O comando de instalação copia os assets do workflow para o repositório alvo sem sobrescrever arquivos existentes e inicializa o workflow para projeto novo ou existente.
+### Gerar um prompt inicial
 
-## CLI cross-platform
+```bash
+aiwf start "Quero criar um web app com Next.js, React e Convex"
+```
 
-A camada de comandos recomendada é Node.js:
+Depois cole o prompt gerado no Codex, Claude Code ou outro agente compatível.
+
+---
+
+## Comandos da CLI
+
+```bash
+aiwf help
+aiwf doctor
+aiwf install existing .
+aiwf install new ./my-new-app
+aiwf init existing
+aiwf init new
+```
+
+Geradores de prompt:
+
+```bash
+aiwf start "Quero criar um SaaS para escolas"
+aiwf map "fluxo de autenticação e billing"
+aiwf brainstorm "um app para escolas"
+aiwf plan "Adicionar fluxo de convite de equipe"
+```
+
+Comandos de story e gates:
+
+```bash
+aiwf story feature "Add team invitation flow"
+aiwf story bugfix "Fix failed login redirect"
+aiwf story refactor "Split billing service"
+aiwf validate ai/04-stories/<story-file>.md
+aiwf gates
+aiwf sensitive HEAD~1 HEAD
+aiwf review ai/04-stories/<story-file>.md
+```
+
+Fallback com Node:
 
 ```bash
 node scripts/aiwf.js help
 node scripts/aiwf.js doctor
-node scripts/aiwf.js init new
-node scripts/aiwf.js story feature "Add team invitation flow"
-node scripts/aiwf.js validate ai/04-stories/<story-file>.md
-node scripts/aiwf.js review ai/04-stories/<story-file>.md
+node scripts/aiwf.js start "Analise este repo e mapeie"
 ```
 
-Após link local:
+---
 
-```bash
-npm link
-aiwf help
-aiwf doctor
-aiwf story feature "Add team invitation flow"
-```
+## Geradores de prompt
 
-Veja `docs/CROSS_PLATFORM_INSTALL.md` para Linux, macOS, Windows PowerShell, Windows CMD, Git Bash e WSL.
+### `aiwf start [request]`
 
-Veja `docs/PUBLISHING.md` para instruções de publicação no npm.
+Produz um prompt geral de inicialização do AI-PhellOS. Use quando quiser que o agente classifique a intenção, infira o ambiente, selecione o workflow mode, escolha o menor squad seguro, identifique artefatos e decida a primeira ação segura.
 
-## Referências de workflow
+### `aiwf map [repo-focus]`
 
-Este template foi desenhado após comparar e extrair os melhores padrões operacionais destes workflows/frameworks de desenvolvimento com IA:
+Produz um prompt de Existing Project Understanding. Use antes de alterar um repositório desconhecido. A saída esperada é um mapa do repositório e uma proposta de atualização de memória, não código de produção.
 
-- **BMAD-METHOD** — backbone de ciclo de vida para brainstorming de produto, discovery, PRD, arquitetura, épicos, stories e implementação agentic.
-- **Superpowers** — camada de disciplina de engenharia: brainstorming antes de código, worktrees, planejamento, TDD, execução com subagents, review e finalização de branch.
-- **SuperClaude Framework** — acelerador de execução no Claude Code: análise de repositório, implementação, testes, troubleshooting, documentação, context save/load e agentes técnicos especializados.
-- **GStack** — camada de revisão multi-papel: CEO/produto, engineering manager, designer, QA, release e documentação.
-- **GSD / Get Shit Done** — decomposição em fases, controle de janela de contexto e execução limitada.
-- **RalphLoop / Ralph-style execution loops** — padrão opcional de automação limitada para uma fase pequena e bem especificada por vez, com stop conditions explícitas.
+### `aiwf brainstorm <idea>`
 
-Este repositório **não** vendora nem reimplementa esses projetos. Ele transforma suas melhores ideias em um sistema operacional portátil, markdown-first, para desenvolvimento assistido por IA.
+Produz um prompt de brainstorming/pre-brief. Use quando a ideia de produto estiver vaga ou imatura. O agente deve fazer uma pergunta de alto impacto por vez e produzir um Brainstorming Handoff antes de PRD, arquitetura ou código.
 
-## O que este workflow otimiza
+### `aiwf plan <feature-or-change>`
 
-- Entendimento de projetos existentes antes de alterações
-- Brainstorming BMAD-style antes do project brief
-- Criação de novos projetos do brainstorm ao brief, arquitetura e stories
-- Intake adaptativo a partir da intenção em linguagem natural
-- Adaptação por stack profile
-- Execução em stories pequenas
-- Definition of Ready antes da implementação
-- TDD-first ou implementação test-aware
-- Quality gates explícitos
-- Squads especialistas ativados apenas quando úteis
-- Subagents nativos para Claude Code
-- Agentes Markdown e context packs compatíveis com Codex
-- Revisão por produto, engenharia, QA, segurança e release
-- Execução autônoma limitada somente quando a fase for segura e especificada
-- Memória durável entre sessões de IA
-- Menor desperdício de tokens com context packs e regras de roteamento
-- Checks scriptáveis que reduzem dependência de obediência ao prompt
+Produz um prompt de planejamento para feature, bugfix, refactor, migration ou outra mudança. A saída esperada inclui roteamento, impact analysis, acceptance criteria, escopo, testes, rollback, stop conditions e título recomendado de story.
 
-## Arquivos principais
+---
 
-```text
-AGENTS.md                                            # Instruções para Codex e agentes genéricos
-CLAUDE.md                                            # Instruções específicas para Claude Code
-.codex/config.toml                                   # Perfil de segurança do Codex
-.claude/settings.json                                # Allow/deny list de comandos do Claude Code
-.claude/agents/*.md                                  # Adapters de subagents nativos para Claude Code
-package.json                                         # Metadados da CLI Node
+## Workflow Modes
 
-ai/00-rules/AI_RULES.md                              # Regras não negociáveis e stop conditions
-ai/00-rules/WORKFLOW_MODES.md                        # Workflow adequado para cada tipo de trabalho
-ai/00-rules/QUALITY_GATES.md                         # Gates antes de avançar fases
-ai/00-rules/DEFINITION_OF_READY.md                   # Prontidão antes de implementar
-ai/00-rules/CHANGE_SIZE_POLICY.md                    # Quando dividir ou escalar trabalho
-ai/00-rules/GIT_WORKFLOW.md                          # Branch, commit, PR, merge e rollback
+| Modo | Propósito | Primeira ação segura |
+| --- | --- | --- |
+| Brainstorming / Pre-brief shaping | Transformar ideia vaga em problema, usuário, limite de MVP, riscos e handoff | Fazer uma pergunta de alto impacto |
+| New Project | Sair de brief para discovery, PRD, arquitetura, stories e implementação | Criar intake e project brief |
+| Existing Project Understanding | Mapear um repositório antes de codar | Criar `PROJECT_MAP.md` |
+| New Feature in Existing Project | Planejar e executar uma feature com segurança | Criar impact analysis |
+| Bugfix | Reproduzir, testar, corrigir minimamente e prevenir regressão | Reproduzir o bug |
+| Refactor | Melhorar estrutura sem alterar comportamento | Definir comportamento preservado |
+| Autonomous Phase | Rodar automação limitada somente com contrato | Criar contrato de fase autônoma |
 
-ai/09-intake/INTENT_ROUTER.md                        # Roteamento de intenção natural para workflow
-ai/09-intake/QUESTION_STRATEGY.md                    # Estratégia progressiva de perguntas
-ai/09-intake/BRAINSTORMING_PLAYBOOK.md               # Ideação guiada BMAD-style
-ai/09-intake/INTAKE.template.md                      # Artefato de intake adaptativo
-ai/09-intake/stack-profiles/*.md                     # Perfis de stack
-ai/skills/*.md                                       # Skills reutilizáveis
-
-ai/agents/ORCHESTRATOR.md                            # Regras de roteamento e decisão
-ai/agents/ROUTING_MATRIX.md                          # Quais especialistas chamar e quando
-ai/agents/SQUAD_LEVELS.md                            # Tamanhos de squad com consciência de token
-ai/agents/HANDOFF.template.md                        # Contrato de handoff entre agentes
-ai/agents/CONTEXT_PACK.template.md                   # Pacote mínimo de contexto para especialistas
-ai/agents/AGENT_OUTPUTS.md                           # Formatos padronizados de saída
-
-ai/templates/BRAINSTORMING.template.md               # Template de brainstorming guiado
-ai/templates/STORY.template.md                       # Template de story genérica
-ai/templates/FEATURE.template.md                     # Template de feature
-ai/templates/BUGFIX.template.md                      # Template de bugfix
-ai/templates/REFACTOR.template.md                    # Template de refactor
-ai/templates/MIGRATION.template.md                   # Template de migration
-```
+---
 
 ## Modelo de squad de agentes
 
-O workflow usa um modelo de squad roteado pelo Orchestrator.
-
-Especialistas disponíveis:
-
-```text
-Orchestrator  # roteia trabalho, controla escopo, budget, gates e handoffs
-Product       # problema, usuário, escopo, non-goals, acceptance criteria
-Architect     # arquitetura, data model, APIs, dependências, trade-offs
-Implementer   # uma story, testes primeiro, menor mudança útil
-QA            # acceptance criteria, test plan, edge cases, regressões
-Security      # auth, permissões, exposição de dados, secrets, abuso
-Reviewer      # review sênior de engenharia, maintainability, simplicidade
-Release       # readiness, rollback, known issues, deployment risk
-```
+| Agente | Responsabilidade | Quando usar |
+| --- | --- | --- |
+| Orchestrator | Roteia trabalho, controla escopo, budget, gates e handoffs | Sempre comece aqui |
+| Product | Problema, usuário, escopo, non-goals, acceptance criteria | Ideias, novos produtos, features ambíguas |
+| Architect | Arquitetura, data model, APIs, dependências, trade-offs | Novos projetos, mudanças arriscadas, integrações |
+| Implementer | Uma story, testes primeiro, menor mudança útil | Quando a story está pronta |
+| QA | Acceptance criteria, test plan, edge cases, regressões | Antes ou depois da implementação |
+| Security | Auth, permissões, exposição de dados, secrets, abuse paths | Áreas sensíveis |
+| Reviewer | Review sênior de engenharia, maintainability, simplicidade | Diffs não triviais |
+| Release | Readiness, rollback, known issues, risco de deploy | Release ou deploy |
 
 Regra padrão:
 
@@ -267,55 +206,78 @@ Regra padrão:
 Use o menor número de agentes necessário para concluir a tarefa com segurança.
 ```
 
-Durante brainstorming, use por padrão Orchestrator + Product. Adicione Architect apenas quando viabilidade técnica ou escolha de stack importar. Não chame Implementer durante brainstorming.
+---
 
-## Modos de workflow
+## Mapa de documentação
 
-Use o menor modo que resolve o trabalho:
+Entradas principais:
 
-0. **Brainstorming / Pre-brief shaping** — ideia vaga para problema, usuário, MVP boundary, riscos e handoff.
-1. **New Project** — ideia para brief, discovery, PRD, architecture, stories e implementação.
-2. **Existing Project Understanding** — mapear repositório antes de codar.
-3. **New Feature in Existing Project** — feature brief, impact analysis, test plan, story, execução e review.
-4. **Bugfix** — reprodução, teste falhando, correção mínima e regression test.
-5. **Refactor** — melhoria estrutural sem mudança de comportamento, com safety tests.
-6. **Autonomous Phase** — automação limitada somente com contrato explícito.
+- `AGENTS.md` — instruções para Codex e agentes genéricos.
+- `CLAUDE.md` — instruções específicas para Claude Code.
+- `.codex/config.toml` — perfil de segurança do Codex.
+- `.claude/settings.json` — guardrails de comandos do Claude Code.
 
-## Quick start para ideia vaga
+Regras principais:
+
+- `ai/00-rules/AI_RULES.md`
+- `ai/00-rules/WORKFLOW_MODES.md`
+- `ai/00-rules/QUALITY_GATES.md`
+- `ai/00-rules/DEFINITION_OF_READY.md`
+- `ai/00-rules/CHANGE_SIZE_POLICY.md`
+- `ai/00-rules/GIT_WORKFLOW.md`
+
+Intake e planejamento:
+
+- `ai/09-intake/INTENT_ROUTER.md`
+- `ai/09-intake/QUESTION_STRATEGY.md`
+- `ai/09-intake/BRAINSTORMING_PLAYBOOK.md`
+- `ai/09-intake/INTAKE.template.md`
+- `ai/09-intake/stack-profiles/`
+
+Agentes e execução:
+
+- `ai/agents/ORCHESTRATOR.md`
+- `ai/agents/ROUTING_MATRIX.md`
+- `ai/agents/SQUAD_LEVELS.md`
+- `ai/05-execution/EXECUTION_PROTOCOL.md`
+- `ai/06-reviews/REVIEW_CHECKLIST.md`
+
+Integrações opcionais:
+
+- `ai/10-integrations/ruflo/` — política, mapping, prompts, templates e relatórios para adapter opcional Ruflo.
+
+---
+
+## Integração opcional com Ruflo
+
+O suporte ao Ruflo é incluído como integração opcional de execution adapter para times que usam Claude Code e querem execução multiagente limitada, swarms, geração de testes, browser checks, diff review, documentação, security review ou fases autônomas controladas.
+
+AI-PhellOS não vendora, instala, fixa versão, atualiza nem gerencia Ruflo.
+
+Uso recomendado:
 
 ```text
-Tenho uma ideia para um app, mas ainda não sei exatamente o que construir.
-Use o Brainstorming Playbook primeiro.
-Não escreva código de aplicação.
-Faça uma pergunta de alto impacto por vez e produza um Brainstorming Handoff antes de criar o Project Brief.
+AI-PhellOS prepara o trabalho.
+Ruflo executa a fase aprovada e limitada, se estiver instalado e for apropriado.
+AI-PhellOS verifica, revisa, libera e atualiza memória.
 ```
 
-## Quick start para Claude Code + Next.js + React + Convex
+Não use Ruflo como substituto de roteamento, specs, Definition of Ready, quality gates, aprovação de áreas sensíveis, review ou release do AI-PhellOS.
 
-```text
-Use Claude Code para criar um web app com Next.js, React e Convex.
-Comece com ai/09-intake/INTENT_ROUTER.md e ai/09-intake/stack-profiles/web-nextjs-react-convex.md.
-Se produto/usuário/MVP estiverem vagos, rode ai/09-intake/BRAINSTORMING_PLAYBOOK.md primeiro.
-Use .claude/agents/orchestrator.md primeiro.
-Crie ou atualize ai/09-intake/INTAKE.md, ai/01-discovery/PROJECT_BRIEF.md, ai/02-product/PRD.md, ai/03-architecture/ARCHITECTURE.md, ai/05-execution/TEST_PLAN.md e uma primeira story pequena em ai/04-stories/.
-Não implemente auth, billing, dados de usuário, deploy de produção ou mudanças em dados de produção Convex sem aprovação explícita.
-Não escreva código de produção até a primeira story satisfazer a Definition of Ready.
+---
+
+## Desenvolvimento
+
+```bash
+npm test
+node scripts/aiwf.js doctor
+npm run pack:dry-run
 ```
 
-## Regra central
+A CLI usa intencionalmente recursos nativos do Node.js e mantém dependências mínimas.
 
-Nunca peça para um agente de IA “construir o app”.
+---
 
-Peça para ele executar **uma story** com:
+## Licença
 
-- acceptance criteria claros
-- arquivos em escopo
-- arquivos/áreas explicitamente proibidos
-- testes obrigatórios
-- comandos a executar
-- non-goals
-- stop conditions
-- rollback plan
-- review checklist
-- roteamento de especialistas apenas quando útil
-- Definition of Ready satisfeita antes da implementação
+MIT
