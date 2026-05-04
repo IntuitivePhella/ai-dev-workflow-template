@@ -9,6 +9,7 @@ Before planning or coding:
 - [ ] Rules read
 - [ ] Project memory read
 - [ ] Project map read or created
+- [ ] Session state read when the artifact exists
 - [ ] Relevant files inspected
 - [ ] Sensitive product domain checked
 - [ ] Assumptions listed
@@ -66,3 +67,4 @@ After completion:
 - [ ] `PROJECT_MEMORY.md` updated when commands, conventions, or risks changed
 - [ ] `DECISION_LOG.md` updated when architecture/product decisions changed
 - [ ] New tech debt captured separately, not hidden in the feature
+

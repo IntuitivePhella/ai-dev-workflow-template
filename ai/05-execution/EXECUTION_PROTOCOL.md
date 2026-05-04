@@ -81,6 +81,8 @@ Check product fit, maintainability, regression risk, security, and release readi
 
 Update memory, decision log, release notes, or follow-up files if needed.
 
+For continuity-critical workflows, update i/08-memory/SESSION_STATE.md (or explicitly update PROJECT_MEMORY.md with equivalent fields) before marking the task complete.
+
 Do not hide tech debt inside a completed story. Record it separately.
 
 ## Required final report
@@ -105,3 +107,4 @@ Risks:
 Follow-ups:
 - ...
 ```
+

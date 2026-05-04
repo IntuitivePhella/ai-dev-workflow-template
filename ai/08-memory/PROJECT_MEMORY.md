@@ -41,3 +41,8 @@ TBD.
 ## Current status
 
 TBD.
+
+## Session continuity
+
+If i/08-memory/SESSION_STATE.md exists, treat it as the operational source of truth for current phase and next action.
+
