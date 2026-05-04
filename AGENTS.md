@@ -92,16 +92,17 @@ Before doing any coding task, read:
 4. `ai/00-rules/DEFINITION_OF_READY.md`
 5. `ai/00-rules/CHANGE_SIZE_POLICY.md`
 6. `ai/00-rules/GIT_WORKFLOW.md`
-7. `ai/agents/ORCHESTRATOR.md`
-8. `ai/agents/ROUTING_MATRIX.md`
-9. `ai/agents/SQUAD_LEVELS.md`
-10. `ai/09-intake/INTENT_ROUTER.md` when the request is not already a ready story
-11. `ai/09-intake/BRAINSTORMING_PLAYBOOK.md` when the request is an idea or rough concept
-12. `ai/08-memory/PROJECT_MEMORY.md`
-13. `ai/08-memory/PROJECT_MAP.md`, if present
-14. The relevant story in `ai/04-stories/`
-15. The relevant test plan in `ai/05-execution/`, if present
-16. `ai/05-execution/EXECUTION_PROTOCOL.md`
+7. `ai/00-rules/CONTINUOUS_IMPROVEMENT.md`
+8. `ai/agents/ORCHESTRATOR.md`
+9. `ai/agents/ROUTING_MATRIX.md`
+10. `ai/agents/SQUAD_LEVELS.md`
+11. `ai/09-intake/INTENT_ROUTER.md` when the request is not already a ready story
+12. `ai/09-intake/BRAINSTORMING_PLAYBOOK.md` when the request is an idea or rough concept
+13. `ai/08-memory/PROJECT_MEMORY.md`
+14. `ai/08-memory/PROJECT_MAP.md`, if present
+15. The relevant story in `ai/04-stories/`
+16. The relevant test plan in `ai/05-execution/`, if present
+17. `ai/05-execution/EXECUTION_PROTOCOL.md`
 
 ## Operating model
 

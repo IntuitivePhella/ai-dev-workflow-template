@@ -10,6 +10,7 @@ Before planning or coding:
 - [ ] Project memory read
 - [ ] Project map read or created
 - [ ] Relevant files inspected
+- [ ] Sensitive product domain checked
 - [ ] Assumptions listed
 
 ## Gate 1 — Specification
@@ -22,6 +23,8 @@ Before implementation:
 - [ ] Impact analysis exists for existing projects
 - [ ] Test plan exists or is embedded in the story
 - [ ] Human approval captured for sensitive areas
+- [ ] Privacy & Safety Review exists when sensitive domain is detected
+- [ ] Real sensitive data, real camera/audio/video feeds, production alerts, and external notifications are explicitly in scope or out of scope
 
 ## Gate 2 — Execution
 
@@ -33,6 +36,7 @@ During implementation:
 - [ ] No tests are removed or weakened
 - [ ] Architecture changes are logged
 - [ ] Stop conditions are respected
+- [ ] Mock-only boundaries are respected for sensitive-domain prototypes
 
 ## Gate 3 — Verification
 
@@ -42,6 +46,7 @@ Before completion:
 - [ ] Build/typecheck/lint pass when available
 - [ ] Acceptance criteria are checked one by one
 - [ ] Security-sensitive changes are reviewed
+- [ ] Privacy, consent, retention, access control, and audit assumptions are reviewed when sensitive-domain behavior changed
 - [ ] Regression risk is considered
 
 ## Gate 4 — Review
