@@ -250,6 +250,7 @@ Core rules:
 - `ai/00-rules/DEFINITION_OF_READY.md`
 - `ai/00-rules/CHANGE_SIZE_POLICY.md`
 - `ai/00-rules/GIT_WORKFLOW.md`
+- `ai/00-rules/CONTINUOUS_IMPROVEMENT.md`
 
 Intake and planning:
 
@@ -266,6 +267,7 @@ Agents and execution:
 - `ai/agents/SQUAD_LEVELS.md`
 - `ai/05-execution/EXECUTION_PROTOCOL.md`
 - `ai/06-reviews/REVIEW_CHECKLIST.md`
+- `ai/templates/PRIVACY_AND_SAFETY_REVIEW.template.md`
 
 Optional integrations:
 

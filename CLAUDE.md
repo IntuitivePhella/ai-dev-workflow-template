@@ -75,6 +75,7 @@ Always check these files before coding:
 - `ai/00-rules/DEFINITION_OF_READY.md`
 - `ai/00-rules/CHANGE_SIZE_POLICY.md`
 - `ai/00-rules/GIT_WORKFLOW.md`
+- `ai/00-rules/CONTINUOUS_IMPROVEMENT.md`
 - `ai/agents/ORCHESTRATOR.md`
 - `ai/agents/ROUTING_MATRIX.md`
 - `ai/agents/SQUAD_LEVELS.md`

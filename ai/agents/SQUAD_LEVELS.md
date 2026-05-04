@@ -61,6 +61,15 @@ Use for:
 - auth, billing, permissions, user data, or infrastructure work;
 - major releases.
 
+Also use Level 3 for sensitive product domains, including:
+
+- healthcare or elder care;
+- surveillance, cameras, video, audio, biometrics, or monitoring of people;
+- physical safety alerts or emergency-like workflows;
+- vulnerable populations;
+- legal/compliance-heavy workflows;
+- products where mistakes may affect safety, privacy, dignity, or access to care.
+
 ## Budget rules
 
 - Do not use Full Squad by default.

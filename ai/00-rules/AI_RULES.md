@@ -27,6 +27,35 @@
 - Legal/compliance behavior
 - Destructive migrations
 
+## Sensitive product domains requiring Privacy & Safety Review
+
+Some projects are sensitive even before implementation touches authentication, billing, production infrastructure, or real user data.
+
+Automatically trigger a Privacy & Safety Review when the product involves any of the following:
+
+- Healthcare, elder care, mental health, disability care, or child safety.
+- Surveillance, monitoring, cameras, video, audio, biometrics, face recognition, or image analysis of people.
+- Physical safety alerts, emergency response, fall detection, medical-like triage, risk scoring, or incident escalation.
+- Vulnerable populations, including elderly people, children, patients, residents, detainees, workers under monitoring, or people in care facilities.
+- Location tracking, access control, restricted areas, staff monitoring, or behavior monitoring.
+- Legal, compliance, consent, retention, audit logs, evidence handling, or regulated reporting.
+
+Required behavior:
+
+1. Do not block harmless planning or mock-only prototyping.
+2. Mark the project or story as sensitive-domain.
+3. Include Security as a consultative agent at minimum.
+4. Generate or update a privacy/safety artifact.
+5. Keep real integrations, real personal data, real camera feeds, production alerts, and real notifications out of scope until explicitly approved.
+6. Record assumptions about consent, retention, access control, auditability, and data minimization.
+7. Add stop conditions for any move from mock data to real sensitive data or real-world alerting.
+
+Recommended artifact:
+
+```text
+ai/06-reviews/PRIVACY_AND_SAFETY_REVIEW.md
+```
+
 ## Agent stop conditions
 
 Stop and ask for approval when:

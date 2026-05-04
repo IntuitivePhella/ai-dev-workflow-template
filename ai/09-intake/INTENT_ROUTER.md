@@ -47,6 +47,14 @@ Web app / SaaS / API / Mobile / Desktop / CLI / Library / Automation / AI agent 
 
 Known stack or proposed stack.
 
+## Sensitive domain
+
+Yes / No / Unknown
+
+## Privacy & Safety Review required
+
+Yes / No
+
 ## Workflow mode
 
 From `ai/00-rules/WORKFLOW_MODES.md`.
@@ -143,6 +151,23 @@ Use:
 - Brainstorming, then New Project
 - Required artifacts: Brainstorming, Intake, Project Brief, Discovery
 - First safe action: progressive narrowing, then brief
+
+## Sensitive domain detection
+
+During intake, classify the request as `Sensitive domain: yes` when it mentions or implies:
+
+- healthcare, elder care, nursing homes, care facilities, patients, caregivers, elderly people, children, vulnerable users;
+- cameras, surveillance, monitoring, video, audio, image analysis, snapshots, biometrics, face recognition;
+- physical safety, emergency alerts, fall detection, incident response, restricted areas, risk events;
+- personal data, sensitive data, consent, retention, audit logs, compliance, legal obligations.
+
+If `Sensitive domain: yes`:
+
+- Use at least Level 3 for new products or broad planning.
+- Include Security consultatively even if no real backend exists yet.
+- Add Privacy & Safety Review as a required artifact.
+- Treat mock-only work as allowed, but explicitly prohibit real sensitive data, real camera feeds, production notifications, or real-world escalation until human approval.
+- Add stop conditions for auth, permissions, retention, audit logs, real image/video, real alerts, and external integrations.
 
 ### Defined product
 
