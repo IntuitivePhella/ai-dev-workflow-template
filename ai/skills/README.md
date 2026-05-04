@@ -20,6 +20,7 @@ They should be short, procedural, and focused on one capability.
 - `release-readiness.md` — assess go/no-go, deployment risk, known issues, and release notes.
 - `rollback-planning.md` — define reversible changes and recovery paths.
 - `memory-update.md` — update durable project memory and decision logs.
+- `publish-approved-work.md` — create a branch, commit, push, and open a PR only after completed work is verified and explicitly approved.
 
 ## Skill usage rules
 

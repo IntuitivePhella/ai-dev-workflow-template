@@ -378,6 +378,30 @@ function hasAny(content, patterns) {
   return patterns.some((pattern) => new RegExp(pattern, 'im').test(content));
 }
 
+function hasSessionStatePlaceholders(content) {
+  const requiredSections = [
+    'Current project phase',
+    'Current active story',
+    'Last completed step',
+    'Exact next step',
+    'Blockers',
+    'Tests status',
+    'Risks / watchouts',
+  ];
+
+  const missingSection = requiredSections.some((section) => !new RegExp(`^##\\s+${section}\\s*$`, 'im').test(content));
+  if (missingSection) return true;
+
+  return [
+    /-\s*Brainstorming \/ Discovery \/ PRD \/ Architecture \/ Story execution \/ Review \/ Release/i,
+    /-\s*Path:\s*$/im,
+    /-\s*Status:\s*$/im,
+    /-\s*Acceptance criteria status:\s*$/im,
+    /^-\s*$/m,
+    /\bTBD\b/i,
+  ].some((pattern) => pattern.test(content));
+}
+
 function validateStory(storyPath) {
   if (!storyPath) throw new Error('Usage: aiwf validate <path-to-story-or-template>');
   const absolute = path.resolve(TARGET_ROOT, storyPath);
@@ -473,6 +497,15 @@ function checkGates() {
   ].forEach((file) => checkFile(file, true));
 
   checkFile('ai/08-memory/PROJECT_MAP.md', false);
+
+  const sessionStatePath = targetRel('ai/08-memory/SESSION_STATE.md');
+  if (!exists(sessionStatePath)) {
+    console.log('WARN: optional file missing: ai/08-memory/SESSION_STATE.md');
+    warnings += 1;
+  } else if (hasSessionStatePlaceholders(read(sessionStatePath))) {
+    console.log('WARN: ai/08-memory/SESSION_STATE.md appears to contain placeholder or incomplete continuity fields');
+    warnings += 1;
+  }
 
   const storyDir = targetRel('ai/04-stories');
   if (exists(storyDir)) {

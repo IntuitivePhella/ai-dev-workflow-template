@@ -10,6 +10,7 @@ Use this repository workflow to keep AI-generated changes small, reviewable, and
 4. Do not commit generated secrets, local environment files, credentials, or production data.
 5. Do not force-push shared branches unless explicitly approved.
 6. Do not merge while required gates are failing.
+7. Do not commit transient local coordination artifacts; publish only source files, tests, documentation, templates, examples, and approved durable workflow artifacts that belong in the shared repository.
 
 ## Branch naming
 
@@ -44,6 +45,10 @@ chore: update workflow metadata
 A commit should be understandable without reading the entire diff.
 
 ## Pull request requirements
+
+When a completed story or phase is ready to publish, use `ai/skills/publish-approved-work.md` to run the approval-gated branch, commit, push, and PR procedure.
+
+Publication requires explicit human approval. Do not infer approval to create a branch, commit, push, or open a PR from approval of the implementation itself.
 
 Every PR should include:
 

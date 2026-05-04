@@ -65,6 +65,7 @@ Before merge/release:
 After completion:
 
 - [ ] `PROJECT_MEMORY.md` updated when commands, conventions, or risks changed
+- [ ] `SESSION_STATE.md` updated with current phase, last completed step, exact next step, blockers, tests status, and risks
 - [ ] `DECISION_LOG.md` updated when architecture/product decisions changed
 - [ ] New tech debt captured separately, not hidden in the feature
 

@@ -182,6 +182,72 @@ Low.
   assert.match(result.stdout, /Story readiness check passed/);
 });
 
+test('gates warns when session state is missing or still placeholder-only', () => {
+  const cwd = makeTempProject();
+
+  const requiredFiles = [
+    'ai/00-rules/AI_RULES.md',
+    'ai/00-rules/WORKFLOW_MODES.md',
+    'ai/00-rules/QUALITY_GATES.md',
+    'ai/00-rules/DEFINITION_OF_READY.md',
+    'ai/00-rules/CHANGE_SIZE_POLICY.md',
+    'ai/00-rules/GIT_WORKFLOW.md',
+    'ai/agents/ORCHESTRATOR.md',
+    'ai/agents/ROUTING_MATRIX.md',
+    'ai/agents/SQUAD_LEVELS.md',
+    'ai/08-memory/PROJECT_MEMORY.md',
+    'ai/05-execution/EXECUTION_PROTOCOL.md',
+    'ai/06-reviews/REVIEW_CHECKLIST.md',
+  ];
+
+  for (const file of requiredFiles) {
+    writeFile(path.join(cwd, file), `# ${path.basename(file)}\n`);
+  }
+
+  let result = runCli(['gates'], cwd);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /optional file missing: ai\/08-memory\/SESSION_STATE\.md/);
+
+  writeFile(path.join(cwd, 'ai', '08-memory', 'SESSION_STATE.md'), `# Session State
+
+## Current project phase
+
+- Brainstorming / Discovery / PRD / Architecture / Story execution / Review / Release
+
+## Current active story
+
+- Path:
+- Status:
+- Acceptance criteria status:
+
+## Last completed step
+
+-
+
+## Exact next step
+
+-
+
+## Blockers
+
+-
+
+## Tests status
+
+-
+
+## Risks / watchouts
+
+-
+`);
+
+  result = runCli(['gates'], cwd);
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /SESSION_STATE\.md appears to contain placeholder or incomplete continuity fields/);
+});
+
 test('sensitive reports sensitive changed paths in a git repository', () => {
   const cwd = makeTempProject();
 

@@ -99,10 +99,11 @@ Before doing any coding task, read:
 11. `ai/09-intake/INTENT_ROUTER.md` when the request is not already a ready story
 12. `ai/09-intake/BRAINSTORMING_PLAYBOOK.md` when the request is an idea or rough concept
 13. `ai/08-memory/PROJECT_MEMORY.md`
-14. `ai/08-memory/PROJECT_MAP.md`, if present
-15. The relevant story in `ai/04-stories/`
-16. The relevant test plan in `ai/05-execution/`, if present
-17. `ai/05-execution/EXECUTION_PROTOCOL.md`
+14. `ai/08-memory/SESSION_STATE.md`, if present
+15. `ai/08-memory/PROJECT_MAP.md`, if present
+16. The relevant story in `ai/04-stories/`
+17. The relevant test plan in `ai/05-execution/`, if present
+18. `ai/05-execution/EXECUTION_PROTOCOL.md`
 
 ## Operating model
 

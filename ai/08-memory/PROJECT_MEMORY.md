@@ -36,7 +36,7 @@ TBD.
 
 ## Things AI must not do
 
-- TBD.
+- Do not stage or commit transient local coordination artifacts unless the user explicitly approves them as durable project content.
 
 ## Current status
 
@@ -44,5 +44,5 @@ TBD.
 
 ## Session continuity
 
-If i/08-memory/SESSION_STATE.md exists, treat it as the operational source of truth for current phase and next action.
+If `ai/08-memory/SESSION_STATE.md` exists, treat it as the operational source of truth for current phase and next action.
 
