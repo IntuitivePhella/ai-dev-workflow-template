@@ -15,6 +15,7 @@ Read:
 - `ai/00-rules/AI_RULES.md`
 - `ai/00-rules/QUALITY_GATES.md`
 - `ai/08-memory/PROJECT_MEMORY.md`
+- `ai/08-memory/SESSION_STATE.md`, if present
 - `ai/08-memory/PROJECT_MAP.md`, if present
 - current story or brief
 - impact analysis, if present
@@ -81,9 +82,15 @@ Check product fit, maintainability, regression risk, security, and release readi
 
 Update memory, decision log, release notes, or follow-up files if needed.
 
-For continuity-critical workflows, update i/08-memory/SESSION_STATE.md (or explicitly update PROJECT_MEMORY.md with equivalent fields) before marking the task complete.
+For continuity-critical workflows, update `ai/08-memory/SESSION_STATE.md` (or explicitly update `PROJECT_MEMORY.md` with equivalent fields) before marking the task complete.
 
 Do not hide tech debt inside a completed story. Record it separately.
+
+## Step 9 - Publish approved work
+
+Only when the process is complete and the user explicitly approves publication, use `ai/skills/publish-approved-work.md` to create or switch branches, commit, push, and open a pull request.
+
+Do not treat approval of the implementation as approval to publish. Branch creation, commit, push, and PR creation each require clear human approval.
 
 ## Required final report
 
