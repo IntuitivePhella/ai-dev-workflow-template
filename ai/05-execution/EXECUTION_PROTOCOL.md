@@ -65,6 +65,10 @@ At minimum, run the most relevant available checks:
 - build
 - typecheck
 - lint
+- `node scripts/aiwf.js validate-spec <path>` when the story creates or changes a behavioral spec or spec delta
+- `node scripts/aiwf.js validate-change <path>` when the story creates or changes a change package
+- `node scripts/aiwf.js sync <change-package-dir>` after an accepted change package needs its supported delta specs applied to durable behavior specs
+- `node scripts/aiwf.js archive <change-package-dir>` after an accepted change package has completed tasks and should be preserved for audit history
 
 If a command is unavailable, say so explicitly.
 
@@ -85,6 +89,10 @@ Update memory, decision log, release notes, or follow-up files if needed.
 For continuity-critical workflows, update `ai/08-memory/SESSION_STATE.md` (or explicitly update `PROJECT_MEMORY.md` with equivalent fields) before marking the task complete.
 
 Do not hide tech debt inside a completed story. Record it separately.
+
+When improving AI-PhellOS inside its own repository, remove or relocate temporary coordination artifacts before publication. One-off plans, context packs, handoffs, and intermediate review packets belong under `ai/_local/` while active and should not be committed unless explicitly approved as durable framework content.
+
+If more work remains after the current turn, write a copy-ready next-chat prompt in `Follow-ups:` so a fresh agent can resume without guessing. The prompt must include the exact next step, relevant files, commands to run, stop conditions, and files or areas that must not be changed.
 
 ## Step 9 - Publish approved work
 
@@ -112,6 +120,9 @@ Risks:
 - ...
 
 Follow-ups:
-- ...
+- If more work remains, include:
+  Next Chat Prompt:
+  <copy-ready prompt for a fresh agent with current phase, relevant files, exact next step, commands, stop conditions, and forbidden areas>
+- If no work remains, write: None.
 ```
 

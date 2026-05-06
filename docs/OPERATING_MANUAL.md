@@ -182,6 +182,8 @@ The agent should stop and produce a gap report when:
 
 ## Maintenance
 
+Use `ai/config.yaml` only when a project needs to override AI-PhellOS defaults. Start from `ai/config.template.yaml`; the config is optional and may define `paths.specsPath`, `paths.changesPath`, default commands, and per-artifact rules. When it is absent, CLI commands continue to use `ai/11-specs`, `ai/04-changes`, and story-specific command guidance.
+
 Update `PROJECT_MEMORY.md` when:
 
 - commands change;

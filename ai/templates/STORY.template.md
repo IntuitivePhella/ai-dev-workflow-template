@@ -78,4 +78,6 @@ Yes/No. Explain if this touches sensitive areas such as billing, auth, permissio
 - [ ] Acceptance criteria checked one by one
 - [ ] Documentation updated if needed
 - [ ] Risks/follow-ups documented
+- [ ] If more work remains, final `Follow-ups:` includes a copy-ready next-chat prompt
+- [ ] Temporary coordination artifacts removed, ignored under `ai/_local/`, or explicitly approved as durable project content
 - [ ] Project memory or decision log updated if needed

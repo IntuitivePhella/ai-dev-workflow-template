@@ -149,6 +149,19 @@ Do not combine discovery, planning, implementation, and review in one uncontroll
 - Always summarize files changed, tests run, and risks remaining.
 - Stop when blocked by product decisions.
 
+## Local coordination artifact rule
+
+When improving AI-PhellOS inside its own repository, distinguish durable framework files from temporary coordination artifacts.
+
+Durable framework files are files a user should receive when cloning AI-PhellOS, such as rules, templates, reusable skills, CLI code, tests, docs, examples, and approved workflow assets.
+
+Temporary coordination artifacts are files created only to execute the current improvement plan, such as one-off implementation plans, local context packs, transient handoffs, local session notes, and intermediate review packets. Store those under `ai/_local/` or remove them before publication. Do not commit or publish temporary coordination artifacts unless the user explicitly approves them as durable framework content.
+
+Before any publication, classify story, session, handoff, and coordination artifacts as:
+
+- durable framework content to include; or
+- local process residue to remove, ignore, or leave unstaged.
+
 ## Cross-platform command rule
 
 Prefer the Node CLI because it works on Linux, macOS, and Windows:
@@ -261,5 +274,14 @@ Risks:
 - ...
 
 Follow-ups:
-- ...
+- If more work remains, include a copy-ready "Next Chat Prompt" that lets a fresh agent resume from the exact next step.
+- If no work remains, say "None."
+```
+
+When a next-step prompt is needed, use:
+
+```text
+Follow-ups:
+- Next Chat Prompt:
+  <pasteable prompt that includes the current phase, relevant files, exact next step, required commands, stop conditions, and what must not be changed>
 ```

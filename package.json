@@ -18,6 +18,7 @@
     "CHANGELOG.md",
     "SECURITY.md",
     "ai/",
+    "!ai/_local/**",
     "docs/",
     "prompts/",
     "scripts/",

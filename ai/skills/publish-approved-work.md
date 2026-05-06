@@ -16,6 +16,7 @@ Before proposing publication, confirm:
 6. Sensitive areas have explicit human approval when applicable.
 7. The working tree contains only changes that belong to the approved story or phase.
 8. Story artifacts included in the publication are durable project content, not transient local coordination notes.
+9. When publishing AI-PhellOS framework changes, one-off execution plans, local context packs, transient handoffs, and intermediate review packets are excluded unless explicitly approved as durable framework assets.
 
 ## Stop Conditions
 
@@ -25,6 +26,7 @@ Stop and report instead of publishing when:
 - tests or gates are failing without documented approval;
 - the diff includes unrelated changes, forbidden files, secrets, credentials, production data, or local environment files;
 - the diff includes transient story, session, or coordination artifacts that the user has not explicitly approved as durable project content;
+- the AI-PhellOS framework diff includes local improvement-planning artifacts outside `ai/_local/` without explicit approval to publish them;
 - sensitive areas are touched without explicit approval;
 - branch naming, commit message, target remote, target base branch, or PR scope is unclear;
 - the current branch contains unreviewed work from another story;
@@ -49,6 +51,7 @@ Stop and report instead of publishing when:
    - exact files to stage;
    - PR title and body.
 6. Classify story, session, and coordination artifacts as either durable project content or local process residue before staging them.
+7. For AI-PhellOS self-improvement work, confirm any files under planning, handoff, or session paths are either required framework assets or excluded from staging.
 
 ## Approval Request
 
@@ -60,6 +63,7 @@ Publication approval request:
 - New/current branch:
 - Files to stage:
 - Story/session/coordination artifacts included or excluded and why:
+- Local planning artifacts removed/ignored:
 - Commit message:
 - Commands to run:
 - PR title:
