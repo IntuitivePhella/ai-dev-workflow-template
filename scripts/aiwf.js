@@ -9,6 +9,19 @@ const TARGET_ROOT = process.cwd();
 const PACKAGE_ROOT = path.resolve(__dirname, '..');
 const args = process.argv.slice(2);
 const command = args[0] || 'help';
+const DEFAULT_PROJECT_CONFIG = {
+  paths: {
+    specsPath: 'ai/11-specs',
+    changesPath: 'ai/04-changes',
+  },
+  commands: {
+    test: 'npm.cmd test',
+    gates: 'node scripts/aiwf.js gates',
+    doctor: 'node scripts/aiwf.js doctor',
+  },
+  artifacts: {},
+};
+let cachedProjectConfig = null;
 
 function targetRel(...parts) {
   return path.join(TARGET_ROOT, ...parts);
@@ -71,6 +84,96 @@ function sourceFile(...parts) {
   return packageRel(...parts);
 }
 
+function parseYamlScalar(value) {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  return trimmed.replace(/^['"]|['"]$/g, '');
+}
+
+function parseSimpleYaml(content) {
+  const root = {};
+  const stack = [{ indent: -1, value: root }];
+
+  for (const line of content.split(/\r?\n/)) {
+    if (!line.trim() || /^\s*#/.test(line) || /^\s*-/.test(line)) continue;
+    const match = /^(\s*)([A-Za-z][A-Za-z0-9_-]*):(?:\s*(.*))?$/.exec(line);
+    if (!match) continue;
+
+    const indent = match[1].length;
+    const key = match[2];
+    const rawValue = match[3] || '';
+
+    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) stack.pop();
+
+    const parent = stack[stack.length - 1].value;
+    if (rawValue.trim()) {
+      parent[key] = parseYamlScalar(rawValue);
+    } else {
+      parent[key] = {};
+      stack.push({ indent, value: parent[key] });
+    }
+  }
+
+  return root;
+}
+
+function normalizeConfigPath(value, fallback, settingName) {
+  const raw = String(value || fallback).trim().replace(/\\/g, '/').replace(/\/+$/g, '');
+  if (!raw) return fallback;
+  if (path.isAbsolute(raw) || /^[A-Za-z]:\//.test(raw)) throw new Error(`ai/config.yaml ${settingName} must be repository-relative`);
+  const normalized = path.posix.normalize(raw);
+  if (normalized === '.' || normalized.startsWith('../') || normalized === '..') {
+    throw new Error(`ai/config.yaml ${settingName} must stay inside the repository`);
+  }
+  return normalized;
+}
+
+function loadProjectConfig() {
+  const configPath = targetRel('ai', 'config.yaml');
+  const config = {
+    paths: { ...DEFAULT_PROJECT_CONFIG.paths },
+    commands: { ...DEFAULT_PROJECT_CONFIG.commands },
+    artifacts: {},
+  };
+
+  if (!exists(configPath)) return config;
+
+  const parsed = parseSimpleYaml(read(configPath));
+  const pathsConfig = parsed.paths || {};
+  const commandsConfig = parsed.commands || {};
+
+  config.paths.specsPath = normalizeConfigPath(pathsConfig.specsPath, config.paths.specsPath, 'paths.specsPath');
+  config.paths.changesPath = normalizeConfigPath(pathsConfig.changesPath, config.paths.changesPath, 'paths.changesPath');
+  config.commands = { ...config.commands, ...commandsConfig };
+  config.artifacts = parsed.artifacts || {};
+  return config;
+}
+
+function projectConfig() {
+  if (!cachedProjectConfig) cachedProjectConfig = loadProjectConfig();
+  return cachedProjectConfig;
+}
+
+function configuredPath(...parts) {
+  return targetRel(...parts.join('/').split('/').filter(Boolean));
+}
+
+function specsPathRel() {
+  return projectConfig().paths.specsPath;
+}
+
+function changesPathRel() {
+  return projectConfig().paths.changesPath;
+}
+
+function specsRootPath() {
+  return configuredPath(specsPathRel());
+}
+
+function changesRootPath() {
+  return configuredPath(changesPathRel());
+}
+
 function slugify(value) {
   return value
     .toLowerCase()
@@ -116,6 +219,14 @@ Usage:
   aiwf brainstorm <idea>
   aiwf plan <feature-or-change>
   aiwf story <feature|bugfix|refactor|migration|generic> "Title"
+  aiwf change <title>
+  aiwf status <change-path> [--json]
+  aiwf instructions <artifact> <change-path>
+  aiwf verify <change-path>
+  aiwf sync <change-path>
+  aiwf archive <change-path>
+  aiwf validate-spec <spec-or-delta-file>
+  aiwf validate-change <change-package-dir>
   aiwf validate <story-file>
   aiwf gates
   aiwf sensitive [base-ref] [head-ref]
@@ -132,6 +243,14 @@ Examples:
   aiwf brainstorm "an app for schools"
   aiwf plan "Add team invitation flow"
   aiwf story feature "Add team invitation flow"
+  aiwf change "Add dark mode"
+  aiwf status ai/04-changes/20260506-add-dark-mode
+  aiwf instructions proposal ai/04-changes/20260506-add-dark-mode
+  aiwf verify ai/04-changes/20260506-add-dark-mode
+  aiwf sync ai/04-changes/20260506-add-dark-mode
+  aiwf archive ai/04-changes/20260506-add-dark-mode
+  aiwf validate-spec ai/11-specs/session-continuity.md
+  aiwf validate-change ai/04-changes/20260506-add-dark-mode
   aiwf validate ai/04-stories/20260502-feature-add-team-invitation-flow.md
   aiwf review ai/04-stories/20260502-feature-add-team-invitation-flow.md`);
 }
@@ -144,6 +263,14 @@ function printPrompt(title, body) {
 function quotedOrFallback(value, fallback) {
   const text = String(value || '').trim();
   return text || fallback;
+}
+
+function defaultCommandsText() {
+  const commands = projectConfig().commands;
+  return Object.keys(commands)
+    .sort()
+    .map((name) => `- ${name}: ${commands[name]}`)
+    .join('\n');
 }
 
 function startPrompt(request) {
@@ -266,6 +393,9 @@ Include:
 - stop conditions;
 - recommended story file and title.
 
+Default commands from ai/config.yaml or AI-PhellOS defaults:
+${defaultCommandsText()}
+
 If this is an existing project and PROJECT_MAP.md is missing or empty, map the repo first.
 Do not implement until Definition of Ready is satisfied.
 `);
@@ -374,8 +504,621 @@ function createStory(type, title) {
   console.log(`Next: fill required fields, then run: aiwf validate ${path.relative(TARGET_ROOT, output)}`);
 }
 
+function templateWithTitle(templatePath, title) {
+  return read(templatePath)
+    .replace(/<title>/g, title)
+    .replace(/<change title>/g, title);
+}
+
+function changeDesignTemplate(title) {
+  return `# Design Notes: ${title}
+
+## Context
+
+Document design decisions, trade-offs, and alternatives for this change package.
+
+## Decisions
+
+- TBD
+
+## Alternatives considered
+
+- TBD
+
+## Risks
+
+- TBD
+`;
+}
+
+function createChangePackage(title) {
+  if (!title) throw new Error('Usage: aiwf change <title>');
+
+  const slug = slugify(title);
+  if (!slug) throw new Error('Change title must contain at least one alphanumeric character');
+
+  const changeDir = path.join(changesRootPath(), `${todayStamp()}-${slug}`);
+  if (exists(changeDir)) throw new Error(`Change package already exists: ${path.relative(TARGET_ROOT, changeDir)}`);
+
+  const proposalTemplate = sourceFile('ai', 'templates', 'CHANGE_PROPOSAL.template.md');
+  const tasksTemplate = sourceFile('ai', 'templates', 'CHANGE_TASKS.template.md');
+  const specDeltaTemplate = sourceFile('ai', 'templates', 'SPEC_DELTA.template.md');
+
+  if (!exists(proposalTemplate)) throw new Error('Template not found: ai/templates/CHANGE_PROPOSAL.template.md');
+  if (!exists(tasksTemplate)) throw new Error('Template not found: ai/templates/CHANGE_TASKS.template.md');
+  if (!exists(specDeltaTemplate)) throw new Error('Template not found: ai/templates/SPEC_DELTA.template.md');
+
+  ensureDir(path.join(changeDir, 'specs'));
+  write(path.join(changeDir, 'proposal.md'), templateWithTitle(proposalTemplate, title));
+  write(path.join(changeDir, 'tasks.md'), templateWithTitle(tasksTemplate, title));
+  write(path.join(changeDir, 'design.md'), changeDesignTemplate(title));
+  write(path.join(changeDir, 'specs', `${slug}.delta.md`), templateWithTitle(specDeltaTemplate, title));
+
+  console.log(`Created change package: ${displayRel(changeDir)}`);
+  console.log(`Next: review proposal.md, tasks.md, design.md, and specs/${slug}.delta.md before creating implementation stories.`);
+}
+
 function hasAny(content, patterns) {
   return patterns.some((pattern) => new RegExp(pattern, 'im').test(content));
+}
+
+function rel(filePath) {
+  return path.relative(TARGET_ROOT, filePath) || '.';
+}
+
+function displayRel(filePath) {
+  return rel(filePath).split(path.sep).join('/');
+}
+
+function isPathInside(childPath, parentPath) {
+  const relative = path.relative(parentPath, childPath);
+  return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+}
+
+function hasHeading(content, level, title) {
+  return new RegExp(`^#{${level}}\\s+${title}\\s*$`, 'im').test(content);
+}
+
+function requirementBlocks(content) {
+  const requirementPattern = /^###\s+Requirement:\s*(.+?)\s*$/gim;
+  const matches = [...content.matchAll(requirementPattern)];
+
+  return matches.map((match, index) => {
+    const start = match.index + match[0].length;
+    const next = matches[index + 1];
+    const end = next ? next.index : content.length;
+    return {
+      title: match[1].trim(),
+      body: content.slice(start, end),
+    };
+  });
+}
+
+function scenarioBlocks(content) {
+  const scenarioPattern = /^####\s+Scenario:\s*(.+?)\s*$/gim;
+  const matches = [...content.matchAll(scenarioPattern)];
+
+  return matches.map((match, index) => {
+    const start = match.index + match[0].length;
+    const next = matches[index + 1];
+    const end = next ? next.index : content.length;
+    return {
+      title: match[1].trim(),
+      body: content.slice(start, end),
+    };
+  });
+}
+
+function validateScenarioFormatting(content, fail) {
+  const scenarios = scenarioBlocks(content);
+
+  for (const scenario of scenarios) {
+    if (!/^\s*-\s+Given\b/im.test(scenario.body)) fail(`scenario "${scenario.title}" missing Given step`);
+    if (!/^\s*-\s+When\b/im.test(scenario.body)) fail(`scenario "${scenario.title}" missing When step`);
+    if (!/^\s*-\s+Then\b/im.test(scenario.body)) fail(`scenario "${scenario.title}" missing Then step`);
+  }
+}
+
+function validateBehaviorSpecContent(content, displayPath) {
+  let failures = 0;
+
+  function fail(message) {
+    console.log(`FAIL: ${displayPath}: ${message}`);
+    failures += 1;
+  }
+
+  console.log(`Validating behavioral spec: ${displayPath}`);
+
+  if (!hasHeading(content, 2, 'Purpose')) fail('missing ## Purpose');
+  if (!hasHeading(content, 2, 'Requirements')) fail('missing ## Requirements');
+  if (!/^###\s+Requirement:/im.test(content)) fail('missing ### Requirement:');
+  if (!/^####\s+Scenario:/im.test(content)) fail('missing #### Scenario:');
+
+  for (const requirement of requirementBlocks(content)) {
+    if (!/^####\s+Scenario:/im.test(requirement.body)) fail(`requirement "${requirement.title}" missing scenario`);
+  }
+
+  validateScenarioFormatting(content, fail);
+
+  if (failures > 0) {
+    console.log(`\nSpec is NOT valid: ${failures} failure(s).`);
+    process.exitCode = 1;
+    return false;
+  }
+
+  console.log('\nSpec validation passed.');
+  return true;
+}
+
+function deltaSections(content) {
+  const sectionPattern = /^##\s+(ADDED|MODIFIED|REMOVED|RENAMED)\s*$/gim;
+  const matches = [...content.matchAll(sectionPattern)];
+
+  return matches.map((match, index) => {
+    const start = match.index + match[0].length;
+    const next = matches[index + 1];
+    const end = next ? next.index : content.length;
+    return {
+      type: match[1].toUpperCase(),
+      body: content.slice(start, end),
+    };
+  });
+}
+
+function markdownSectionBody(content, level, title) {
+  const heading = new RegExp(`^#{${level}}\\s+${title}\\s*$`, 'im');
+  const match = heading.exec(content);
+  if (!match) return '';
+
+  const start = match.index + match[0].length;
+  const nextHeading = new RegExp(`^#{1,${level}}\\s+`, 'gim');
+  nextHeading.lastIndex = start;
+  const next = nextHeading.exec(content);
+  return content.slice(start, next ? next.index : content.length).trim();
+}
+
+function validateDeltaSpecContent(content, displayPath) {
+  let failures = 0;
+
+  function fail(message) {
+    console.log(`FAIL: ${displayPath}: ${message}`);
+    failures += 1;
+  }
+
+  console.log(`Validating spec delta: ${displayPath}`);
+
+  if (!hasHeading(content, 2, 'Target spec')) fail('missing ## Target spec');
+  if (!hasHeading(content, 2, 'Summary')) fail('missing ## Summary');
+
+  const sections = deltaSections(content).filter((section) => /^###\s+Requirement:/im.test(section.body));
+  if (sections.length === 0) fail('missing at least one delta section with ### Requirement:');
+
+  for (const section of sections) {
+    if (['ADDED', 'MODIFIED'].includes(section.type) && !/^####\s+Scenario:/im.test(section.body)) {
+      fail(`${section.type} section missing #### Scenario:`);
+    }
+    validateScenarioFormatting(section.body, fail);
+  }
+
+  if (failures > 0) {
+    console.log(`\nSpec delta is NOT valid: ${failures} failure(s).`);
+    process.exitCode = 1;
+    return false;
+  }
+
+  console.log('\nSpec delta validation passed.');
+  return true;
+}
+
+function validateSpec(specPath) {
+  if (!specPath) throw new Error('Usage: aiwf validate-spec <spec-or-delta-file>');
+  const absolute = path.resolve(TARGET_ROOT, specPath);
+  if (!exists(absolute)) throw new Error(`File not found: ${specPath}`);
+  if (!fs.statSync(absolute).isFile()) throw new Error(`Not a file: ${specPath}`);
+
+  const content = read(absolute);
+  const displayPath = rel(absolute);
+  const isDelta = /\.delta\.md$/i.test(absolute) || /^#\s+Spec Delta:/im.test(content) || hasHeading(content, 2, 'Target spec');
+
+  return isDelta ? validateDeltaSpecContent(content, displayPath) : validateBehaviorSpecContent(content, displayPath);
+}
+
+function extractTargetSpecPath(deltaContent, deltaFile) {
+  const body = markdownSectionBody(deltaContent, 2, 'Target spec');
+  const fenced = /`([^`]+)`/.exec(body);
+  const target = (fenced ? fenced[1] : body.split(/\r?\n/).find((line) => line.trim()))
+    ?.trim()
+    .replace(/^['"]|['"]$/g, '');
+
+  if (!target) throw new Error(`${displayRel(deltaFile)} missing target spec path`);
+  if (path.isAbsolute(target)) throw new Error(`${displayRel(deltaFile)} target spec must be repository-relative`);
+  const absoluteTarget = path.resolve(TARGET_ROOT, target);
+  if (!isPathInside(absoluteTarget, specsRootPath())) {
+    throw new Error(`${displayRel(deltaFile)} target spec must be under ${specsPathRel()}/`);
+  }
+
+  return target;
+}
+
+function titleFromSpecPath(targetSpec) {
+  const base = path.basename(targetSpec, '.md').replace(/[-_]+/g, ' ');
+  return base.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function addedRequirementContent(deltaContent, deltaFile) {
+  const sections = deltaSections(deltaContent);
+  const unsupported = sections.find((section) => section.type !== 'ADDED' && section.body.trim());
+  if (unsupported) throw new Error(`Unsupported delta operation: ${unsupported.type} in ${displayRel(deltaFile)}`);
+
+  const added = sections
+    .filter((section) => section.type === 'ADDED')
+    .map((section) => section.body.trim())
+    .filter(Boolean);
+
+  if (added.length === 0) throw new Error(`${displayRel(deltaFile)} has no ADDED requirements to sync`);
+  return added.join('\n\n').trim();
+}
+
+function buildNewBehaviorSpec(targetSpec, deltaContent, requirements) {
+  const summary = markdownSectionBody(deltaContent, 2, 'Summary') || `Describe durable behavior for ${titleFromSpecPath(targetSpec)}.`;
+  return `# Spec: ${titleFromSpecPath(targetSpec)}
+
+## Purpose
+
+${summary}
+
+## Requirements
+
+${requirements.trim()}
+`;
+}
+
+function applyDeltaToSpec(deltaFile) {
+  const deltaContent = read(deltaFile);
+  if (!validateDeltaSpecContent(deltaContent, rel(deltaFile))) throw new Error(`Spec delta validation failed: ${displayRel(deltaFile)}`);
+
+  const targetSpec = extractTargetSpecPath(deltaContent, deltaFile);
+  const absoluteTarget = path.resolve(TARGET_ROOT, targetSpec);
+  const specsRoot = specsRootPath();
+  if (!isPathInside(absoluteTarget, specsRoot)) throw new Error(`Target spec escapes ${specsPathRel()}: ${targetSpec}`);
+
+  const requirements = addedRequirementContent(deltaContent, deltaFile);
+  let nextContent;
+  let created = false;
+
+  if (exists(absoluteTarget)) {
+    const current = read(absoluteTarget).replace(/\s*$/, '\n');
+    if (!hasHeading(current, 2, 'Requirements')) throw new Error(`${displayRel(absoluteTarget)} missing ## Requirements`);
+    nextContent = `${current.trimEnd()}\n\n${requirements}\n`;
+  } else {
+    created = true;
+    nextContent = buildNewBehaviorSpec(targetSpec, deltaContent, requirements);
+  }
+
+  if (!validateBehaviorSpecContent(nextContent, targetSpec)) throw new Error(`Synced spec would be invalid: ${targetSpec}`);
+  write(absoluteTarget, nextContent);
+
+  console.log(`${created ? 'Created spec' : 'Updated spec'}: ${displayRel(absoluteTarget)}`);
+  console.log(`Synced delta: ${displayRel(deltaFile)}`);
+}
+
+function syncChangePackage(changePath) {
+  const changeDir = resolveChangeDir(changePath, 'Usage: aiwf sync <change-package-dir>');
+  if (!validateChangePackage(changeDir)) throw new Error(`Change package validation failed: ${displayRel(changeDir)}`);
+
+  const deltaFiles = listDeltaFiles(path.join(changeDir, 'specs'));
+  if (deltaFiles.length === 0) throw new Error(`No delta specs found: ${displayRel(changeDir)}`);
+
+  for (const deltaFile of deltaFiles) applyDeltaToSpec(deltaFile);
+  console.log('\nSpec sync complete.');
+  return true;
+}
+
+function listDeltaFiles(specsDir) {
+  if (!exists(specsDir)) return [];
+  return fs.readdirSync(specsDir)
+    .map((name) => path.join(specsDir, name))
+    .filter((filePath) => fs.statSync(filePath).isFile())
+    .filter((filePath) => /\.delta\.md$/i.test(filePath));
+}
+
+function validateChangePackage(changePath) {
+  if (!changePath) throw new Error('Usage: aiwf validate-change <change-package-dir>');
+  const absolute = path.resolve(TARGET_ROOT, changePath);
+  if (!exists(absolute)) throw new Error(`Directory not found: ${changePath}`);
+  if (!fs.statSync(absolute).isDirectory()) throw new Error(`Not a directory: ${changePath}`);
+
+  let failures = 0;
+
+  function fail(message) {
+    console.log(`FAIL: ${rel(absolute)}: ${message}`);
+    failures += 1;
+  }
+
+  console.log(`Validating change package: ${rel(absolute)}`);
+
+  if (!exists(path.join(absolute, 'proposal.md'))) fail('missing proposal.md');
+  if (!exists(path.join(absolute, 'tasks.md'))) fail('missing tasks.md');
+
+  const specsDir = path.join(absolute, 'specs');
+  if (exists(specsDir)) {
+    if (!fs.statSync(specsDir).isDirectory()) {
+      fail('specs exists but is not a directory');
+    } else {
+      const deltaFiles = listDeltaFiles(specsDir);
+      if (deltaFiles.length === 0) fail('specs folder exists but contains no *.delta.md files');
+      for (const deltaFile of deltaFiles) {
+        if (!validateDeltaSpecContent(read(deltaFile), rel(deltaFile))) failures += 1;
+      }
+    }
+  }
+
+  if (failures > 0) {
+    console.log(`\nChange package is NOT valid: ${failures} failure(s).`);
+    process.exitCode = 1;
+    return false;
+  }
+
+  console.log('\nChange package validation passed.');
+  return true;
+}
+
+function resolveChangeDir(changePath, usageText) {
+  if (!changePath) throw new Error(usageText);
+  const absolute = path.resolve(TARGET_ROOT, changePath);
+  if (!exists(absolute)) throw new Error(`Directory not found: ${changePath}`);
+  if (!fs.statSync(absolute).isDirectory()) throw new Error(`Not a directory: ${changePath}`);
+  return absolute;
+}
+
+function changeArtifactStatus(changeDir) {
+  const proposalPath = path.join(changeDir, 'proposal.md');
+  const specsDir = path.join(changeDir, 'specs');
+  const designPath = path.join(changeDir, 'design.md');
+  const tasksPath = path.join(changeDir, 'tasks.md');
+  const specFiles = exists(specsDir) && fs.statSync(specsDir).isDirectory()
+    ? listDeltaFiles(specsDir).map(displayRel).sort()
+    : [];
+
+  const artifacts = {
+    proposal: {
+      status: exists(proposalPath) && fs.statSync(proposalPath).isFile() ? 'complete' : 'missing',
+      path: displayRel(proposalPath),
+    },
+    specs: {
+      status: specFiles.length > 0 ? 'complete' : 'missing',
+      path: displayRel(specsDir),
+      files: specFiles,
+    },
+    design: {
+      status: exists(designPath) && fs.statSync(designPath).isFile() ? 'complete' : 'missing',
+      path: displayRel(designPath),
+    },
+    tasks: {
+      status: exists(tasksPath) && fs.statSync(tasksPath).isFile() ? 'complete' : 'missing',
+      path: displayRel(tasksPath),
+    },
+  };
+
+  const missing = Object.keys(artifacts).filter((name) => artifacts[name].status !== 'complete');
+
+  return {
+    changePath: displayRel(changeDir),
+    complete: missing.length === 0,
+    missing,
+    next: missing[0] || null,
+    artifacts,
+  };
+}
+
+function changeStatus(changePath, json = false) {
+  const changeDir = resolveChangeDir(changePath, 'Usage: aiwf status <change-package-dir> [--json]');
+  const status = changeArtifactStatus(changeDir);
+
+  if (json) {
+    console.log(JSON.stringify(status, null, 2));
+    return true;
+  }
+
+  console.log(`Change package: ${status.changePath}`);
+  console.log('\nArtifacts:');
+  for (const name of ['proposal', 'specs', 'design', 'tasks']) {
+    const artifact = status.artifacts[name];
+    console.log(`[${artifact.status}] ${name}  ${artifact.path}`);
+    if (name === 'specs' && artifact.files.length > 0) {
+      for (const file of artifact.files) console.log(`  - ${file}`);
+    }
+  }
+
+  if (status.next) {
+    console.log(`\nNext: aiwf instructions ${status.next} ${status.changePath}`);
+  } else {
+    console.log('\nNext: aiwf validate-change ' + status.changePath);
+  }
+
+  return true;
+}
+
+function normalizeInstructionArtifact(artifact) {
+  const value = String(artifact || '').toLowerCase();
+  if (value === 'spec' || value === 'delta' || value === 'deltas') return 'specs';
+  if (['proposal', 'specs', 'design', 'tasks'].includes(value)) return value;
+  throw new Error('Unknown artifact. Allowed: proposal, specs, design, tasks');
+}
+
+function instructionDetails(artifact, changeDir) {
+  const changePath = displayRel(changeDir);
+  const details = {
+    proposal: {
+      expected: displayRel(path.join(changeDir, 'proposal.md')),
+      template: 'ai/templates/CHANGE_PROPOSAL.template.md',
+      guidance: [
+        'State the problem, goals, non-goals, affected behavior, acceptance criteria, risks, and rollback approach.',
+        'Keep the proposal durable enough that agents can split implementation stories without inventing scope.',
+      ],
+    },
+    specs: {
+      expected: `${displayRel(path.join(changeDir, 'specs'))}/<slug>.delta.md`,
+      template: 'ai/templates/SPEC_DELTA.template.md',
+      guidance: [
+        'Describe ADDED, MODIFIED, REMOVED, or RENAMED behavior against a target spec.',
+        'Use Requirement and Scenario headings with Given, When, and Then steps for added or modified behavior.',
+      ],
+    },
+    design: {
+      expected: displayRel(path.join(changeDir, 'design.md')),
+      template: 'inline design notes scaffold from aiwf change',
+      guidance: [
+        'Record design decisions, alternatives considered, trade-offs, and risks.',
+        'Keep it brief; omit design notes only when the change package explicitly does not need design decisions.',
+      ],
+    },
+    tasks: {
+      expected: displayRel(path.join(changeDir, 'tasks.md')),
+      template: 'ai/templates/CHANGE_TASKS.template.md',
+      guidance: [
+        'Break the change into ordered, reviewable tasks and implementation stories.',
+        'Mark completed tasks only after tests and quality gates for that task pass.',
+      ],
+    },
+  };
+
+  return { changePath, ...details[artifact] };
+}
+
+function changeInstructions(artifactArg, changePath) {
+  if (!artifactArg || !changePath) throw new Error('Usage: aiwf instructions <artifact> <change-package-dir>');
+  const artifact = normalizeInstructionArtifact(artifactArg);
+  const changeDir = resolveChangeDir(changePath, 'Usage: aiwf instructions <artifact> <change-package-dir>');
+  const details = instructionDetails(artifact, changeDir);
+
+  console.log(`# Change Package Instructions: ${artifact}`);
+  console.log(`\nChange package: ${details.changePath}`);
+  console.log(`Expected file: ${details.expected}`);
+  console.log(`Template: ${details.template}`);
+  console.log('\nGuidance:');
+  for (const line of details.guidance) console.log(`- ${line}`);
+  console.log(`\nRun status next: aiwf status ${details.changePath}`);
+  return true;
+}
+
+function verifyChangePackage(changePath) {
+  const changeDir = resolveChangeDir(changePath, 'Usage: aiwf verify <change-package-dir>');
+  const status = changeArtifactStatus(changeDir);
+  const tasksPath = path.join(changeDir, 'tasks.md');
+  const specsDir = path.join(changeDir, 'specs');
+  const deltaFiles = listDeltaFiles(specsDir);
+  let critical = 0;
+  let warnings = 0;
+
+  function criticalLine(message) {
+    console.log(`- CRITICAL: ${message}`);
+    critical += 1;
+  }
+
+  function warningLine(message) {
+    console.log(`- WARNING: ${message}`);
+    warnings += 1;
+  }
+
+  function okLine(message) {
+    console.log(`- OK: ${message}`);
+  }
+
+  console.log('# Verify Report');
+  console.log(`\nChange package: ${status.changePath}`);
+  console.log('\nThis command checks package artifacts and checklist state. It does not prove implementation correctness.');
+
+  console.log('\n## Completeness');
+  if (status.artifacts.proposal.status === 'complete') okLine('proposal.md exists');
+  else criticalLine('missing proposal.md');
+
+  if (status.artifacts.tasks.status === 'complete') {
+    const tasks = read(tasksPath);
+    if (/^\s*-\s*\[\s\]/im.test(tasks)) criticalLine('tasks.md has incomplete tasks');
+    else okLine('tasks.md has no incomplete checklist items');
+  } else {
+    criticalLine('missing tasks.md');
+  }
+
+  if (deltaFiles.length > 0) {
+    okLine(`found ${deltaFiles.length} spec delta file(s)`);
+  } else {
+    warningLine('no spec delta files found; acceptable only when no durable behavior contract changed');
+  }
+
+  if (status.artifacts.design.status === 'complete') {
+    okLine('design.md exists');
+  } else {
+    warningLine('design.md is missing; treat as skipped only if no design decisions were needed');
+  }
+
+  console.log('\n## Correctness');
+  if (status.artifacts.proposal.status === 'complete' && status.artifacts.tasks.status === 'complete') {
+    let invalidDeltaCount = 0;
+    for (const deltaFile of deltaFiles) {
+      if (!validateDeltaSpecContent(read(deltaFile), rel(deltaFile))) invalidDeltaCount += 1;
+    }
+
+    if (invalidDeltaCount === 0) okLine('change package structure is valid');
+    else criticalLine(`${invalidDeltaCount} spec delta file(s) failed structural validation`);
+  } else {
+    criticalLine('cannot validate package correctness until proposal.md and tasks.md exist');
+  }
+
+  console.log('\n## Coherence');
+  if (deltaFiles.length > 0) okLine('spec deltas provide behavior-contract context for review');
+  else warningLine('reviewers must confirm the absence of spec deltas is intentional');
+  okLine('human review is still required for product fit, implementation behavior, and release readiness');
+
+  console.log('\n## Result');
+  if (critical > 0) {
+    console.log(`Verification report failed: ${critical} critical finding(s), ${warnings} warning(s).`);
+    process.exitCode = 1;
+    return false;
+  }
+
+  if (warnings > 0) console.log(`Verification report passed with warnings: ${warnings} warning(s).`);
+  else console.log('Verification report passed.');
+  return true;
+}
+
+function dateStampDashed() {
+  const date = new Date();
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function assertChangePackageCanArchive(changeDir) {
+  const changesRoot = changesRootPath();
+  const archiveRoot = path.join(changesRoot, 'archive');
+
+  if (!isPathInside(changeDir, changesRoot) || isPathInside(changeDir, archiveRoot)) {
+    throw new Error(`Can only archive active change packages under ${changesPathRel()}/`);
+  }
+
+  const tasksPath = path.join(changeDir, 'tasks.md');
+  if (!exists(tasksPath)) throw new Error(`Missing tasks.md: ${displayRel(changeDir)}`);
+  if (/^\s*-\s*\[\s\]/im.test(read(tasksPath))) {
+    throw new Error('Cannot archive change package with incomplete tasks');
+  }
+}
+
+function archiveChangePackage(changePath) {
+  const changeDir = resolveChangeDir(changePath, 'Usage: aiwf archive <change-package-dir>');
+  if (!validateChangePackage(changeDir)) throw new Error(`Change package validation failed: ${displayRel(changeDir)}`);
+  assertChangePackageCanArchive(changeDir);
+
+  const archiveRoot = path.join(changesRootPath(), 'archive');
+  const destination = path.join(archiveRoot, `${dateStampDashed()}-${path.basename(changeDir)}`);
+  if (exists(destination)) throw new Error(`Archive destination already exists: ${displayRel(destination)}`);
+
+  ensureDir(archiveRoot);
+  fs.renameSync(changeDir, destination);
+  console.log(`Archived change package: ${displayRel(destination)}`);
+  return true;
 }
 
 function hasSessionStatePlaceholders(content) {
@@ -400,6 +1143,17 @@ function hasSessionStatePlaceholders(content) {
     /^-\s*$/m,
     /\bTBD\b/i,
   ].some((pattern) => pattern.test(content));
+}
+
+function findMissingLocalCoordinationReferences(content) {
+  const matches = content.match(/`?ai\/_local\/[^`\s),]+`?/g) || [];
+  const missing = [];
+  for (const match of matches) {
+    const rel = match.replace(/`/g, '').replace(/\.$/, '');
+    const absolute = targetRel(...rel.split('/'));
+    if (!exists(absolute) && !missing.includes(rel)) missing.push(rel);
+  }
+  return missing;
 }
 
 function validateStory(storyPath) {
@@ -502,17 +1256,24 @@ function checkGates() {
   if (!exists(sessionStatePath)) {
     console.log('WARN: optional file missing: ai/08-memory/SESSION_STATE.md');
     warnings += 1;
-  } else if (hasSessionStatePlaceholders(read(sessionStatePath))) {
-    console.log('WARN: ai/08-memory/SESSION_STATE.md appears to contain placeholder or incomplete continuity fields');
-    warnings += 1;
+  } else {
+    const sessionState = read(sessionStatePath);
+    if (hasSessionStatePlaceholders(sessionState)) {
+      console.log('WARN: ai/08-memory/SESSION_STATE.md appears to contain placeholder or incomplete continuity fields');
+      warnings += 1;
+    }
+    const missingLocalRefs = findMissingLocalCoordinationReferences(sessionState);
+    if (missingLocalRefs.length > 0) {
+      console.log(`WARN: ai/08-memory/SESSION_STATE.md references missing local coordination artifact(s): ${missingLocalRefs.join(', ')}`);
+      warnings += 1;
+    }
   }
 
   const storyDir = targetRel('ai/04-stories');
   if (exists(storyDir)) {
     const stories = listStoryFiles(storyDir);
     if (stories.length === 0) {
-      console.log('WARN: no executable stories found in ai/04-stories');
-      warnings += 1;
+      console.log('PASS: no active executable stories found in ai/04-stories');
     }
   }
 
@@ -638,6 +1399,33 @@ try {
       break;
     case 'story':
       createStory(args[1], args.slice(2).join(' '));
+      break;
+    case 'change':
+      createChangePackage(args.slice(1).join(' '));
+      break;
+    case 'status': {
+      const json = args.includes('--json');
+      const changePath = args.slice(1).find((arg) => arg !== '--json');
+      changeStatus(changePath, json);
+      break;
+    }
+    case 'instructions':
+      changeInstructions(args[1], args[2]);
+      break;
+    case 'verify':
+      verifyChangePackage(args[1]);
+      break;
+    case 'sync':
+      syncChangePackage(args[1]);
+      break;
+    case 'archive':
+      archiveChangePackage(args[1]);
+      break;
+    case 'validate-spec':
+      validateSpec(args[1]);
+      break;
+    case 'validate-change':
+      validateChangePackage(args[1]);
       break;
     case 'validate':
       validateStory(args[1]);

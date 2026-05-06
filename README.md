@@ -43,6 +43,12 @@ Ask it to execute one safe, testable, reviewable story at a time.
 
 AI-PhellOS does not replace Codex, Claude Code, or optional execution adapters such as Ruflo. It gives them a disciplined operating system: routing, artifacts, readiness, quality gates, scope control, stop conditions, review, release, and durable memory.
 
+Behavioral specs live under `ai/11-specs/` as durable contracts for observable behavior. They are distinct from PRDs, architecture, and stories: PRDs explain intent, architecture explains structure, stories execute small slices, and specs define behavior that future work must preserve.
+
+Simple stories remain the default execution unit. Use optional change packages under `ai/04-changes/` only when work is broad, multi-story, changes durable behavior contracts, or needs proposal/tasks/spec deltas before implementation.
+
+Projects can optionally copy `ai/config.template.yaml` to `ai/config.yaml` to override spec and change package paths, document default commands, and add artifact-specific rules. When `ai/config.yaml` is absent, AI-PhellOS uses its markdown-first defaults.
+
 ---
 
 ## Core UX Rule
@@ -162,6 +168,14 @@ Story and gate commands:
 aiwf story feature "Add team invitation flow"
 aiwf story bugfix "Fix failed login redirect"
 aiwf story refactor "Split billing service"
+aiwf change "Add dark mode"
+aiwf status ai/04-changes/<change-package>
+aiwf instructions proposal ai/04-changes/<change-package>
+aiwf verify ai/04-changes/<change-package>
+aiwf sync ai/04-changes/<change-package>
+aiwf archive ai/04-changes/<change-package>
+aiwf validate-spec ai/11-specs/<spec-file>.md
+aiwf validate-change ai/04-changes/<change-package>
 aiwf validate ai/04-stories/<story-file>.md
 aiwf gates
 aiwf sensitive HEAD~1 HEAD
@@ -195,6 +209,38 @@ Produces a pre-brief brainstorming prompt. Use it when the product idea is vague
 ### `aiwf plan <feature-or-change>`
 
 Produces a planning prompt for a feature, bugfix, refactor, migration, or other change. The expected output includes routing, impact analysis, acceptance criteria, scope, tests, rollback, stop conditions, and recommended story title.
+
+### `aiwf change <title>`
+
+Creates an optional change package under `ai/04-changes/<date>-<slug>/` by default, or under `paths.changesPath` when `ai/config.yaml` is present. The package includes `proposal.md`, `tasks.md`, `design.md`, and a starter spec delta under `specs/`. Use this for broad, multi-story, or behavior-contracting work; keep simple one-story work on `aiwf story`.
+
+### `aiwf status <change-path> [--json]`
+
+Reports which change package artifacts are complete or missing for `proposal`, `specs`, `design`, and `tasks`. Use `--json` when an agent or script needs stable parseable output and the next missing artifact.
+
+### `aiwf instructions <artifact> <change-path>`
+
+Prints agent-readable guidance for creating or updating a change package artifact. Supported artifacts are `proposal`, `specs`, `design`, and `tasks`; `spec`, `delta`, and `deltas` are accepted aliases for `specs`.
+
+### `aiwf verify <change-path>`
+
+Prints a verification report grouped by Completeness, Correctness, and Coherence. Incomplete tasks are critical failures; missing optional design notes or spec deltas are reported as warnings when they may be intentionally skipped. The report checks artifacts and structural validity, not full code-to-requirement proof.
+
+### `aiwf sync <change-path>`
+
+Applies validated `ADDED` requirements from change package delta specs into the target behavioral specs under `ai/11-specs/` by default, or under `paths.specsPath` when `ai/config.yaml` is present. The first version is intentionally conservative: unsupported delta operations such as `MODIFIED`, `REMOVED`, and `RENAMED` fail with clear messages.
+
+### `aiwf archive <change-path>`
+
+Moves a validated, completed change package to `ai/04-changes/archive/YYYY-MM-DD-<change-id>/`. Archive refuses unchecked tasks by default and preserves the full change package directory for audit history.
+
+### `aiwf validate-spec <path>`
+
+Validates the structural format of a behavioral spec or spec delta. Behavioral specs require purpose, requirements, requirement headings, scenarios, and Given/When/Then steps. Delta specs require target spec, summary, and at least one added, modified, removed, or renamed requirement section.
+
+### `aiwf validate-change <path>`
+
+Validates a change package directory. It checks for `proposal.md`, `tasks.md`, and validates delta specs under `specs/` when that folder exists.
 
 ---
 
@@ -268,6 +314,16 @@ Agents and execution:
 - `ai/05-execution/EXECUTION_PROTOCOL.md`
 - `ai/06-reviews/REVIEW_CHECKLIST.md`
 - `ai/templates/PRIVACY_AND_SAFETY_REVIEW.template.md`
+
+Behavior specs and change packages:
+
+- `ai/config.template.yaml` - Optional project config template for paths, commands, and artifact rules.
+- `ai/11-specs/README.md` - Durable behavioral specs.
+- `ai/04-changes/README.md` - Optional change package workflow.
+- `ai/templates/SPEC.template.md`
+- `ai/templates/SPEC_DELTA.template.md`
+- `ai/templates/CHANGE_PROPOSAL.template.md`
+- `ai/templates/CHANGE_TASKS.template.md`
 
 Optional integrations:
 

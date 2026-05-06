@@ -11,6 +11,7 @@ Use this repository workflow to keep AI-generated changes small, reviewable, and
 5. Do not force-push shared branches unless explicitly approved.
 6. Do not merge while required gates are failing.
 7. Do not commit transient local coordination artifacts; publish only source files, tests, documentation, templates, examples, and approved durable workflow artifacts that belong in the shared repository.
+8. When working on AI-PhellOS itself, keep one-off execution plans, temporary context packs, transient handoffs, and intermediate review packets out of the published framework. Store them under `ai/_local/` while active, then remove them or leave them ignored before publication.
 
 ## Branch naming
 
@@ -82,7 +83,10 @@ Every PR should include:
 - [ ] Quality gates 0-3 are satisfied.
 - [ ] Relevant tests pass.
 - [ ] Build/typecheck/lint pass where available.
+- [ ] Accepted change package deltas are synced with `aiwf sync` when durable behavior specs must change.
+- [ ] Completed change packages are archived with `aiwf archive` when their tasks are checked off and the package should remain in audit history.
 - [ ] No forbidden files were changed.
+- [ ] Transient coordination artifacts are excluded or explicitly approved as durable framework content.
 - [ ] Sensitive areas have approval when applicable.
 - [ ] Memory or decision log updated when project conventions, architecture, commands, or risks changed.
 
@@ -96,6 +100,7 @@ Do not merge when:
 - tests are failing without documented approval;
 - rollback is unclear for risky changes;
 - security, auth, billing, permissions, data deletion, or production infra were touched without explicit approval;
+- transient coordination artifacts are included without explicit approval as durable project content;
 - the diff includes unrelated cleanup or hidden scope.
 
 ## Emergency rollback

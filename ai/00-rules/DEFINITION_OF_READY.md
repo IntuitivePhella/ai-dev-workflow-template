@@ -11,6 +11,8 @@ Before implementation starts, all items below must be true or explicitly marked 
 - [ ] Squad level is selected.
 - [ ] Acceptance criteria are testable.
 - [ ] Non-goals are explicit.
+- [ ] Behavior-changing work identifies the related behavioral spec, proposed spec delta, or reason no durable spec change is needed.
+- [ ] Change package need is decided: simple story by default, change package only for broad, multi-story, behavior-contracting, or durable proposal/spec-delta work.
 - [ ] Files likely in scope are listed.
 - [ ] Files or areas explicitly forbidden are listed.
 - [ ] Sensitive areas are identified.
@@ -46,6 +48,8 @@ Ready when:
 - Impact analysis exists or is explicitly unnecessary.
 - Test plan exists or is embedded in the story.
 - Product behavior and non-goals are clear.
+- Related behavioral specs or deltas are linked when durable behavior changes.
+- Routine one-story changes remain valid without a change package when no durable behavior contract changes.
 
 ### Bugfix
 

@@ -1,0 +1,33 @@
+# AI-PhellOS project config
+#
+# Copy this file to ai/config.yaml only when a project needs to override
+# AI-PhellOS defaults. The CLI remains fully functional when ai/config.yaml
+# is absent.
+
+paths:
+  # Durable behavioral specs.
+  specsPath: ai/11-specs
+
+  # Optional change package workspace.
+  changesPath: ai/04-changes
+
+commands:
+  # Default verification commands agents should prefer when the local project
+  # does not provide stronger story-specific commands.
+  test: npm.cmd test
+  gates: node scripts/aiwf.js gates
+  doctor: node scripts/aiwf.js doctor
+
+artifacts:
+  story:
+    rules:
+      - Keep each story scoped to one coherent outcome.
+      - Record tests, rollback, risks, and stop conditions before implementation.
+  change:
+    rules:
+      - Use change packages only for broad, multi-story, or behavior-contracting work.
+      - Keep proposal, tasks, design notes, and spec deltas reviewable.
+  spec:
+    rules:
+      - Define observable behavior with Requirement and Scenario headings.
+      - Keep behavioral specs distinct from PRDs, architecture, and stories.

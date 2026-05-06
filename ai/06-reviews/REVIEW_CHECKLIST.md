@@ -19,6 +19,7 @@
 - [ ] Tests fail for the right reason before implementation when possible
 - [ ] Test suite passes
 - [ ] Build passes
+- [ ] `aiwf verify <change-package>` run for change packages before completion, or reason documented when not applicable
 
 ## Security
 
@@ -32,3 +33,5 @@
 - [ ] Rollback path clear
 - [ ] Known issues documented
 - [ ] Follow-ups captured
+- [ ] If more work remains, follow-ups include a copy-ready next-chat prompt
+- [ ] Transient coordination artifacts are excluded from publishable paths or explicitly approved as durable content

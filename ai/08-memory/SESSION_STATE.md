@@ -6,47 +6,52 @@ Update it at the end of each meaningful execution step or story.
 
 ## Current project phase
 
-- Not started
+- OpenSpec-inspired improvements complete; validation/publication pending
 
 ## Current active story
 
 - Path: none
-- Status: none
-- Acceptance criteria status: none
+- Status: no implementation story remains active
+- Acceptance criteria status: durable implementation verified
 
 ## Last completed step
 
-- Repository initialized with the session continuity artifact.
+- Validated that the OpenSpec-inspired improvements are implemented and removed transient local coordination artifacts so they do not enter the published framework.
 
 ## Exact next step
 
-- Read the required workflow files, classify the user's request, and update this artifact with the active phase before meaningful execution.
+- If publication is desired, run the publication preflight only after explicit human approval: inspect `git status --short`, run `npm.cmd test`, `node scripts/aiwf.js doctor`, `node scripts/aiwf.js gates`, and `npm.cmd run pack:dry-run`.
 
 ## Blockers
 
-- None.
+- None for validation. Publication requires explicit human approval.
 
 ## Decisions pending human approval
 
-- None.
+- Whether to create a branch, commit, push, publish, or open a PR for the completed framework improvements.
 
 ## Files recently changed
 
-- None.
+- OpenSpec-inspired framework improvements in CLI, tests, templates, docs, rules, memory, specs, change packages, and package metadata.
 
 ## Commands last run
 
-- None.
+- `npm.cmd test` - passed, 35 tests
+- `node scripts/aiwf.js doctor` - passed
+- `node scripts/aiwf.js gates` - passed
+- `npm.cmd run pack:dry-run` - passed without transient local coordination artifacts
 
 ## Tests status
 
-- Not run for the current session.
+- Passing. `npm.cmd test` passed 35 tests.
 
 ## Risks / watchouts
 
-- Keep this file current during active work so future agents can resume from the exact next step.
-- Do not publish transient local coordination details unless they are durable project content.
+- Removed local planning artifacts were transient and are not required for the completed durable implementation.
+- Do not branch, commit, push, publish, or open a PR without explicit human approval.
+- Do not publish transient local coordination details unless they are durable project content explicitly approved by the user.
 
 ## Do not do next
 
-- Do not start implementation before reading the required workflow, memory, and session-state artifacts.
+- Do not continue implementation from removed local planning stories.
+- Do not ask a future agent to restore removed local planning artifacts unless a new local planning phase is intentionally needed.

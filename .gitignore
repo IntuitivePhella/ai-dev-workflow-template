@@ -8,3 +8,8 @@ dist/
 build/
 .venv/
 __pycache__/
+
+# Local AI coordination artifacts.
+# Use this for repo-specific planning packs, handoffs, and temporary execution
+# artifacts that should not ship to users who clone the framework.
+ai/_local/

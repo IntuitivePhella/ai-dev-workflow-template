@@ -23,6 +23,8 @@ Before implementation:
 - [ ] Non-goals are explicit
 - [ ] Impact analysis exists for existing projects
 - [ ] Test plan exists or is embedded in the story
+- [ ] Behavior-changing work references an existing behavioral spec, includes a spec delta, or explicitly states why no durable spec update is needed
+- [ ] Change packages are used only when the work is broad, multi-story, behavior-contracting, or needs durable proposal/tasks/spec deltas
 - [ ] Human approval captured for sensitive areas
 - [ ] Privacy & Safety Review exists when sensitive domain is detected
 - [ ] Real sensitive data, real camera/audio/video feeds, production alerts, and external notifications are explicitly in scope or out of scope
@@ -49,6 +51,7 @@ Before completion:
 - [ ] Security-sensitive changes are reviewed
 - [ ] Privacy, consent, retention, access control, and audit assumptions are reviewed when sensitive-domain behavior changed
 - [ ] Regression risk is considered
+- [ ] For AI-PhellOS framework work, temporary coordination artifacts are either under `ai/_local/`, removed, or explicitly marked as durable framework content
 
 ## Gate 4 — Review
 
@@ -59,6 +62,7 @@ Before merge/release:
 - [ ] QA review: tested and reproducible
 - [ ] Release review: rollback and known issues are clear
 - [ ] Follow-ups are documented
+- [ ] If more work remains, `Follow-ups:` includes a copy-ready next-chat prompt
 
 ## Gate 5 — Memory
 
@@ -68,4 +72,5 @@ After completion:
 - [ ] `SESSION_STATE.md` updated with current phase, last completed step, exact next step, blockers, tests status, and risks
 - [ ] `DECISION_LOG.md` updated when architecture/product decisions changed
 - [ ] New tech debt captured separately, not hidden in the feature
+- [ ] Temporary coordination artifacts are not left in publishable paths unless approved as durable project content
 
