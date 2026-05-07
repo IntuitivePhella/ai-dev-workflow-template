@@ -12,6 +12,7 @@ They should be short, procedural, and focused on one capability.
 - `impact-analysis.md` — identify affected modules, risks, tests, and rollout concerns.
 - `acceptance-criteria.md` — convert goals into testable acceptance criteria.
 - `story-splitting.md` — split oversized requests into small executable stories.
+- `MINIMAL_SAFE_EXECUTION.md` — keep implementation, review, diff analysis, and scope validation explicit, simple, surgical, and verifiable.
 - `tdd.md` — apply test-first or test-aware implementation.
 - `test-planning.md` — define automated and manual verification coverage.
 - `regression-analysis.md` — identify regression risks and affected flows.

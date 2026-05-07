@@ -773,6 +773,17 @@ test('project config template documents optional paths commands and artifact rul
   assert.match(template, /rules:/);
 });
 
+test('minimal safe execution skill exists and is indexed', () => {
+  const skillPath = path.join(repoRoot, 'ai', 'skills', 'MINIMAL_SAFE_EXECUTION.md');
+  const indexPath = path.join(repoRoot, 'ai', 'skills', 'README.md');
+
+  assert.ok(fs.existsSync(skillPath));
+  assert.match(readFile(skillPath), /# Minimal Safe Execution Skill/);
+  assert.match(readFile(skillPath), /does not replace `AGENTS\.md`/);
+  assert.match(readFile(skillPath), /does not replace `CLAUDE\.md`/);
+  assert.match(readFile(indexPath), /MINIMAL_SAFE_EXECUTION\.md/);
+});
+
 test('validate fails when a story is missing required readiness fields', () => {
   const cwd = makeTempProject();
   const storyPath = path.join(cwd, 'ai', '04-stories', 'bad-story.md');
