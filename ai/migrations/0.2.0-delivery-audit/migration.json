@@ -1,0 +1,21 @@
+{
+  "id": "0.2.0-delivery-audit",
+  "version": "0.2.0",
+  "title": "Cold Delivery Audit Workflow",
+  "description": "Adds the Delivery Audit workflow for cold, independent, and critical analysis of completed work. Includes audit documentation, template, and CLI command.",
+  "mode": "non-destructive",
+  "requires": [],
+  "adds": [
+    "ai/06-reviews/DELIVERY_AUDIT.md",
+    "ai/templates/DELIVERY_AUDIT.template.md",
+    "ai/migrations/0.2.0-delivery-audit/migration.json",
+    "ai/migrations/0.2.0-delivery-audit/README.md"
+  ],
+  "patches": [
+    "scripts/aiwf.js",
+    "README.md",
+    "README.pt-BR.md"
+  ],
+  "protectedPaths": [],
+  "manualSteps": []
+}

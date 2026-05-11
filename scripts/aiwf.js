@@ -200,6 +200,512 @@ function isStoryFile(filePath) {
   return true;
 }
 
+// ============================================================================
+// Framework Upgrade Functions
+// ============================================================================
+
+const PROJECT_OWNED_PATHS = [
+  'ai/01-discovery/',
+  'ai/02-product/',
+  'ai/03-architecture/',
+  'ai/04-stories/',
+  'ai/04-changes/',
+  'ai/05-execution/',
+  'ai/08-memory/',
+  'ai/09-intake/',
+  'ai/11-specs/',
+  'docs/product/',
+  'docs/architecture/',
+  'docs/discovery/',
+  'docs/handoff/',
+  'src/',
+  'app/',
+  'lib/',
+  'components/',
+  'pages/',
+  'database/',
+  'prisma/',
+  'supabase/',
+  'tests/',
+  'node_modules/',
+];
+
+const PROJECT_OWNED_FILES = [
+  'package.json',
+  'package-lock.json',
+  'ai/config.yaml',
+];
+
+const FRAMEWORK_MANAGED_PATHS = [
+  'ai/00-rules/',
+  'ai/agents/',
+  'ai/skills/',
+  'ai/squads/',
+  'ai/templates/',
+  'ai/06-reviews/',
+  'ai/07-release/',
+  'ai/10-integrations/',
+  'ai/migrations/',
+  'ai/handoffs/',
+  'ai/orchestration-log/',
+  'scripts/',
+  'prompts/',
+  '.claude/',
+  '.codex/',
+  '.github/',
+];
+
+const MIXED_FILES = [
+  'AGENTS.md',
+  'CLAUDE.md',
+  'README.md',
+  'README.pt-BR.md',
+  'README.es.md',
+  'README.zh-CN.md',
+];
+
+function classifyFile(relativePath) {
+  const normalized = relativePath.replace(/\\/g, '/');
+
+  if (PROJECT_OWNED_FILES.includes(normalized)) return 'project-owned';
+  for (const prefix of PROJECT_OWNED_PATHS) {
+    if (normalized.startsWith(prefix)) return 'project-owned';
+  }
+
+  if (normalized.endsWith('.xlsx')) return 'project-owned';
+
+  if (MIXED_FILES.includes(normalized)) return 'mixed';
+
+  for (const prefix of FRAMEWORK_MANAGED_PATHS) {
+    if (normalized.startsWith(prefix)) return 'framework-managed';
+  }
+
+  return 'project-owned';
+}
+
+function walkDirectory(dir, excludes = []) {
+  const results = [];
+  if (!exists(dir)) return results;
+
+  function walk(currentDir, relativeTo) {
+    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(currentDir, entry.name);
+      const relPath = path.relative(relativeTo, fullPath).replace(/\\/g, '/');
+
+      let skip = false;
+      for (const exclude of excludes) {
+        if (relPath === exclude || relPath.startsWith(exclude + '/')) {
+          skip = true;
+          break;
+        }
+      }
+      if (skip) continue;
+
+      if (entry.isDirectory()) {
+        walk(fullPath, relativeTo);
+      } else if (entry.isFile()) {
+        results.push(relPath);
+      }
+    }
+  }
+
+  walk(dir, dir);
+  return results;
+}
+
+function detectCurrentVersion(targetRoot) {
+  const manifestPath = path.join(targetRoot, 'ai', '.phellos-version.json');
+  if (exists(manifestPath)) {
+    try {
+      return JSON.parse(read(manifestPath));
+    } catch (_) {
+      return { version: 'unknown', isLegacy: true, migrationsApplied: [] };
+    }
+  }
+
+  const hasAiRules = exists(path.join(targetRoot, 'ai', '00-rules'));
+  const hasAiwfJs = exists(path.join(targetRoot, 'scripts', 'aiwf.js'));
+  const hasAiDir = exists(path.join(targetRoot, 'ai'));
+  const hasAgentsMd = exists(path.join(targetRoot, 'AGENTS.md'));
+
+  const isAiPhellOS = hasAiRules || hasAiwfJs || (hasAiDir && hasAgentsMd);
+
+  if (isAiPhellOS) {
+    return { version: 'unknown', isLegacy: true, migrationsApplied: [] };
+  }
+
+  return null;
+}
+
+function computeUpgradePlan(sourceRoot, targetRoot, currentManifest, targetVersion) {
+  const plan = {
+    currentVersion: currentManifest?.version || 'unknown',
+    targetVersion,
+    isLegacy: currentManifest?.isLegacy || false,
+    willAdd: [],
+    willUpdate: [],
+    willCreateIncoming: [],
+    willSkip: [],
+  };
+
+  const excludes = ['node_modules', '.git', 'ai/_local', 'tests'];
+  const sourceFiles = walkDirectory(sourceRoot, excludes);
+
+  for (const relPath of sourceFiles) {
+    const classification = classifyFile(relPath);
+    const sourcePath = path.join(sourceRoot, relPath);
+    const targetPath = path.join(targetRoot, relPath);
+    const targetExists = exists(targetPath);
+
+    if (classification === 'project-owned') {
+      plan.willSkip.push({ path: relPath, reason: 'project-owned' });
+      continue;
+    }
+
+    if (classification === 'mixed') {
+      if (targetExists) {
+        let sourceContent, targetContent;
+        try {
+          sourceContent = read(sourcePath);
+          targetContent = read(targetPath);
+        } catch (_) {
+          plan.willSkip.push({ path: relPath, reason: 'read-error' });
+          continue;
+        }
+        if (sourceContent !== targetContent) {
+          plan.willCreateIncoming.push({ path: relPath, incomingPath: relPath + '.incoming' });
+        }
+      } else {
+        plan.willAdd.push({ path: relPath, classification });
+      }
+      continue;
+    }
+
+    if (!targetExists) {
+      plan.willAdd.push({ path: relPath, classification });
+    } else {
+      let sourceContent, targetContent;
+      try {
+        sourceContent = read(sourcePath);
+        targetContent = read(targetPath);
+      } catch (_) {
+        plan.willSkip.push({ path: relPath, reason: 'read-error' });
+        continue;
+      }
+      if (sourceContent !== targetContent) {
+        plan.willUpdate.push({ path: relPath, classification });
+      }
+    }
+  }
+
+  return plan;
+}
+
+function displayUpgradePlan(plan, targetRoot) {
+  console.log('AI-PhellOS Upgrade Plan\n');
+  console.log(`Target: ${targetRoot}`);
+  console.log(`Detected version: ${plan.isLegacy ? 'legacy / ' : ''}${plan.currentVersion}`);
+  console.log(`Target framework version: ${plan.targetVersion}\n`);
+
+  if (plan.willAdd.length > 0) {
+    console.log('Will add:');
+    for (const item of plan.willAdd) {
+      console.log(`  + ${item.path}`);
+    }
+    console.log('');
+  }
+
+  if (plan.willUpdate.length > 0) {
+    console.log('Will update:');
+    for (const item of plan.willUpdate) {
+      console.log(`  ~ ${item.path}`);
+    }
+    console.log('');
+  }
+
+  if (plan.willCreateIncoming.length > 0) {
+    console.log('Will create incoming files (manual review required):');
+    for (const item of plan.willCreateIncoming) {
+      console.log(`  ? ${item.path} -> ${item.incomingPath}`);
+    }
+    console.log('');
+  }
+
+  const projectOwnedSkipped = plan.willSkip.filter((s) => s.reason === 'project-owned');
+  if (projectOwnedSkipped.length > 0) {
+    console.log(`Will not touch: ${projectOwnedSkipped.length} project-owned file(s)`);
+    const samples = projectOwnedSkipped.slice(0, 5);
+    for (const item of samples) {
+      console.log(`  - ${item.path}`);
+    }
+    if (projectOwnedSkipped.length > 5) {
+      console.log(`  ... and ${projectOwnedSkipped.length - 5} more`);
+    }
+    console.log('');
+  }
+
+  const totalChanges = plan.willAdd.length + plan.willUpdate.length + plan.willCreateIncoming.length;
+  if (totalChanges === 0) {
+    console.log('No changes needed. Project is up to date.');
+  } else {
+    console.log(`Summary: ${plan.willAdd.length} add, ${plan.willUpdate.length} update, ${plan.willCreateIncoming.length} incoming`);
+  }
+}
+
+function executeUpgradePlan(plan, sourceRoot, targetRoot) {
+  const results = {
+    added: [],
+    updated: [],
+    incoming: [],
+  };
+
+  for (const item of plan.willAdd) {
+    const sourcePath = path.join(sourceRoot, item.path);
+    const targetPath = path.join(targetRoot, item.path);
+    write(targetPath, read(sourcePath));
+    results.added.push(item.path);
+  }
+
+  for (const item of plan.willUpdate) {
+    const sourcePath = path.join(sourceRoot, item.path);
+    const targetPath = path.join(targetRoot, item.path);
+    write(targetPath, read(sourcePath));
+    results.updated.push(item.path);
+  }
+
+  for (const item of plan.willCreateIncoming) {
+    const sourcePath = path.join(sourceRoot, item.path);
+    const incomingPath = path.join(targetRoot, item.incomingPath);
+    write(incomingPath, read(sourcePath));
+    results.incoming.push(item);
+  }
+
+  return results;
+}
+
+function generateMigrationReport(targetRoot, plan, results) {
+  const reportPath = path.join(targetRoot, 'ai', '08-memory', 'FRAMEWORK_MIGRATION.md');
+  const timestamp = new Date().toISOString();
+  const migrationsApplied = ['0.2.0-safe-upgrade', '0.2.0-delivery-audit'];
+
+  let newSection = `## Migration: ${plan.currentVersion} -> ${plan.targetVersion}
+
+**Date**: ${timestamp}
+
+### Files Added
+${results.added.length > 0 ? results.added.map((f) => `- ${f}`).join('\n') : '- (none)'}
+
+### Files Updated
+${results.updated.length > 0 ? results.updated.map((f) => `- ${f}`).join('\n') : '- (none)'}
+
+### Files Skipped (project-owned)
+${plan.willSkip.filter((s) => s.reason === 'project-owned').length} file(s) preserved.
+
+### Conflicts (manual review required)
+${results.incoming.length > 0 ? results.incoming.map((i) => `- ${i.path} -> ${i.incomingPath}`).join('\n') : '- (none)'}
+
+### Migrations Applied
+${migrationsApplied.map((m) => `- ${m}`).join('\n')}
+
+---
+`;
+
+  ensureDir(path.dirname(reportPath));
+
+  if (exists(reportPath)) {
+    const existing = read(reportPath);
+    write(reportPath, existing.trimEnd() + '\n\n' + newSection);
+  } else {
+    const header = `# Framework Migration Report
+
+This file tracks AI-PhellOS framework upgrades applied to this project.
+
+---
+
+`;
+    write(reportPath, header + newSection);
+  }
+
+  return reportPath;
+}
+
+function updateVersionManifest(targetRoot, targetVersion) {
+  const manifestPath = path.join(targetRoot, 'ai', '.phellos-version.json');
+  const timestamp = new Date().toISOString();
+  const migrationsApplied = [
+    { id: '0.2.0-safe-upgrade', appliedAt: timestamp },
+    { id: '0.2.0-delivery-audit', appliedAt: timestamp },
+  ];
+
+  let manifest;
+  if (exists(manifestPath)) {
+    try {
+      manifest = JSON.parse(read(manifestPath));
+      manifest.upgradedAt = timestamp;
+      manifest.installedVersion = targetVersion;
+      manifest.migrationsApplied = [
+        ...(manifest.migrationsApplied || []),
+        ...migrationsApplied.filter((m) => !(manifest.migrationsApplied || []).some((e) => e.id === m.id)),
+      ];
+    } catch (_) {
+      manifest = null;
+    }
+  }
+
+  if (!manifest) {
+    manifest = {
+      framework: 'AI-PhellOS',
+      installedVersion: targetVersion,
+      installedAt: timestamp,
+      upgradedAt: timestamp,
+      source: 'github:IntuitivePhella/AI-PhellOS',
+      migrationsApplied,
+    };
+  }
+
+  ensureDir(path.dirname(manifestPath));
+  write(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  return manifestPath;
+}
+
+function upgradeCommand(targetArg, flags) {
+  const targetDir = targetArg || '.';
+  const targetRoot = path.resolve(TARGET_ROOT, targetDir);
+  const dryRun = flags.includes('--dry-run');
+  const apply = flags.includes('--apply');
+
+  if (!dryRun && !apply) {
+    throw new Error('Usage: aiwf upgrade <target> --dry-run|--apply\n\nYou must specify either --dry-run to preview changes or --apply to execute them.');
+  }
+
+  const currentManifest = detectCurrentVersion(targetRoot);
+  if (!currentManifest) {
+    throw new Error(`Target does not appear to be an AI-PhellOS project: ${targetRoot}\n\nLooking for: ai/ directory, AGENTS.md, CLAUDE.md, or scripts/aiwf.js`);
+  }
+
+  const packageJsonPath = packageRel('package.json');
+  const packageJson = JSON.parse(read(packageJsonPath));
+  const targetVersion = packageJson.version;
+
+  const plan = computeUpgradePlan(PACKAGE_ROOT, targetRoot, currentManifest, targetVersion);
+
+  if (dryRun) {
+    console.log('DRY RUN - No changes will be made\n');
+    displayUpgradePlan(plan, targetRoot);
+    console.log('\nRun with --apply to execute this upgrade plan.');
+    return;
+  }
+
+  displayUpgradePlan(plan, targetRoot);
+
+  const totalChanges = plan.willAdd.length + plan.willUpdate.length + plan.willCreateIncoming.length;
+  if (totalChanges === 0) {
+    console.log('\nNo upgrade needed.');
+    return;
+  }
+
+  console.log('\nApplying upgrade...');
+  const results = executeUpgradePlan(plan, PACKAGE_ROOT, targetRoot);
+
+  const reportPath = generateMigrationReport(targetRoot, plan, results);
+  console.log(`Migration report: ${displayRel(reportPath)}`);
+
+  const manifestPath = updateVersionManifest(targetRoot, targetVersion);
+  console.log(`Version manifest: ${displayRel(manifestPath)}`);
+
+  console.log('\nUpgrade complete.');
+
+  if (results.incoming.length > 0) {
+    console.log(`\n${results.incoming.length} conflict(s) require manual review:`);
+    for (const item of results.incoming) {
+      console.log(`  - Review ${item.incomingPath} and merge into ${item.path}`);
+    }
+    console.log('\nAfter merging, delete the .incoming files.');
+  }
+
+  console.log('\nNext steps:');
+  console.log('  aiwf doctor');
+  console.log('  aiwf gates');
+}
+
+function auditPrompt(storyPath) {
+  if (!storyPath) {
+    throw new Error('Usage: aiwf audit <story-or-change-path>');
+  }
+
+  const absolute = path.resolve(TARGET_ROOT, storyPath);
+  if (!exists(absolute)) {
+    throw new Error(`Path not found: ${storyPath}`);
+  }
+
+  const isDir = fs.statSync(absolute).isDirectory();
+  const artifactType = isDir ? 'change package' : 'story';
+  let artifactContent = '';
+
+  if (isDir) {
+    const proposalPath = path.join(absolute, 'proposal.md');
+    const tasksPath = path.join(absolute, 'tasks.md');
+    if (exists(proposalPath)) {
+      artifactContent += `\n### proposal.md\n\`\`\`markdown\n${read(proposalPath)}\n\`\`\`\n`;
+    }
+    if (exists(tasksPath)) {
+      artifactContent += `\n### tasks.md\n\`\`\`markdown\n${read(tasksPath)}\n\`\`\`\n`;
+    }
+  } else {
+    artifactContent = `\n\`\`\`markdown\n${read(absolute)}\n\`\`\`\n`;
+  }
+
+  printPrompt('Cold Delivery Audit Prompt', `
+Read the following files to understand audit requirements:
+- ai/06-reviews/DELIVERY_AUDIT.md
+- ai/templates/DELIVERY_AUDIT.template.md
+- ai/06-reviews/REVIEW_CHECKLIST.md
+- ai/00-rules/QUALITY_GATES.md
+- ai/agents/REVIEWER.md
+- ai/agents/QA.md
+- ai/agents/SECURITY.md
+- ai/08-memory/PROJECT_MAP.md (if exists)
+- ai/08-memory/PROJECT_MEMORY.md (if exists)
+
+## Artifact Being Audited
+
+**Type**: ${artifactType}
+**Path**: ${displayRel(absolute)}
+
+${artifactContent}
+
+## Audit Instructions
+
+Perform a cold, independent, and critical delivery audit:
+
+1. **Do NOT defend the implementation** - approach with skepticism, not advocacy.
+2. **Demand evidence** - claims without proof are findings.
+3. **Question completeness** - what was left out? What was glossed over?
+4. **Check the edges** - error handling, edge cases, security boundaries.
+5. **Verify, don't trust** - run the tests, check the behavior, read the code.
+
+## Required Analysis
+
+1. Compare each acceptance criterion against the implementation
+2. Verify tests actually test the acceptance criteria
+3. Check git diff for scope creep or unauthorized changes
+4. Assess security and privacy implications
+5. Identify regression risks
+6. Separate blockers from suggestions
+
+## Output
+
+Produce an audit report following ai/templates/DELIVERY_AUDIT.template.md with:
+- Clear verdict: Approve / Approve with concerns / Request changes / Block
+- Evidence for each finding
+- Specific file paths and line numbers
+- Actionable recommendations
+
+Save the audit report to: ai/06-reviews/audit-${path.basename(absolute).replace(/\.[^.]+$/, '')}-${todayStamp()}.md
+`);
+}
+
 function listStoryFiles(dirPath) {
   if (!exists(dirPath)) return [];
   return fs.readdirSync(dirPath)
@@ -214,6 +720,8 @@ function usage() {
 Usage:
   aiwf install <new|existing> [target-dir]
   aiwf init <new|existing>
+  aiwf upgrade <target-dir> --dry-run|--apply
+  aiwf audit <story-or-change-path>
   aiwf start [request]
   aiwf map [repo-focus]
   aiwf brainstorm <idea>
@@ -236,8 +744,16 @@ Usage:
 Node fallback:
   node scripts/aiwf.js <command>
 
+Upgrade commands:
+  upgrade --dry-run   Preview upgrade changes without modifying files
+  upgrade --apply     Apply upgrade to an existing AI-PhellOS project
+  audit               Generate cold delivery audit prompt for a story or change
+
 Examples:
   npx ai-phellos install existing .
+  aiwf upgrade . --dry-run
+  aiwf upgrade . --apply
+  aiwf audit ai/04-stories/20260502-feature-add-team-invitation-flow.md
   aiwf start "I want to create a web app with Next.js, React, and Convex"
   aiwf map "authentication and billing flow"
   aiwf brainstorm "an app for schools"
@@ -1320,10 +1836,15 @@ function checkSensitive(baseRef = 'HEAD~1', headRef = 'HEAD') {
   }
 
   const patterns = ['auth', 'authorization', 'permission', 'billing', 'payment', 'secret', 'env', 'migration', 'terraform', 'kubernetes', 'infra', 'webhook', 'upload', 'download', 'user data', 'personal data'];
+  const frameworkExclusions = ['ai/migrations/', 'ai/templates/', 'tests/fixtures/'];
   let hits = 0;
 
   for (const file of changedFiles) {
     const lower = file.toLowerCase();
+    const normalized = file.replace(/\\/g, '/');
+    const isFrameworkPath = frameworkExclusions.some((ex) => normalized.startsWith(ex));
+    if (isFrameworkPath) continue;
+
     for (const pattern of patterns) {
       if (lower.includes(pattern)) {
         console.log(`SENSITIVE PATH MATCH: ${file} (${pattern})`);
@@ -1384,6 +1905,15 @@ try {
       break;
     case 'init':
       initProject(args[1]);
+      break;
+    case 'upgrade': {
+      const upgradeTarget = args.slice(1).find((arg) => !arg.startsWith('--')) || '.';
+      const upgradeFlags = args.slice(1).filter((arg) => arg.startsWith('--'));
+      upgradeCommand(upgradeTarget, upgradeFlags);
+      break;
+    }
+    case 'audit':
+      auditPrompt(args[1]);
       break;
     case 'start':
       startPrompt(args.slice(1).join(' '));

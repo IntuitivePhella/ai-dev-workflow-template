@@ -142,6 +142,43 @@ Then paste the generated prompt into Codex, Claude Code, or another compatible c
 
 ---
 
+## Updating AI-PhellOS in an Existing Project
+
+**Do not use `install existing` to upgrade.** That command is for first-time installation only.
+
+To upgrade an existing AI-PhellOS project to a newer framework version:
+
+```bash
+# Preview changes first (always do this)
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf upgrade . --dry-run
+
+# Apply the upgrade
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf upgrade . --apply
+
+# Verify the upgrade
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf doctor
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf gates
+```
+
+Or from a local clone of the updated framework:
+
+```bash
+node /path/to/AI-PhellOS/scripts/aiwf.js upgrade /path/to/project --dry-run
+node /path/to/AI-PhellOS/scripts/aiwf.js upgrade /path/to/project --apply
+```
+
+The upgrade command:
+
+- **Never overwrites product artifacts** (PRD, stories, memory, discovery, architecture)
+- **Never overwrites package.json**
+- **Creates `.incoming` files** when framework files conflict with customizations
+- **Generates a migration report** at `ai/08-memory/FRAMEWORK_MIGRATION.md`
+- **Is idempotent** — running it twice produces the same result
+
+See `ai/00-rules/FRAMEWORK_UPGRADE_POLICY.md` for detailed upgrade policy and file classification rules.
+
+---
+
 ## CLI Commands
 
 ```bash
@@ -151,6 +188,9 @@ aiwf install existing .
 aiwf install new ./my-new-app
 aiwf init existing
 aiwf init new
+aiwf upgrade . --dry-run
+aiwf upgrade . --apply
+aiwf audit ai/04-stories/<story-file>.md
 ```
 
 Prompt generators:

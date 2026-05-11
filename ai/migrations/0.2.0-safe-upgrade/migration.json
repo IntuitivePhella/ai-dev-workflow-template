@@ -1,0 +1,34 @@
+{
+  "id": "0.2.0-safe-upgrade",
+  "version": "0.2.0",
+  "title": "Safe Framework Upgrade Infrastructure",
+  "description": "Adds the upgrade command, version tracking, file classification, and migration infrastructure to enable safe upgrades of AI-PhellOS in existing projects without overwriting product artifacts.",
+  "mode": "non-destructive",
+  "requires": [],
+  "adds": [
+    "ai/00-rules/FRAMEWORK_UPGRADE_POLICY.md",
+    "ai/templates/PHELLOS_VERSION.template.json",
+    "ai/migrations/0.2.0-safe-upgrade/migration.json",
+    "ai/migrations/0.2.0-safe-upgrade/README.md"
+  ],
+  "patches": [
+    "scripts/aiwf.js"
+  ],
+  "protectedPaths": [
+    "ai/01-discovery",
+    "ai/02-product",
+    "ai/03-architecture",
+    "ai/04-stories",
+    "ai/04-changes",
+    "ai/05-execution",
+    "ai/08-memory",
+    "ai/09-intake",
+    "ai/11-specs",
+    "docs/product",
+    "docs/architecture",
+    "docs/discovery",
+    "docs/handoff",
+    "package.json"
+  ],
+  "manualSteps": []
+}

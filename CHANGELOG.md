@@ -4,6 +4,31 @@ All notable changes to AI-PhellOS will be documented in this file.
 
 This project follows semantic versioning while it matures toward a stable public release.
 
+## [0.2.0] - 2026-05-11
+
+### Added
+
+- Safe framework upgrade via `aiwf upgrade <target> --dry-run|--apply`.
+- Cold delivery audit workflow via `aiwf audit <story-or-change-path>`.
+- Version manifest tracking at `ai/.phellos-version.json`.
+- Migration infrastructure at `ai/migrations/`.
+- File classification system: framework-managed, project-owned, and mixed files.
+- Framework upgrade policy at `ai/00-rules/FRAMEWORK_UPGRADE_POLICY.md`.
+- Delivery audit documentation at `ai/06-reviews/DELIVERY_AUDIT.md`.
+- Delivery audit template at `ai/templates/DELIVERY_AUDIT.template.md`.
+- Version manifest template at `ai/templates/PHELLOS_VERSION.template.json`.
+- Upgrade and audit test coverage.
+
+### Changed
+
+- README and documentation updated with upgrade and audit instructions.
+- `install existing` is now explicitly documented as NOT an upgrade mechanism.
+
+### Security
+
+- Upgrade command never overwrites product artifacts, package.json, or project-owned files.
+- Conflicts generate `.incoming` files for manual review instead of silent overwrites.
+
 ## [0.1.0] - 2026-05-02
 
 ### Added

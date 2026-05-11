@@ -1,6 +1,6 @@
 {
   "name": "ai-phellos",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Operating system for disciplined, intent-adaptive AI software development with Codex, Claude Code, and markdown-aware coding agents.",
   "private": false,
   "type": "commonjs",
