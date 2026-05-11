@@ -324,12 +324,14 @@ function detectCurrentVersion(targetRoot) {
     }
   }
 
+  const hasAiRules = exists(path.join(targetRoot, 'ai', '00-rules'));
+  const hasAiwfJs = exists(path.join(targetRoot, 'scripts', 'aiwf.js'));
   const hasAiDir = exists(path.join(targetRoot, 'ai'));
   const hasAgentsMd = exists(path.join(targetRoot, 'AGENTS.md'));
-  const hasClaudeMd = exists(path.join(targetRoot, 'CLAUDE.md'));
-  const hasAiwfJs = exists(path.join(targetRoot, 'scripts', 'aiwf.js'));
 
-  if (hasAiDir || hasAgentsMd || hasClaudeMd || hasAiwfJs) {
+  const isAiPhellOS = hasAiRules || hasAiwfJs || (hasAiDir && hasAgentsMd);
+
+  if (isAiPhellOS) {
     return { version: 'unknown', isLegacy: true, migrationsApplied: [] };
   }
 
