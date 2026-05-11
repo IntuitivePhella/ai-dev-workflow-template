@@ -102,11 +102,21 @@ Files that started as framework templates but may contain project-specific custo
 | `AGENTS.md` | Tool-agnostic entrypoint (may have project context) |
 | `CLAUDE.md` | Claude Code entrypoint (may have project context) |
 | `README.md` | Project readme (may describe the product) |
-| `README.pt-BR.md` | Portuguese readme |
-| `README.es.md` | Spanish readme |
-| `README.zh-CN.md` | Chinese readme |
+| `ai/skills/README.md` | Skills index (project may add custom skills) |
 
 **Upgrade behavior**: If the file exists and differs from the framework version, create `<filename>.incoming` with the new version. The original file is preserved. User must manually merge changes.
+
+### Framework-Only
+
+Files that exist in the framework repository but are NOT copied to projects:
+
+| File | Description |
+|------|-------------|
+| `README.pt-BR.md` | Framework Portuguese readme (marketing) |
+| `README.es.md` | Framework Spanish readme (marketing) |
+| `README.zh-CN.md` | Framework Chinese readme (marketing) |
+
+**Upgrade behavior**: Skip entirely. These are framework documentation, not project assets.
 
 ## Version Manifest
 

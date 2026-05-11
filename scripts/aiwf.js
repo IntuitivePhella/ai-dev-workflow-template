@@ -236,6 +236,12 @@ const PROJECT_OWNED_FILES = [
   'ai/config.yaml',
 ];
 
+const FRAMEWORK_ONLY_FILES = [
+  'README.pt-BR.md',
+  'README.es.md',
+  'README.zh-CN.md',
+];
+
 const FRAMEWORK_MANAGED_PATHS = [
   'ai/00-rules/',
   'ai/agents/',
@@ -259,13 +265,13 @@ const MIXED_FILES = [
   'AGENTS.md',
   'CLAUDE.md',
   'README.md',
-  'README.pt-BR.md',
-  'README.es.md',
-  'README.zh-CN.md',
+  'ai/skills/README.md',
 ];
 
 function classifyFile(relativePath) {
   const normalized = relativePath.replace(/\\/g, '/');
+
+  if (FRAMEWORK_ONLY_FILES.includes(normalized)) return 'framework-only';
 
   if (PROJECT_OWNED_FILES.includes(normalized)) return 'project-owned';
   for (const prefix of PROJECT_OWNED_PATHS) {
@@ -357,6 +363,10 @@ function computeUpgradePlan(sourceRoot, targetRoot, currentManifest, targetVersi
     const sourcePath = path.join(sourceRoot, relPath);
     const targetPath = path.join(targetRoot, relPath);
     const targetExists = exists(targetPath);
+
+    if (classification === 'framework-only') {
+      continue;
+    }
 
     if (classification === 'project-owned') {
       plan.willSkip.push({ path: relPath, reason: 'project-owned' });
