@@ -127,6 +127,43 @@ Depois cole o prompt gerado no Codex, Claude Code ou outro agente compatível.
 
 ---
 
+## Atualizando o AI-PhellOS em um projeto existente
+
+**Não use `install existing` para atualizar.** Esse comando é apenas para primeira instalação.
+
+Para atualizar um projeto AI-PhellOS existente para uma versão mais nova do framework:
+
+```bash
+# Visualize as mudanças primeiro (sempre faça isso)
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf upgrade . --dry-run
+
+# Aplique a atualização
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf upgrade . --apply
+
+# Verifique a atualização
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf doctor
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf gates
+```
+
+Ou a partir de um clone local do framework atualizado:
+
+```bash
+node /path/to/AI-PhellOS/scripts/aiwf.js upgrade /path/to/project --dry-run
+node /path/to/AI-PhellOS/scripts/aiwf.js upgrade /path/to/project --apply
+```
+
+O comando de upgrade:
+
+- **Nunca sobrescreve artefatos de produto** (PRD, stories, memória, discovery, arquitetura)
+- **Nunca sobrescreve package.json**
+- **Cria arquivos `.incoming`** quando há conflitos entre arquivos do framework e customizações
+- **Gera um relatório de migração** em `ai/08-memory/FRAMEWORK_MIGRATION.md`
+- **É idempotente** — executar duas vezes produz o mesmo resultado
+
+Veja `ai/00-rules/FRAMEWORK_UPGRADE_POLICY.md` para detalhes sobre a política de upgrade e regras de classificação de arquivos.
+
+---
+
 ## Comandos da CLI
 
 ```bash
@@ -136,6 +173,9 @@ aiwf install existing .
 aiwf install new ./my-new-app
 aiwf init existing
 aiwf init new
+aiwf upgrade . --dry-run
+aiwf upgrade . --apply
+aiwf audit ai/04-stories/<story-file>.md
 ```
 
 Geradores de prompt:

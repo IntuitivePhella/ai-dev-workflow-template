@@ -48,6 +48,55 @@ Create or update ai/08-memory/PROJECT_MAP.md.
 Do not modify production code.
 ```
 
+## Upgrading AI-PhellOS in an existing project
+
+**Do not use `install existing` to upgrade.** Use the `upgrade` command instead.
+
+The upgrade command uses the CLI from the new framework version to update the old project. Projects do not upgrade themselves.
+
+```bash
+# Preview changes (always do this first)
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf upgrade . --dry-run
+
+# Apply the upgrade
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf upgrade . --apply
+
+# Verify the upgrade
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf doctor
+npm exec --yes --package github:IntuitivePhella/AI-PhellOS -- aiwf gates
+```
+
+The upgrade is safe:
+
+- Product artifacts (PRD, stories, memory, discovery, architecture) are never overwritten.
+- `package.json` is never overwritten.
+- Conflicting mixed files create `.incoming` files for manual review.
+- A migration report is generated at `ai/08-memory/FRAMEWORK_MIGRATION.md`.
+- A version manifest is created at `ai/.phellos-version.json`.
+
+After applying the upgrade, review any `.incoming` files, merge relevant changes manually, and delete the `.incoming` files.
+
+See `ai/00-rules/FRAMEWORK_UPGRADE_POLICY.md` for detailed file classification and upgrade rules.
+
+## Delivery Audit
+
+Use the `audit` command to generate a cold delivery audit prompt:
+
+```bash
+aiwf audit ai/04-stories/<story-file>.md
+```
+
+A delivery audit is a skeptical, independent analysis of completed work. Use it:
+
+- After completing significant features
+- Before merging large PRs
+- When reviewing autonomous agent work
+- As part of release readiness
+
+The audit prompt instructs the agent to verify promises vs delivery, check acceptance criteria, critique tests and architecture, identify security concerns, and produce a verdict (Approve / Approve with concerns / Request changes / Block).
+
+See `ai/06-reviews/DELIVERY_AUDIT.md` for the full audit workflow.
+
 ## Creating work items
 
 Use typed stories:

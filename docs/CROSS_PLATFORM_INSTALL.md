@@ -36,6 +36,9 @@ node scripts/aiwf.js init new
 node scripts/aiwf.js story feature "Add team invitation flow"
 node scripts/aiwf.js validate ai/04-stories/<story-file>.md
 node scripts/aiwf.js review ai/04-stories/<story-file>.md
+node scripts/aiwf.js upgrade . --dry-run
+node scripts/aiwf.js upgrade . --apply
+node scripts/aiwf.js audit ai/04-stories/<story-file>.md
 ```
 
 ## Run through npm scripts
@@ -104,6 +107,9 @@ For Windows PowerShell/CMD, prefer the Node CLI.
 | Show help | `node scripts/aiwf.js help` |
 | Initialize new project | `node scripts/aiwf.js init new` |
 | Initialize existing project | `node scripts/aiwf.js init existing` |
+| Preview upgrade | `node scripts/aiwf.js upgrade . --dry-run` |
+| Apply upgrade | `node scripts/aiwf.js upgrade . --apply` |
+| Delivery audit | `node scripts/aiwf.js audit <story-or-change-path>` |
 | Create feature story | `node scripts/aiwf.js story feature "Title"` |
 | Create bugfix story | `node scripts/aiwf.js story bugfix "Title"` |
 | Validate story | `node scripts/aiwf.js validate <story-file>` |
