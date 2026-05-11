@@ -1834,10 +1834,15 @@ function checkSensitive(baseRef = 'HEAD~1', headRef = 'HEAD') {
   }
 
   const patterns = ['auth', 'authorization', 'permission', 'billing', 'payment', 'secret', 'env', 'migration', 'terraform', 'kubernetes', 'infra', 'webhook', 'upload', 'download', 'user data', 'personal data'];
+  const frameworkExclusions = ['ai/migrations/', 'ai/templates/', 'tests/fixtures/'];
   let hits = 0;
 
   for (const file of changedFiles) {
     const lower = file.toLowerCase();
+    const normalized = file.replace(/\\/g, '/');
+    const isFrameworkPath = frameworkExclusions.some((ex) => normalized.startsWith(ex));
+    if (isFrameworkPath) continue;
+
     for (const pattern of patterns) {
       if (lower.includes(pattern)) {
         console.log(`SENSITIVE PATH MATCH: ${file} (${pattern})`);
