@@ -28,6 +28,48 @@ function readFile(filePath) {
   return fs.readFileSync(filePath, 'utf8');
 }
 
+function readRepoFile(...parts) {
+  return readFile(path.join(repoRoot, ...parts));
+}
+
+function frontmatterSkills(...parts) {
+  const content = readRepoFile(...parts);
+  const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content);
+  assert.ok(match, `${parts.join('/')} should have YAML frontmatter`);
+
+  const skills = [];
+  let inSkills = false;
+  for (const line of match[1].split(/\r?\n/)) {
+    if (/^skills:\s*$/.test(line)) {
+      inSkills = true;
+      continue;
+    }
+    if (inSkills && /^\S/.test(line)) break;
+    const skillMatch = /^\s*-\s+([A-Za-z0-9_-]+)\s*$/.exec(line);
+    if (inSkills && skillMatch) skills.push(skillMatch[1]);
+  }
+  return skills;
+}
+
+function assertIncludesAll(actual, expected, label) {
+  for (const item of expected) {
+    assert.ok(actual.includes(item), `${label} should include ${item}`);
+  }
+}
+
+function assertReadableMarkdown(relativePath, expectedHeadings) {
+  const content = readRepoFile(...relativePath.split('/'));
+  const lines = content.split(/\r?\n/);
+  assert.ok(lines.length > 10, `${relativePath} should be split into readable lines`);
+
+  for (const heading of expectedHeadings) {
+    assert.ok(lines.includes(heading), `${relativePath} should contain ${heading} on its own line`);
+  }
+
+  const headingLines = lines.filter((line) => /^#{1,6}\s+/.test(line));
+  assert.ok(headingLines.length >= expectedHeadings.length, `${relativePath} should expose headings on separate lines`);
+}
+
 test('help prints available commands', () => {
   const cwd = makeTempProject();
   const result = runCli(['help'], cwd);
@@ -912,6 +954,41 @@ test('P1 routing and agent docs contain required anchors', () => {
   assert.match(product, /work-intake-triage\.md/);
   assert.match(product, /prototype\.md/);
   assert.match(product, /prototype question, scope, and exit criteria/i);
+});
+
+test('Claude subagent frontmatter declares required P0 and P1 skills', () => {
+  const expectations = [
+    [
+      'orchestrator.md',
+      ['diagnose', 'domain-language', 'architecture-deepening', 'prototype', 'work-intake-triage'],
+    ],
+    ['product.md', ['domain-language', 'prototype', 'work-intake-triage']],
+    ['architect.md', ['architecture-deepening', 'domain-language']],
+    ['implementer.md', ['diagnose']],
+    ['qa.md', ['diagnose', 'regression-analysis', 'tdd']],
+    ['reviewer.md', ['engineering-review', 'architecture-deepening', 'domain-language', 'regression-analysis']],
+  ];
+
+  for (const [agentFile, expectedSkills] of expectations) {
+    assertIncludesAll(frontmatterSkills('.claude', 'agents', agentFile), expectedSkills, agentFile);
+  }
+});
+
+test('P0 and P1 durable artifacts have readable markdown structure', () => {
+  const expectations = [
+    ['ai/skills/diagnose.md', ['# Skill: Diagnose', '## When to use', '## Procedure', '## Output format']],
+    ['ai/skills/domain-language.md', ['# Skill: Domain Language', '## When to use', '## Procedure', '## Output format']],
+    ['ai/skills/architecture-deepening.md', ['# Skill: Architecture Deepening', '## When to use', '## Procedure', '## Deepening candidate format']],
+    ['ai/skills/prototype.md', ['# Skill: Prototype', '## When to use', '## Procedure', '## Exit criteria']],
+    ['ai/skills/work-intake-triage.md', ['# Skill: Work Intake Triage', '## Triage inputs', '## Procedure', '## Triage output format']],
+    ['ai/08-memory/DOMAIN_GLOSSARY.md', ['# Domain Glossary', '## Purpose', '## Terms', '## Retired terms']],
+    ['ai/templates/ADR.template.md', ['# ADR: <Decision Title>', '## Context', '## Decision', '## Follow-up']],
+    ['ai/templates/PROTOTYPE_NOTES.template.md', ['# Prototype Notes: <Title>', '## Allowed scope', '## Findings', '## Follow-up stories']],
+  ];
+
+  for (const [relativePath, expectedHeadings] of expectations) {
+    assertReadableMarkdown(relativePath, expectedHeadings);
+  }
 });
 
 test('P1 memory and handoff protocol is strengthened', () => {
