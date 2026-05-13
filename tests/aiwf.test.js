@@ -57,8 +57,12 @@ function assertIncludesAll(actual, expected, label) {
   }
 }
 
-function assertReadableMarkdown(relativePath, expectedHeadings) {
+function assertReadableMarkdown(relativePath, expectedHeadings, options = {}) {
   const content = readRepoFile(...relativePath.split('/'));
+  assertReadableMarkdownContent(content, relativePath, expectedHeadings, options);
+}
+
+function assertReadableMarkdownContent(content, relativePath, expectedHeadings, options = {}) {
   const lines = content.split(/\r?\n/);
   assert.ok(lines.length > 10, `${relativePath} should be split into readable lines`);
 
@@ -68,6 +72,49 @@ function assertReadableMarkdown(relativePath, expectedHeadings) {
 
   const headingLines = lines.filter((line) => /^#{1,6}\s+/.test(line));
   assert.ok(headingLines.length >= expectedHeadings.length, `${relativePath} should expose headings on separate lines`);
+
+  for (const [index, line] of lines.entries()) {
+    const headingMatches = [...line.matchAll(/#{1,6}\s+\S/g)];
+    assert.ok(
+      headingMatches.length <= 1,
+      `${relativePath}:${index + 1} should not contain multiple markdown headings on one line`,
+    );
+
+    if (headingMatches.length === 1) {
+      assert.equal(
+        headingMatches[0].index,
+        0,
+        `${relativePath}:${index + 1} heading markers must start at the beginning of a line`,
+      );
+    }
+
+    assert.doesNotMatch(
+      line,
+      /\b1\.\s+.+\b2\.\s+.+\b3\.\s+/,
+      `${relativePath}:${index + 1} should not compress multiple numbered procedure steps into one line`,
+    );
+  }
+
+  for (const fieldGroup of options.fieldGroups || []) {
+    assertFieldGroupSeparated(lines, relativePath, fieldGroup);
+  }
+}
+
+function assertFieldGroupSeparated(lines, relativePath, fields) {
+  for (const [index, line] of lines.entries()) {
+    const fieldsOnLine = fields.filter((field) => line.includes(field));
+    assert.ok(
+      fieldsOnLine.length <= 1,
+      `${relativePath}:${index + 1} should not compress template fields: ${fieldsOnLine.join(', ')}`,
+    );
+  }
+
+  for (const field of fields) {
+    assert.ok(
+      lines.some((line) => line.trim().startsWith(field)),
+      `${relativePath} should contain ${field} on its own line`,
+    );
+  }
 }
 
 test('help prints available commands', () => {
@@ -981,14 +1028,103 @@ test('P0 and P1 durable artifacts have readable markdown structure', () => {
     ['ai/skills/architecture-deepening.md', ['# Skill: Architecture Deepening', '## When to use', '## Procedure', '## Deepening candidate format']],
     ['ai/skills/prototype.md', ['# Skill: Prototype', '## When to use', '## Procedure', '## Exit criteria']],
     ['ai/skills/work-intake-triage.md', ['# Skill: Work Intake Triage', '## Triage inputs', '## Procedure', '## Triage output format']],
-    ['ai/08-memory/DOMAIN_GLOSSARY.md', ['# Domain Glossary', '## Purpose', '## Terms', '## Retired terms']],
-    ['ai/templates/ADR.template.md', ['# ADR: <Decision Title>', '## Context', '## Decision', '## Follow-up']],
-    ['ai/templates/PROTOTYPE_NOTES.template.md', ['# Prototype Notes: <Title>', '## Allowed scope', '## Findings', '## Follow-up stories']],
+    ['ai/skills/tdd.md', ['# Skill: TDD', '## When to use', '## Procedure', '## Output format']],
+    ['ai/skills/story-splitting.md', ['# Skill: Story Splitting', '## Principles', '## Procedure', '## Output']],
+    ['ai/skills/memory-update.md', ['# Skill: Memory Update', '## Memory targets', '## Procedure', '## Output']],
+    ['ai/skills/project-mapping.md', ['# Skill: Project Mapping', '## Procedure', '## Zoom-out context', '## Rules']],
+    ['ai/skills/impact-analysis.md', ['# Skill: Impact Analysis', '## Procedure', '## Output']],
+    ['ai/skills/engineering-review.md', ['# Skill: Engineering Review', '## Procedure', '## Output']],
+    ['ai/skills/regression-analysis.md', ['# Skill: Regression Analysis', '## Procedure', '## Output']],
+    [
+      'ai/08-memory/DOMAIN_GLOSSARY.md',
+      ['# Domain Glossary', '## Purpose', '## Terms', '## Retired terms'],
+      {
+        fieldGroups: [
+          ['Definition:', 'Aliases:', 'Avoid saying:', 'Related code/artifacts:', 'Notes:', 'Last updated:'],
+        ],
+      },
+    ],
+    [
+      'ai/templates/ADR.template.md',
+      ['# ADR: <Decision Title>', '## Context', '## Decision', '## Follow-up'],
+      {
+        fieldGroups: [['Status:', 'Date:', 'Owners:', 'Related artifacts:', 'Related stories/specs:']],
+      },
+    ],
+    [
+      'ai/templates/PROTOTYPE_NOTES.template.md',
+      ['# Prototype Notes: <Title>', '## Allowed scope', '## Findings', '## Follow-up stories'],
+      {
+        fieldGroups: [['Status:', 'Question:', 'Prototype type:', 'Owner:', 'Date:']],
+      },
+    ],
   ];
 
-  for (const [relativePath, expectedHeadings] of expectations) {
-    assertReadableMarkdown(relativePath, expectedHeadings);
+  for (const [relativePath, expectedHeadings, options] of expectations) {
+    assertReadableMarkdown(relativePath, expectedHeadings, options);
   }
+});
+
+test('readable markdown smoke test rejects flattened structures', () => {
+  assert.throws(
+    () => assertReadableMarkdownContent(`# Skill: Diagnose
+
+Intro.
+
+## When to use
+
+- Bugs
+
+## Procedure ### Output format
+
+More.
+
+More.
+`, 'flattened-headings.md', ['# Skill: Diagnose', '## When to use']),
+    /multiple markdown headings/,
+  );
+
+  assert.throws(
+    () => assertReadableMarkdownContent(`# Procedure
+
+## Steps
+
+1. Define the observed failure. 2. Establish a reproducible feedback loop. 3. Confirm the loop reproduces the actual bug.
+
+More.
+
+More.
+
+More.
+
+End.
+`, 'flattened-steps.md', ['# Procedure', '## Steps']),
+    /numbered procedure steps/,
+  );
+
+  assert.throws(
+    () => assertReadableMarkdownContent(`# Glossary
+
+## Terms
+
+### <Term>
+
+Definition: Aliases: Avoid saying:
+
+Notes.
+
+Notes.
+
+Notes.
+
+Notes.
+
+Notes.
+`, 'flattened-fields.md', ['# Glossary', '## Terms'], {
+      fieldGroups: [['Definition:', 'Aliases:', 'Avoid saying:']],
+    }),
+    /compress template fields/,
+  );
 });
 
 test('P1 memory and handoff protocol is strengthened', () => {
