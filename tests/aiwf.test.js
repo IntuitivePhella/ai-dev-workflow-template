@@ -784,6 +784,176 @@ test('minimal safe execution skill exists and is indexed', () => {
   assert.match(readFile(indexPath), /MINIMAL_SAFE_EXECUTION\.md/);
 });
 
+test('P0 core quality skills exist and are indexed', () => {
+  const index = readFile(path.join(repoRoot, 'ai', 'skills', 'README.md'));
+  const skills = [
+    ['diagnose.md', /# Skill: Diagnose/, /Failure/, /Root cause/, /Regression test/],
+    ['domain-language.md', /# Skill: Domain Language/, /Avoid saying/, /DOMAIN_GLOSSARY\.md/],
+    ['architecture-deepening.md', /# Skill: Architecture Deepening/, /Deepening candidate format/, /Behavior preservation proof/],
+  ];
+
+  for (const [fileName, ...patterns] of skills) {
+    const skillPath = path.join(repoRoot, 'ai', 'skills', fileName);
+    assert.ok(fs.existsSync(skillPath), `${fileName} should exist`);
+    const skill = readFile(skillPath);
+    for (const pattern of patterns) {
+      assert.match(skill, pattern, `${fileName} should contain ${pattern}`);
+    }
+    assert.match(index, new RegExp(fileName.replace('.', '\\.')));
+  }
+});
+
+test('domain glossary memory artifact exists with required sections', () => {
+  const glossaryPath = path.join(repoRoot, 'ai', '08-memory', 'DOMAIN_GLOSSARY.md');
+
+  assert.ok(fs.existsSync(glossaryPath));
+  const glossary = readFile(glossaryPath);
+  assert.match(glossary, /# Domain Glossary/);
+  assert.match(glossary, /## Purpose/);
+  assert.match(glossary, /## Terms/);
+  assert.match(glossary, /## Ambiguous or unresolved terms/);
+  assert.match(glossary, /## Retired terms/);
+});
+
+test('core quality skills are strengthened with P0 anchors', () => {
+  const expectations = [
+    ['tdd.md', /Red-Green-Refactor/, /vertical slice/, /tracer bullet/],
+    ['story-splitting.md', /AFK/, /HITL/, /Vertical slice proof/],
+    ['memory-update.md', /DOMAIN_GLOSSARY\.md/, /PROJECT_MAP/, /DECISION_LOG/],
+    ['project-mapping.md', /domain terms/, /Zoom-out context/],
+    ['impact-analysis.md', /domain language impact/, /diagnose/, /AFK or HITL/],
+    ['engineering-review.md', /TDD quality/, /domain language consistency/, /AFK\/HITL/],
+    ['regression-analysis.md', /diagnose/, /root cause/, /behavior contracts/],
+  ];
+
+  for (const [fileName, ...patterns] of expectations) {
+    const skill = readFile(path.join(repoRoot, 'ai', 'skills', fileName));
+    for (const pattern of patterns) {
+      assert.match(skill, pattern, `${fileName} should contain ${pattern}`);
+    }
+  }
+});
+
+test('P1 exploration and intake skills exist and are indexed', () => {
+  const index = readFile(path.join(repoRoot, 'ai', 'skills', 'README.md'));
+  const skills = [
+    ['prototype.md', /# Skill: Prototype/, /Prototype is not production/i, /Delete, absorb, archive/i, /PROTOTYPE_NOTES/i, /human approval/i],
+    ['work-intake-triage.md', /# Skill: Work Intake Triage/, /needs-discovery/, /ready-for-agent/, /Do not convert unclear requests into fake-ready stories/i, /Human checkpoint needed/],
+  ];
+
+  for (const [fileName, ...patterns] of skills) {
+    const skillPath = path.join(repoRoot, 'ai', 'skills', fileName);
+    assert.ok(fs.existsSync(skillPath), `${fileName} should exist`);
+    const skill = readFile(skillPath);
+    for (const pattern of patterns) {
+      assert.match(skill, pattern, `${fileName} should contain ${pattern}`);
+    }
+    assert.match(index, new RegExp(fileName.replace('.', '\\.')));
+  }
+});
+
+test('P1 templates exist with required sections', () => {
+  const adrTemplate = readFile(path.join(repoRoot, 'ai', 'templates', 'ADR.template.md'));
+  assert.match(adrTemplate, /^# ADR: <Decision Title>/m);
+  assert.match(adrTemplate, /Status: Proposed \| Accepted \| Superseded \| Deprecated/);
+  assert.match(adrTemplate, /## Context/);
+  assert.match(adrTemplate, /## Decision/);
+  assert.match(adrTemplate, /## Consequences/);
+  assert.match(adrTemplate, /## Alternatives considered/);
+  assert.match(adrTemplate, /## Why this needs an ADR/);
+  assert.match(adrTemplate, /## Follow-up/);
+
+  const prototypeNotesTemplate = readFile(path.join(repoRoot, 'ai', 'templates', 'PROTOTYPE_NOTES.template.md'));
+  assert.match(prototypeNotesTemplate, /^# Prototype Notes: <Title>/m);
+  assert.match(prototypeNotesTemplate, /Status: Planned \| Running \| Completed \| Deleted \| Absorbed \| Archived/);
+  assert.match(prototypeNotesTemplate, /## Allowed scope/);
+  assert.match(prototypeNotesTemplate, /## Forbidden scope/);
+  assert.match(prototypeNotesTemplate, /## How to run/);
+  assert.match(prototypeNotesTemplate, /## Findings/);
+  assert.match(prototypeNotesTemplate, /## Decision/);
+  assert.match(prototypeNotesTemplate, /Delete/);
+  assert.match(prototypeNotesTemplate, /Absorb into production through a real story/);
+  assert.match(prototypeNotesTemplate, /## Follow-up stories/);
+});
+
+test('P1 routing and agent docs contain required anchors', () => {
+  const orchestrator = readFile(path.join(repoRoot, 'ai', 'agents', 'ORCHESTRATOR.md'));
+  assert.match(orchestrator, /prototype\.md/);
+  assert.match(orchestrator, /work-intake-triage\.md/);
+  assert.match(orchestrator, /DECISION_LOG or ADR/i);
+
+  const routingMatrix = readFile(path.join(repoRoot, 'ai', 'agents', 'ROUTING_MATRIX.md'));
+  assert.match(routingMatrix, /### Prototype/);
+  assert.match(routingMatrix, /### Work Intake Triage/);
+  assert.match(routingMatrix, /### ADR \/ Durable Decision/);
+
+  const architect = readFile(path.join(repoRoot, 'ai', 'agents', 'ARCHITECT.md'));
+  assert.match(architect, /ADR\.template\.md/);
+  assert.match(architect, /prototype findings/i);
+  assert.match(architect, /real story\/change/i);
+
+  const implementer = readFile(path.join(repoRoot, 'ai', 'agents', 'IMPLEMENTER.md'));
+  assert.match(implementer, /Do not absorb prototype code into production without a real story\/change/i);
+  assert.match(implementer, /Respect prototype allowed\/forbidden scope/i);
+  assert.match(implementer, /needs-info, needs-discovery, blocked, out-of-scope, or ready-for-human/i);
+
+  const qa = readFile(path.join(repoRoot, 'ai', 'agents', 'QA.md'));
+  assert.match(qa, /prototype exit decision/i);
+  assert.match(qa, /prototype leakage/i);
+  assert.match(qa, /ADR\/DECISION_LOG/i);
+
+  const reviewer = readFile(path.join(repoRoot, 'ai', 'agents', 'REVIEWER.md'));
+  assert.match(reviewer, /ADR\/DECISION_LOG/i);
+  assert.match(reviewer, /prototype-to-production leakage/i);
+  assert.match(reviewer, /handoff references durable artifacts/i);
+  assert.match(reviewer, /intake triage/i);
+
+  const product = readFile(path.join(repoRoot, 'ai', 'agents', 'PRODUCT.md'));
+  assert.match(product, /work-intake-triage\.md/);
+  assert.match(product, /prototype\.md/);
+  assert.match(product, /prototype question, scope, and exit criteria/i);
+});
+
+test('P1 memory and handoff protocol is strengthened', () => {
+  const handoff = readFile(path.join(repoRoot, 'ai', 'agents', 'HANDOFF.template.md'));
+  assert.match(handoff, /Skills used/);
+  assert.match(handoff, /Skills recommended next/);
+  assert.match(handoff, /Durable artifacts updated/);
+  assert.match(handoff, /Durable artifacts to read next/);
+  assert.match(handoff, /What not to revisit/);
+  assert.match(handoff, /Open human decisions/);
+  assert.match(handoff, /Current state/);
+  assert.match(handoff, /Next safest action/);
+  assert.match(handoff, /Validation already run/);
+  assert.match(handoff, /Validation still needed/);
+
+  const memoryProtocol = readFile(path.join(repoRoot, 'ai', 'agents', 'AGENT_MEMORY_PROTOCOL.md'));
+  assert.match(memoryProtocol, /DOMAIN_GLOSSARY\.md/);
+  assert.match(memoryProtocol, /ADR/i);
+  assert.match(memoryProtocol, /PROTOTYPE_NOTES/i);
+  assert.match(memoryProtocol, /Handoffs should reference durable artifacts instead of copying them/i);
+
+  const outputs = readFile(path.join(repoRoot, 'ai', 'agents', 'AGENT_OUTPUTS.md'));
+  assert.match(outputs, /## Prototype Notes/);
+  assert.match(outputs, /## Intake Triage Result/);
+  assert.match(outputs, /## ADR Recommendation/);
+  assert.match(outputs, /## Handoff Summary/);
+
+  const expectations = [
+    ['memory-update.md', /ADR/i, /PROTOTYPE_NOTES/i, /HANDOFF/i, /PROJECT_MEMORY/i, /PROJECT_MAP/i, /DOMAIN_GLOSSARY/i, /DECISION_LOG/i],
+    ['impact-analysis.md', /prototype/i, /ADR/i, /DECISION_LOG/i, /intake/i],
+    ['story-splitting.md', /prototype/i, /absorption decision/i, /triage classification/i],
+    ['engineering-review.md', /prototype/i, /ADR\/DECISION_LOG/i, /handoff duplicated durable artifacts/i],
+  ];
+
+  for (const [fileName, ...patterns] of expectations) {
+    const skill = readFile(path.join(repoRoot, 'ai', 'skills', fileName));
+    for (const pattern of patterns) {
+      assert.match(skill, pattern, `${fileName} should contain ${pattern}`);
+    }
+  }
+});
+
 test('validate fails when a story is missing required readiness fields', () => {
   const cwd = makeTempProject();
   const storyPath = path.join(cwd, 'ai', '04-stories', 'bad-story.md');

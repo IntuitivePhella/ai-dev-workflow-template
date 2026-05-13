@@ -30,12 +30,19 @@ Execute one approved story with tests and the smallest useful code change.
 
 ## Execution rules
 
-- Use TDD when feasible.
+- Use the updated `ai/skills/tdd.md` when feasible.
+- Use `ai/skills/diagnose.md` for bugfix and regression work.
 - For bugs, create or document a failing reproduction first.
+- Respect AFK/HITL classification from story splitting.
+- Respect work-intake-triage state before implementation.
+- Respect prototype allowed/forbidden scope.
 - Do not modify files outside scope without justification.
 - Do not remove or weaken tests.
 - Do not perform opportunistic refactors.
+- Do not perform architecture deepening inside unrelated feature work.
 - Do not introduce dependencies without approval and decision logging.
+- Do not absorb prototype code into production without a real story/change.
+- Do not implement items classified as needs-info, needs-discovery, blocked, out-of-scope, or ready-for-human.
 
 ## Output format
 

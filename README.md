@@ -41,6 +41,10 @@ Never ask an AI agent to build the whole app.
 Ask it to execute one safe, testable, reviewable story at a time.
 ```
 
+P0 quality behavior keeps bugfixes diagnosis-driven, development domain-aware, structural improvements routed through architecture deepening, and story splits classified as AFK or HITL when human judgment may be needed.
+
+P1 adds disposable prototypes for uncertainty, intake triage for loose requests, ADRs for durable trade-offs, and handoffs that reference durable artifacts instead of duplicating them.
+
 AI-PhellOS does not replace Codex, Claude Code, or optional execution adapters such as Ruflo. It gives them a disciplined operating system: routing, artifacts, readiness, quality gates, scope control, stop conditions, review, release, and durable memory.
 
 Behavioral specs live under `ai/11-specs/` as durable contracts for observable behavior. They are distinct from PRDs, architecture, and stories: PRDs explain intent, architecture explains structure, stories execute small slices, and specs define behavior that future work must preserve.
@@ -360,6 +364,8 @@ Behavior specs and change packages:
 - `ai/config.template.yaml` - Optional project config template for paths, commands, and artifact rules.
 - `ai/11-specs/README.md` - Durable behavioral specs.
 - `ai/04-changes/README.md` - Optional change package workflow.
+- `ai/templates/ADR.template.md`
+- `ai/templates/PROTOTYPE_NOTES.template.md`
 - `ai/templates/SPEC.template.md`
 - `ai/templates/SPEC_DELTA.template.md`
 - `ai/templates/CHANGE_PROPOSAL.template.md`

@@ -33,6 +33,16 @@ Use the fewest agents necessary to safely complete the task.
 8. Enforce `ai/00-rules/QUALITY_GATES.md`.
 9. Stop on sensitive or ambiguous decisions.
 
+## Skill routing
+
+- Route bugfixes, flaky tests, performance regressions, and unexplained failures through `ai/skills/diagnose.md`.
+- Route ambiguous domain or product terminology through `ai/skills/domain-language.md`.
+- Route refactor and architecture improvement requests through `ai/skills/architecture-deepening.md` when structural analysis is appropriate.
+- Route uncertain design, product, UX, integration, or performance questions through `ai/skills/prototype.md` when a disposable experiment is safer than premature spec or architecture.
+- Route loose, unclear, incomplete, or mixed requests through `ai/skills/work-intake-triage.md`.
+- Route durable trade-off decisions toward DECISION_LOG or ADR documentation depending on importance.
+- Do not create a larger squad when one focused skill is enough.
+
 ## What the Orchestrator should not do
 
 - Do not call every agent by default.

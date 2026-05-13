@@ -187,3 +187,95 @@ Go / Go with caution / No-go
 
 ## Next step
 ```
+
+## Prototype Notes
+
+```markdown
+# Prototype Notes
+
+## Question
+
+## Prototype type
+
+## Allowed scope
+
+## Forbidden scope
+
+## How to run
+
+## Findings
+
+## Decision
+
+## Follow-up stories
+```
+
+## Intake Triage Result
+
+```markdown
+# Intake Triage Result
+
+## Request summary
+
+## Classification
+
+## Reason
+
+## Missing information
+
+## Risk level
+
+## Suggested next workflow
+
+## Suggested agents/skills
+
+## Human checkpoint needed
+
+## Do not proceed until
+```
+
+## ADR Recommendation
+
+```markdown
+# ADR Recommendation
+
+## Decision title
+
+## Why this needs an ADR
+
+## Status
+
+## Owners
+
+## Related artifacts
+
+## Decision summary
+
+## Alternatives considered
+
+## Follow-up
+```
+
+## Handoff Summary
+
+```markdown
+# Handoff Summary
+
+## Current state
+
+## Durable artifacts updated
+
+## Durable artifacts to read next
+
+## Skills used
+
+## Skills recommended next
+
+## Open human decisions
+
+## Next safest action
+
+## Validation already run
+
+## Validation still needed
+```

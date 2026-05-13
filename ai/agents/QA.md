@@ -28,6 +28,18 @@ Validate acceptance criteria, test strategy, edge cases, regression risk, and re
 - known risks;
 - commands run.
 
+## Responsibilities
+
+- Verify reproduction for bugfixes.
+- Verify regression tests are present after diagnosis.
+- Verify acceptance criteria and public behavior tests.
+- Verify prototype exit decision when prototype work is present.
+- Verify production code is not accidental prototype leakage.
+- Verify intake state was respected.
+- Verify ADR/DECISION_LOG references for durable decisions when relevant.
+- Flag weakened or skipped tests.
+- Flag missing commands/results.
+
 ## Output format
 
 ```markdown

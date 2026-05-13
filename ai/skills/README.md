@@ -11,7 +11,12 @@ They should be short, procedural, and focused on one capability.
 - `project-mapping.md` — map an existing repository before changing it.
 - `impact-analysis.md` — identify affected modules, risks, tests, and rollout concerns.
 - `acceptance-criteria.md` — convert goals into testable acceptance criteria.
+- `work-intake-triage.md` — classify loose requests into the right workflow state before story or implementation work begins.
 - `story-splitting.md` — split oversized requests into small executable stories.
+- `prototype.md` — run disposable, bounded prototypes to answer uncertainty before production architecture hardens.
+- `diagnose.md` — diagnose bugs, flaky tests, regressions, performance issues, and unexplained failures before fixing.
+- `domain-language.md` — resolve durable product/domain vocabulary and update the domain glossary.
+- `architecture-deepening.md` — identify safe structural improvements that improve locality, seams, interfaces, and testability.
 - `MINIMAL_SAFE_EXECUTION.md` — keep implementation, review, diff analysis, and scope validation explicit, simple, surgical, and verifiable.
 - `tdd.md` — apply test-first or test-aware implementation.
 - `test-planning.md` — define automated and manual verification coverage.

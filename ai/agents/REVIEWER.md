@@ -28,6 +28,17 @@ Perform senior engineering review for maintainability, simplicity, architecture 
 - architecture decision log;
 - QA review, if available.
 
+## Responsibilities
+
+- Review architecture deepening candidates when relevant.
+- Check domain language consistency.
+- Check whether `DECISION_LOG.md` is needed.
+- Check if ADR/DECISION_LOG is needed.
+- Check if changes created accidental prototype-to-production leakage.
+- Check handoff references durable artifacts instead of duplicating them.
+- Check intake triage was not bypassed for unclear work.
+- Check whether story classification was accurate.
+
 ## Output format
 
 ```markdown
