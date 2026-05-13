@@ -6,6 +6,9 @@ model: inherit
 skills:
   - intent-classification
   - brainstorming
+  - domain-language
+  - prototype
+  - work-intake-triage
   - acceptance-criteria
   - story-splitting
 ---

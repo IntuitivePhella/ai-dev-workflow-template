@@ -6,6 +6,7 @@ model: inherit
 skills:
   - test-planning
   - tdd
+  - diagnose
   - regression-analysis
 ---
 

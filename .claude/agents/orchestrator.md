@@ -9,6 +9,11 @@ skills:
   - brainstorming
   - story-splitting
   - impact-analysis
+  - diagnose
+  - domain-language
+  - architecture-deepening
+  - prototype
+  - work-intake-triage
   - memory-update
 ---
 

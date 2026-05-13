@@ -5,6 +5,8 @@ tools: Read, Grep, Glob, Bash
 model: inherit
 skills:
   - engineering-review
+  - architecture-deepening
+  - domain-language
   - regression-analysis
   - impact-analysis
 ---

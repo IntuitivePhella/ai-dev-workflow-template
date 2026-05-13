@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Edit, MultiEdit, Write, Bash
 model: inherit
 skills:
   - tdd
+  - diagnose
   - impact-analysis
   - rollback-planning
   - memory-update
