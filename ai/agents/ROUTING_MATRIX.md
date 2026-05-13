@@ -118,6 +118,50 @@ Call Release when:
 - release notes are needed;
 - operational risk exists.
 
+## Focused skill routing
+
+### Prototype
+
+- When to use: uncertain design, product, UX, integration, performance, or technical questions where a disposable experiment is safer than premature production architecture.
+- Agents involved: Orchestrator by default; add Product for UX/product uncertainty and Architect for technical direction or absorption review.
+- Artifacts touched: prototype notes, bounded prototype code when explicitly allowed, relevant specs/stories only as references, and `DECISION_LOG.md` or ADRs when findings become durable decisions.
+- Stop/escalation condition: prototype scope expands, sensitive areas appear without approval, or absorption into production is attempted without a real story/change.
+
+### Work Intake Triage
+
+- When to use: loose requests, mixed asks, bug reports, stakeholder requests, change proposals, or any work item that is not obviously ready for story execution.
+- Agents involved: Orchestrator by default; add Product when scope or acceptance criteria need shaping, and Architect when system impact is unclear.
+- Artifacts touched: intake notes, existing stories/specs for context, and readiness outputs that classify the work as `needs-discovery`, `needs-info`, `ready-for-story`, `ready-for-human`, `ready-for-agent`, `blocked`, or `out-of-scope`.
+- Stop/escalation condition: triage would invent missing context, the request touches sensitive areas without explicit safeguards, or a human decision is required before the next step.
+
+### ADR / Durable Decision
+
+- When to use: hard-to-reverse, surprising, trade-off-heavy, or long-lived decisions affecting architecture, data model, security, operations, cost, or developer workflow.
+- Agents involved: Orchestrator plus Architect by default; add Product when the decision changes user-facing behavior or scope boundaries.
+- Artifacts touched: `ai/03-architecture/DECISION_LOG.md`, `ai/templates/ADR.template.md`, related specs/stories, and project memory when the decision changes operating rules.
+- Stop/escalation condition: the decision lacks ownership, conflicts with existing memory/specs, or needs explicit human approval before becoming durable.
+
+### Diagnose
+
+- When to use: bugfixes, flaky tests, performance regressions, regressions, and unexplained failures.
+- Agents involved: Orchestrator plus Implementer and QA when execution or verification is needed.
+- Artifacts touched: bug report/story, failing test or reproduction, regression coverage, `PROJECT_MEMORY.md` when a recurring risk is discovered.
+- Stop/escalation condition: reproduction cannot be established, tests are weakened, two serious fix attempts fail, or sensitive areas require approval.
+
+### Domain Language
+
+- When to use: ambiguous, overloaded, conflicting, legacy, or invented product/domain terminology.
+- Agents involved: Orchestrator plus Product; add Architect when terminology affects architecture or durable behavior.
+- Artifacts touched: stories, specs, tests, docs, code names when in scope, `ai/08-memory/DOMAIN_GLOSSARY.md`, and `DECISION_LOG.md` when a durable decision is needed.
+- Stop/escalation condition: a naming choice changes product behavior, conflicts with existing memory/specs, or requires code renaming outside the approved story.
+
+### Architecture Deepening
+
+- When to use: explicit refactor or architecture improvement work, shallow modules, bad seams, high coupling, scattered domain rules, or hard-to-test areas.
+- Agents involved: Orchestrator plus Architect; add Implementer, QA, and Reviewer for approved structural stories.
+- Artifacts touched: `PROJECT_MAP.md`, architecture docs, `DECISION_LOG.md`, relevant stories/specs, tests, and candidate refactor stories.
+- Stop/escalation condition: behavior preservation cannot be proven, the candidate is a broad rewrite, public behavior would change, or sensitive areas require approval.
+
 ## Escalation rules
 
 Escalate squad level when:

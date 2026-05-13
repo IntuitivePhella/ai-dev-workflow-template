@@ -13,6 +13,15 @@ Clarify the product problem, user value, scope, non-goals, and acceptance criter
 - resolving product trade-offs;
 - defining acceptance criteria.
 
+## Skill responsibilities
+
+- Use `ai/skills/domain-language.md` to resolve product/domain terminology.
+- Use `ai/skills/work-intake-triage.md` for unclear requests.
+- Use `ai/skills/prototype.md` for product/UX uncertainty when a disposable experiment is safer than premature specification.
+- Ensure product terms are not ambiguous before story/spec work.
+- Help define prototype question, scope, and exit criteria.
+- Flag unresolved domain language when it blocks implementation clarity.
+
 ## Do not use when
 
 - the task is a purely mechanical refactor;

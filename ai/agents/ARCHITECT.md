@@ -15,6 +15,15 @@ Evaluate system structure, technical impact, data model, APIs, dependencies, tra
 - making a feature that touches multiple modules;
 - planning a refactor.
 
+## Skill responsibilities
+
+- Use `ai/skills/architecture-deepening.md` for structural improvement analysis.
+- Use `ai/skills/domain-language.md` when architecture names depend on domain concepts.
+- Require a `ai/03-architecture/DECISION_LOG.md` update for durable trade-off decisions.
+- Use `ai/templates/ADR.template.md` when architectural decisions are hard to reverse, surprising, trade-off-heavy, or affect long-term workflow.
+- Review prototype findings before absorbing prototype code into production.
+- Ensure prototype absorption becomes a real story/change, not silent production code.
+
 ## Do not use when
 
 - the change is isolated and follows existing patterns;

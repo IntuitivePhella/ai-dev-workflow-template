@@ -32,6 +32,10 @@ Nunca peça para um agente de IA construir o app inteiro.
 Peça para ele executar uma story segura, testável e revisável por vez.
 ```
 
+O comportamento P0 de qualidade mantém bugfixes orientados por diagnóstico, desenvolvimento atento à linguagem de domínio, melhorias estruturais roteadas por architecture deepening e stories classificadas como AFK ou HITL quando julgamento humano pode ser necessário.
+
+O P1 adiciona protótipos descartáveis para incerteza, triagem de intake para pedidos soltos, ADRs para trade-offs duráveis e handoffs que referenciam artefatos duráveis em vez de duplicá-los.
+
 AI-PhellOS não substitui Codex, Claude Code nem adapters opcionais como Ruflo. Ele dá a eles um sistema operacional disciplinado: roteamento, artefatos, prontidão, quality gates, controle de escopo, stop conditions, review, release e memória durável.
 
 ---
@@ -299,6 +303,14 @@ Agentes e execução:
 - `ai/05-execution/EXECUTION_PROTOCOL.md`
 - `ai/06-reviews/REVIEW_CHECKLIST.md`
 - `ai/templates/PRIVACY_AND_SAFETY_REVIEW.template.md`
+
+Specs comportamentais e change packages:
+
+- `ai/config.template.yaml` - Template opcional de configuração do projeto para paths, comandos e regras de artefatos.
+- `ai/11-specs/README.md` - Specs comportamentais duráveis.
+- `ai/04-changes/README.md` - Workflow opcional de change packages.
+- `ai/templates/ADR.template.md`
+- `ai/templates/PROTOTYPE_NOTES.template.md`
 
 Integrações opcionais:
 
